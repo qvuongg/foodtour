@@ -37,6 +37,10 @@ Preferences, meal lists, and spin counts are saved automatically in cookies in y
 
 If cookies are blocked or a meal list is too large, the app will let you know it could not save.
 
+## Find food on ShopeeFood
+
+The result dialog supports copying dish names and searching on ShopeeFood. See [ShopeeFood setup](docs/SHOPEEFOOD-SETUP.md) to configure an officially issued affiliate link for verified dishes. Regular search works without affiliate configuration.
+
 ## GitHub Pages and the official website
 
 GitHub Pages only redirects to https://truanayangi.com/. This keeps functionality consistent: visitors always use the same production frontend, API, and same-origin login cookie instead of a second static app that can drift or lose authentication on refresh. Publish only `pages-redirect/` to `gh-pages`; do not deploy the local build there. Shared static UI and reel-motion fixes should be updated in both this repository and the private production frontend.

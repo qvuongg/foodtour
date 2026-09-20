@@ -1,4 +1,6 @@
-import {createRoot} from 'react-dom/client';
-import Home from './app/page';
-import './app/globals.css';
-createRoot(document.getElementById('root')!).render(<Home/>);
+import { createRoot } from "react-dom/client";
+import Home from "./app/page";
+import "./app/globals.css";
+import "./app/mirror-hall.css";
+import "./components/food-ordering.css";
+createRoot(document.getElementById("root")!).render(<Home />);

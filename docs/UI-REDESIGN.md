@@ -63,3 +63,17 @@ Kiểm chứng qua `/tmp/foodtour-qa/idle.cjs`: trôi tự động; ma trận tr
 Khôi phục transform có chiều sâu cho carousel trôi chậm; chỉ loại bỏ hiệu ứng nhấn nổi riêng trên card trung tâm. Thu gọn header, tiêu đề, sân khấu và khoảng cách theo cả chiều cao lẫn chiều rộng viewport. Nút ăn chay dùng Sprout có sẵn trong lucide-react (tham khảo https://lucide.dev/icons/sprout), nền xanh nhẹ, biểu tượng mầm cây và trạng thái bật xanh rõ hơn; không tải icon từ xa.
 
 Kiểm tra tự động `/tmp/foodtour-qa/compact.cjs`: toàn bộ nút quay nằm trong viewport ở 1440×900, 1280×720, 1024×600, 768×700, 390×844, 375×667, 360×640 và 360×600 với cấu hình mặc định. Không tràn ngang; carousel giữ transform chiều sâu và tự trôi; bộ lọc chay hoạt động và giữ sau reload.
+
+## Mirror Hall — 20/09/2026
+
+Đã quan sát preview công khai Mirror Hall trên GetLayers. Triển khai độc lập bằng CSS 3D: dãy thẻ đứng trên vòng cung lõm, nền tối xanh than, phản chiếu ảnh có mask và gợn sáng nhẹ. Không sao chép mã/prompt Premium. Giữ tài nguyên món ăn local, thuật toán chọn món, tổng thời gian quay và popup kết quả.
+
+Thêm kéo ngang bằng Pointer Events và quán tính tắt dần. Chỉ giữ bảy thẻ và bảy phản chiếu trong DOM. Chế độ chờ tự trôi; nút tạm dừng dừng cả trôi và gợn sáng. Reduced motion không tự trôi, không có gợn chuyển động.
+
+Kiểm tra qua trình duyệt: kéo đổi món, khóa điều khiển khi quay, popup và thẻ trung tâm cùng hiển thị Cơm chay, đóng Escape trở về carousel. Nút quay nằm trong viewport ở 390×844, 360×640 và 1024×600; không tràn ngang. Bộ 8 test Node và personal-pool qua. Chưa kiểm thử thao tác cảm ứng trên thiết bị thật; phản chiếu là hiệu ứng CSS, không phải mô phỏng nước vật lý.
+
+## Bố cục theo ảnh Mirror Hall người dùng gửi
+
+Bỏ khung nền bo ngoài và phần chân card trắng; tên món ở trên ảnh, giá nằm gọn trên ảnh. Tăng ảnh từ 122px lên 206px ở desktop và từ 89px lên 154px trên mobile thông thường. Các thẻ dùng chung camera CSS perspective ở sân khấu, với tọa độ X/Z theo cùng bán kính vòng cung; phản chiếu nằm cách chân ảnh 3px. Giữ nền kem và không thêm hiệu ứng nhô riêng tại tâm.
+
+Kiểm tra trực quan desktop/mobile, không tràn ngang. Nút quay nằm trong màn hình ở 390×844, 360×640, 1024×600, 1440×900. Quay thử: card trung tâm và popup cùng Cơm chay; đóng popup quay lại chế độ trôi. Build thành công.

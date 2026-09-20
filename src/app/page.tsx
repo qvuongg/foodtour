@@ -5,6 +5,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { FoodImage } from "@/components/food-image";
+import { FoodOrdering } from "@/components/food-ordering";
 import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import { createSpinProfile } from "@/lib/case-mechanics";
@@ -398,27 +399,41 @@ export default function Home() {
                     <div className="winner-art">
                       <FoodImage food={result} language={language} />
                     </div>
+                    <FoodOrdering
+                      key={result.customId ?? result.name}
+                      dish={result.name}
+                      language={language}
+                    />
                     <div className="winner-actions">
-                      <a
-                        className="find-button"
-                        href={`https://www.google.com/maps/search/${encodeURIComponent(result.name + " " + t.nearby)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {t.find}
-                        <ArrowUpRight size={16} />
-                      </a>
-                      <a
-                        className="grabfood-button"
-                        href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: result.name, "support-deeplink": "true", searchParameter: result.name })}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {language === "vi"
-                          ? "Đặt qua GrabFood"
-                          : "Order on GrabFood"}
-                        <ArrowUpRight size={16} />
-                      </a>
+                      <details className="ordering-alternatives">
+                        <summary>
+                          {language === "vi"
+                            ? "Tìm bằng cách khác"
+                            : "More ways to find food"}
+                        </summary>
+                        <div className="ordering-alternative-links">
+                          <a
+                            className="find-button"
+                            href={`https://www.google.com/maps/search/${encodeURIComponent(result.name + " " + t.nearby)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {t.find}
+                            <ArrowUpRight size={16} />
+                          </a>
+                          <a
+                            className="grabfood-button"
+                            href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: result.name, "support-deeplink": "true", searchParameter: result.name })}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {language === "vi"
+                              ? "Đặt qua GrabFood"
+                              : "Order on GrabFood"}
+                            <ArrowUpRight size={16} />
+                          </a>
+                        </div>
+                      </details>
                       <button onClick={() => setRevealed(false)}>
                         {t.continue}
                       </button>

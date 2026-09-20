@@ -43,6 +43,9 @@ export function FoodSpotlight({
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const positionRef = useRef(0);
+  const drag = useRef<{ id: number; x: number; at: number } | null>(null);
+  const velocity = useRef(0);
+  const [dragging, setDragging] = useState(false);
   const sequence = useRef(new Map<number, Food>());
   const callbacks = useRef({ onFinish, onTick, onBrowse });
   callbacks.current = { onFinish, onTick, onBrowse };
@@ -52,6 +55,7 @@ export function FoodSpotlight({
     foods[((slot % foods.length) + foods.length) % foods.length];
   // A changed pool invalidates presentation cards, never the saved result.
   useEffect(() => {
+    velocity.current = 0;
     sequence.current.clear();
     callbacks.current.onBrowse();
     positionRef.current = 0;
@@ -59,6 +63,7 @@ export function FoodSpotlight({
   }, [foods]);
   useEffect(() => {
     if (!spin) return;
+    velocity.current = 0;
     const start = positionRef.current,
       anchor = Math.round(start),
       end = anchor + spin.profile.tiles;
@@ -98,7 +103,7 @@ export function FoodSpotlight({
   }, [spin]);
   // Decorative drift never selects a winner, plays audio or writes cookies.
   useEffect(() => {
-    if (spinning || won || paused || hovered || focused || foods.length < 2)
+    if (spinning || won || paused || dragging || focused || foods.length < 2)
       return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0,
@@ -106,8 +111,12 @@ export function FoodSpotlight({
     const animate = (now: number) => {
       if (!document.hidden && !media.matches) {
         if (last !== undefined) {
-          positionRef.current += Math.min(now - last, 50) / 6500;
-          setPosition(positionRef.current);
+          const dt = Math.min(now - last, 50);
+          const momentum = velocity.current;
+          positionRef.current += momentum * dt + (hovered ? 0 : dt / 8500);
+          velocity.current *= Math.exp(-dt / 240);
+          if (Math.abs(velocity.current) < 0.00001) velocity.current = 0;
+          if (momentum || !hovered) setPosition(positionRef.current);
         }
         last = now;
       } else last = undefined;
@@ -115,7 +124,7 @@ export function FoodSpotlight({
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, [spinning, won, paused, hovered, focused, foods]);
+  }, [spinning, won, paused, hovered, focused, dragging, foods]);
   if (!foods.length)
     return (
       <div className="spotlight-empty">
@@ -139,7 +148,7 @@ export function FoodSpotlight({
   };
   return (
     <div
-      className={`food-spotlight ${spinning ? "spotlight-spinning" : !won ? "spotlight-idle" : ""} ${won ? "spotlight-won" : ""} ${spin?.reducedMotion && spinning ? "spotlight-reduced" : ""}`}
+      className={`food-spotlight mirror-hall ${paused || won ? "mirror-paused" : ""} ${dragging ? "is-dragging" : ""} ${spinning ? "spotlight-spinning" : !won ? "spotlight-idle" : ""} ${won ? "spotlight-won" : ""} ${spin?.reducedMotion && spinning ? "spotlight-reduced" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setFocused(true)}
@@ -158,7 +167,56 @@ export function FoodSpotlight({
         }
       }}
     >
-      <div className="spotlight-cards">
+      <div
+        className="spotlight-cards"
+        onPointerDown={(event) => {
+          if (spinning || won || foods.length < 2 || event.button !== 0) return;
+          velocity.current = 0;
+          drag.current = {
+            id: event.pointerId,
+            x: event.clientX,
+            at: event.timeStamp,
+          };
+          event.currentTarget.setPointerCapture(event.pointerId);
+          setDragging(true);
+        }}
+        onPointerMove={(event) => {
+          const previous = drag.current;
+          if (!previous || previous.id !== event.pointerId) return;
+          const pitch = parseFloat(
+            getComputedStyle(event.currentTarget).getPropertyValue(
+              "--hall-pitch",
+            ),
+          );
+          const delta = (previous.x - event.clientX) / pitch;
+          const dt = Math.max(1, event.timeStamp - previous.at);
+          velocity.current = Math.max(-0.008, Math.min(0.008, delta / dt));
+          positionRef.current += delta;
+          setPosition(positionRef.current);
+          drag.current = {
+            id: event.pointerId,
+            x: event.clientX,
+            at: event.timeStamp,
+          };
+        }}
+        onPointerUp={(event) => {
+          if (drag.current?.id !== event.pointerId) return;
+          if (event.timeStamp - drag.current.at > 100) velocity.current = 0;
+          drag.current = null;
+          setDragging(false);
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }}
+        onPointerCancel={() => {
+          drag.current = null;
+          velocity.current = 0;
+          setDragging(false);
+        }}
+        onLostPointerCapture={() => {
+          drag.current = null;
+          setDragging(false);
+        }}
+      >
+        <div className="mirror-floor" aria-hidden="true" />
         {Array.from({ length: 7 }, (_, i) => Math.floor(position) + i - 3).map(
           (slot) => {
             const food = at(slot),
@@ -174,7 +232,10 @@ export function FoodSpotlight({
                   {
                     "--offset": offset,
                     "--distance": Math.min(distance, 3),
-                    zIndex: 10 - Math.round(distance * 2),
+                    "--hall-x": Math.sin(offset * 0.32) / 0.32,
+                    "--hall-depth": (1 - Math.cos(offset * 0.32)) / 0.32,
+                    "--hall-angle": `${(-offset * 0.32 * 180) / Math.PI}deg`,
+                    zIndex: 10 + Math.round(distance * 2),
                   } as React.CSSProperties
                 }
                 aria-hidden={spinning || !featured}
@@ -207,6 +268,9 @@ export function FoodSpotlight({
                     {priceLabel(food.price, language, true)}{" "}
                     <small>/ {vi ? "người" : "person"}</small>
                   </span>
+                </div>
+                <div className="mirror-reflection" aria-hidden="true">
+                  <FoodImage food={food} language={language} />
                 </div>
               </article>
             );

@@ -37,6 +37,10 @@ Sở thích, danh sách món và lượt quay tự lưu bằng cookie trong trì
 
 Nếu cookie bị chặn hoặc danh sách món quá lớn, ứng dụng sẽ báo chưa lưu.
 
+## Tìm món trên ShopeeFood
+
+Popup kết quả hỗ trợ sao chép và tìm tên món trên ShopeeFood. Xem [cấu hình liên kết ShopeeFood](docs/SHOPEEFOOD-SETUP.md) để gắn link affiliate đã được cấp cho các món phù hợp. Tìm kiếm thông thường không cần cấu hình affiliate.
+
 ## GitHub Pages và website chính
 
 GitHub Pages chỉ chuyển hướng đến https://truanayangi.com/. Đây là cách giữ chức năng đồng nhất: người truy cập luôn dùng cùng frontend production, API và cookie đăng nhập cùng origin, thay vì một ứng dụng tĩnh thứ hai dễ lệch tính năng hoặc mất đăng nhập khi tải lại. Chỉ xuất bản `pages-redirect/` lên `gh-pages`; không đưa bản build local lên đó. Các sửa đổi UI tĩnh và chuyển động vòng quay dùng chung cần được cập nhật đồng thời ở repo này và frontend production riêng tư.

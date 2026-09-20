@@ -1,0 +1,224 @@
+.winner-dialog .winner-art {
+  width: clamp(100px, 20dvh, 180px);
+  flex-shrink: 0;
+  margin: 4px 0;
+  border-radius: 18px;
+}
+.winner-title {
+  overflow-wrap: anywhere;
+}
+.food-ordering {
+  width: 100%;
+  text-align: left;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.food-ordering h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.food-ordering h3 svg {
+  color: var(--primary);
+}
+.ordering-keyword {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.ordering-keyword input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+}
+.ordering-keyword button {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+.ordering-keyword button:hover {
+  background: var(--accent);
+}
+.ordering-copy-status,
+.ordering-hint,
+.ordering-save-error {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  margin: 7px 0 10px;
+}
+.ordering-copy-status {
+  min-height: 33px;
+}
+.ordering-city {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ordering-city label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.ordering-city select {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 6px;
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--foreground);
+}
+.ordering-city select:focus-visible,
+.ordering-alternatives summary:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.shopeefood-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 10px;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+.shopeefood-button:hover {
+  background: #992b14;
+}
+.shopeefood-button:active {
+  transform: translateY(1px);
+}
+.shopeefood-button.secondary {
+  background: var(--surface);
+  color: var(--primary);
+}
+.shopeefood-button.secondary:hover {
+  background: #fcece1;
+}
+.ordering-hint {
+  text-align: center;
+  margin-bottom: 0;
+}
+.ordering-save-error {
+  color: #943b17;
+}
+.ordering-restaurant {
+  border: 1px solid #dfbba2;
+  border-radius: 14px;
+  background: #fff3e8;
+  padding: 12px;
+  margin: 0 0 14px;
+}
+.ordering-restaurant > span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+.ordering-restaurant > strong {
+  display: block;
+  font-size: 16px;
+  margin: 4px 0 10px;
+  overflow-wrap: anywhere;
+}
+.ordering-restaurant p {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  margin: 8px 0 0;
+}
+.ordering-restaurant .ordering-disclosure {
+  font-size: 10px;
+}
+.ordering-alternatives {
+  width: 100%;
+}
+.ordering-alternatives summary {
+  min-height: 44px;
+  padding: 13px 8px;
+  cursor: pointer;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  text-align: center;
+}
+.ordering-alternative-links {
+  display: flex;
+  gap: 8px;
+}
+.ordering-alternative-links a {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+.ordering-alternative-links a:hover {
+  background: var(--accent);
+}
+.winner-actions:has(.ordering-alternatives) {
+  gap: 0;
+}
+@media (max-width: 640px) {
+  .food-ordering {
+    padding-top: 12px;
+  }
+  .ordering-city {
+    gap: 6px;
+  }
+  .ordering-city label {
+    font-size: 10px;
+  }
+  .ordering-keyword button {
+    padding-inline: 8px;
+  }
+}
+@media (max-height: 740px) {
+  .winner-dialog[data-slot="dialog-content"] {
+    padding-top: 20px;
+    gap: 6px;
+  }
+  .winner-dialog .winner-art {
+    width: 96px;
+  }
+  .winner-dialog .winner-label {
+    padding-top: 0;
+  }
+}
