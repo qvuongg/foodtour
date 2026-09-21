@@ -1,5 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
-import { ArrowUpRight, Check, Copy, MapPin, ShoppingBag } from "lucide-react";
+import { useId, useState } from "react";
+import { ArrowUpRight, MapPin, ShoppingBag } from "lucide-react";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import {
   ORDERING_CITIES,
@@ -13,13 +13,6 @@ const messages = {
     title: "Chốt món. Tìm quán thôi.",
     city: "Khu vực tìm quán",
     chooseCity: "Chọn trên ShopeeFood",
-    keyword: "Tên món để tìm kiếm",
-    copy: "Sao chép",
-    copying: "Đang chép…",
-    copied: "Đã chép",
-    copyHint: "Dùng app? Sao chép tên món rồi dán vào ô tìm kiếm.",
-    copySuccess: "Đã sao chép tên món. Bạn có thể dán vào ShopeeFood.",
-    copyError: "Chưa sao chép được. Hãy sao chép tên món trong ô phía trên.",
     search: "Tìm món trên ShopeeFood",
     open: "Mở ShopeeFood",
     restaurant: "Xem quán trên ShopeeFood",
@@ -35,14 +28,6 @@ const messages = {
     title: "Lunch picked. Find your place.",
     city: "Search area",
     chooseCity: "Choose on ShopeeFood",
-    keyword: "Dish name to search for",
-    copy: "Copy",
-    copying: "Copying…",
-    copied: "Copied",
-    copyHint:
-      "Using the app? Copy the Vietnamese dish name and paste it into search.",
-    copySuccess: "Dish name copied. You can paste it into ShopeeFood.",
-    copyError: "Couldn't copy. Please copy the dish name from the field above.",
     search: "Find this dish on ShopeeFood",
     open: "Open ShopeeFood",
     restaurant: "View restaurant on ShopeeFood",
@@ -72,18 +57,6 @@ export function FoodOrdering({
       : "";
   });
   const [saveError, setSaveError] = useState(false);
-  const [copyState, setCopyState] = useState<
-    "idle" | "copying" | "copied" | "manual"
-  >("idle");
-  const input = useRef<HTMLInputElement>(null);
-  const request = useRef(0);
-  useEffect(() => {
-    setCopyState("idle");
-    return () => {
-      request.current += 1;
-    };
-  }, [dish]);
-
   const affiliate = resolveDishAffiliateLink(
     import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_URL,
     import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_DISHES,
@@ -103,64 +76,12 @@ export function FoodOrdering({
     }
   }
 
-  async function copyDish() {
-    if (copyState === "copying") return;
-    const attempt = ++request.current;
-    setCopyState("copying");
-    try {
-      if (!navigator.clipboard?.writeText)
-        throw new Error("Clipboard unavailable");
-      await navigator.clipboard.writeText(dish);
-      if (request.current === attempt) setCopyState("copied");
-    } catch {
-      if (request.current !== attempt) return;
-      setCopyState("manual");
-      input.current?.focus();
-      input.current?.select();
-    }
-  }
-
   return (
     <section className="food-ordering" aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`}>
         <ShoppingBag size={17} aria-hidden="true" />
         {t.title}
       </h3>
-      <div className="ordering-keyword">
-        <label className="sr-only" htmlFor={`${id}-dish`}>
-          {t.keyword}
-        </label>
-        <input
-          id={`${id}-dish`}
-          ref={input}
-          value={dish}
-          readOnly
-          onFocus={(event) => event.currentTarget.select()}
-        />
-        <button
-          type="button"
-          onClick={copyDish}
-          disabled={copyState === "copying"}
-        >
-          {copyState === "copied" ? (
-            <Check size={16} aria-hidden="true" />
-          ) : (
-            <Copy size={16} aria-hidden="true" />
-          )}
-          {copyState === "copied"
-            ? t.copied
-            : copyState === "copying"
-              ? t.copying
-              : t.copy}
-        </button>
-      </div>
-      <p className="ordering-copy-status" role="status" aria-live="polite">
-        {copyState === "copied"
-          ? t.copySuccess
-          : copyState === "manual"
-            ? t.copyError
-            : t.copyHint}
-      </p>
       {showAffiliate && (
         <div className="ordering-restaurant">
           <span>{t.restaurantLabel}</span>

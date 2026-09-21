@@ -39,7 +39,7 @@ Nếu cookie bị chặn hoặc danh sách món quá lớn, ứng dụng sẽ b�
 
 ## Tìm món trên ShopeeFood
 
-Popup kết quả hỗ trợ sao chép và tìm tên món trên ShopeeFood. Xem [cấu hình liên kết ShopeeFood](docs/SHOPEEFOOD-SETUP.md) để gắn link affiliate đã được cấp cho các món phù hợp. Tìm kiếm thông thường không cần cấu hình affiliate.
+Bấm vào món trong “Thực đơn của bạn” hoặc quay để mở popup và tìm món trên ShopeeFood. Xem [cấu hình liên kết ShopeeFood](docs/SHOPEEFOOD-SETUP.md) để gắn link affiliate đã được cấp cho các món phù hợp. Tìm kiếm thông thường không cần cấu hình affiliate.
 
 ## GitHub Pages và website chính
 

@@ -16,7 +16,7 @@ import { PreferencesPanel } from "@/components/preferences-panel";
 import { usePreferences } from "@/hooks/use-preferences";
 import { personalFoods, personalSelector } from "@/lib/personal-pool";
 import { CaseAudio } from "@/lib/case-audio";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   AudioLines,
@@ -42,19 +42,30 @@ const colors = ["#4b69ff", "#8847ff", "#d32ce6", "#eb4b4b", "#e4ae39"];
 const Card = memo(function Card({
   food,
   language,
+  disabled,
+  onSelect,
 }: {
   food: Food;
   language: Language;
-  small?: boolean;
+  disabled: boolean;
+  onSelect: (food: Food, trigger: HTMLButtonElement) => void;
 }) {
   return (
-    <div className="food-card small" data-food-id={food.image}>
+    <button
+      type="button"
+      className="food-card small"
+      data-food-id={food.image}
+      disabled={disabled}
+      aria-haspopup="dialog"
+      aria-label={`${language === "vi" ? "Xem món" : "View dish"}: ${foodName(food, language)}`}
+      onClick={(event) => onSelect(food, event.currentTarget)}
+    >
       <FoodImage food={food} language={language} />
-      <div className="card-copy">
+      <span className="card-copy">
         <strong>{foodName(food, language)}</strong>
         <span>{priceLabel(food.price, language, true)}</span>
-      </div>
-    </div>
+      </span>
+    </button>
   );
 });
 
@@ -75,6 +86,18 @@ export default function Home() {
     [revealed, setRevealed] = useState(false);
   const [spin, setSpin] = useState<SpotlightSpin | null>(null);
   const busy = useRef(false);
+  const [previewFood, setPreviewFood] = useState<Food | null>(null);
+  const dialogTrigger = useRef<HTMLButtonElement | null>(null);
+  const popupFood = previewFood ?? result;
+  const selectFood = useCallback((food: Food, trigger: HTMLButtonElement) => {
+    if (busy.current) return;
+    dialogTrigger.current = trigger;
+    setPreviewFood(food);
+  }, []);
+  function closeFoodDialog() {
+    setPreviewFood(null);
+    setRevealed(false);
+  }
   useEffect(() => {
     let selected: Language = "vi";
     try {
@@ -197,17 +220,23 @@ export default function Home() {
           <Card
             food={f}
             language={language}
-            small
+            disabled={spinning}
+            onSelect={selectFood}
             key={f.customId ?? f.image}
           />
         )),
-    [eligible, language],
+    [eligible, language, spinning, selectFood],
   );
 
   function open() {
     if (busy.current || !validTarget || !eligible.length || !lunchSelector)
       return;
     busy.current = true;
+    dialogTrigger.current =
+      document.activeElement instanceof HTMLButtonElement
+        ? document.activeElement
+        : null;
+    setPreviewFood(null);
     audio.current?.unlock();
     const winner = lunchSelector.choose(eligible);
     const reducedMotion = window.matchMedia(
@@ -384,24 +413,39 @@ export default function Home() {
                 onBrowse={() => setRevealed(false)}
               />
             </div>
-            <Dialog open={revealed} onOpenChange={setRevealed}>
-              <DialogContent className="winner-dialog">
-                {result && (
+            <Dialog
+              open={revealed || previewFood !== null}
+              onOpenChange={(isOpen) => {
+                if (!isOpen) closeFoodDialog();
+              }}
+            >
+              <DialogContent
+                className="winner-dialog"
+                finalFocus={dialogTrigger}
+              >
+                {popupFood && (
                   <>
-                    <span className="winner-label">{t.newItem}</span>
+                    <span className="winner-label">
+                      {previewFood
+                        ? language === "vi"
+                          ? "Món bạn chọn"
+                          : "Your pick"
+                        : t.newItem}
+                    </span>
                     <DialogTitle className="winner-title">
-                      {foodName(result, language)}
+                      {foodName(popupFood, language)}
                     </DialogTitle>
                     <DialogDescription className="winner-description">
                       {t.referencePrice}{" "}
-                      {priceLabel(result.price, language, true)} {t.perPerson}
+                      {priceLabel(popupFood.price, language, true)}{" "}
+                      {t.perPerson}
                     </DialogDescription>
                     <div className="winner-art">
-                      <FoodImage food={result} language={language} />
+                      <FoodImage food={popupFood} language={language} />
                     </div>
                     <FoodOrdering
-                      key={result.customId ?? result.name}
-                      dish={result.name}
+                      key={popupFood.customId ?? popupFood.name}
+                      dish={popupFood.name}
                       language={language}
                     />
                     <div className="winner-actions">
@@ -414,7 +458,7 @@ export default function Home() {
                         <div className="ordering-alternative-links">
                           <a
                             className="find-button"
-                            href={`https://www.google.com/maps/search/${encodeURIComponent(result.name + " " + t.nearby)}`}
+                            href={`https://www.google.com/maps/search/${encodeURIComponent(popupFood.name + " " + t.nearby)}`}
                             target="_blank"
                             rel="noreferrer"
                           >
@@ -423,7 +467,7 @@ export default function Home() {
                           </a>
                           <a
                             className="grabfood-button"
-                            href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: result.name, "support-deeplink": "true", searchParameter: result.name })}`}
+                            href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: popupFood.name, "support-deeplink": "true", searchParameter: popupFood.name })}`}
                             target="_blank"
                             rel="noreferrer"
                           >
@@ -434,9 +478,7 @@ export default function Home() {
                           </a>
                         </div>
                       </details>
-                      <button onClick={() => setRevealed(false)}>
-                        {t.continue}
-                      </button>
+                      <button onClick={closeFoodDialog}>{t.continue}</button>
                     </div>
                   </>
                 )}
@@ -585,8 +627,8 @@ export default function Home() {
             </div>
             <p className="menu-note">
               {language === "vi"
-                ? "Món quen hay món mới? Cứ để chiếc bụng dẫn đường. Giá chỉ mang tính tham khảo."
-                : "Old favorites or something new? Follow your appetite. Prices are approximate."}
+                ? "Chạm vào món để xem và tìm quán. Giá chỉ mang tính tham khảo."
+                : "Tap a dish to view it and find a restaurant. Prices are approximate."}
             </p>
             {validTarget &&
               eligible.length > 0 &&

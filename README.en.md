@@ -39,7 +39,7 @@ If cookies are blocked or a meal list is too large, the app will let you know it
 
 ## Find food on ShopeeFood
 
-The result dialog supports copying dish names and searching on ShopeeFood. See [ShopeeFood setup](docs/SHOPEEFOOD-SETUP.md) to configure an officially issued affiliate link for verified dishes. Regular search works without affiliate configuration.
+Click a dish in your menu or spin to open its dialog and search on ShopeeFood. See [ShopeeFood setup](docs/SHOPEEFOOD-SETUP.md) to configure an officially issued affiliate link for verified dishes. Regular search works without affiliate configuration.
 
 ## GitHub Pages and the official website
 

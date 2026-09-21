@@ -3,7 +3,8 @@
 ## Luồng đang triển khai
 
 - Quay và popup giữ nguyên kết quả do thuật toán hiện tại chọn.
-- Sao chép tên món tiếng Việt, kể cả khi giao diện tiếng Anh, để tìm trong app. Nếu clipboard bị chặn, chọn sẵn ô tên món và hướng dẫn sao chép thủ công.
+- Bấm món trong phần 02 để mở cùng popup, không tăng lượt quay hoặc đổi kết quả quay trước đó. Thẻ hỗ trợ Enter/Space; đóng popup trả focus về thẻ. Khóa chọn trực tiếp khi đang quay.
+- Không có nút sao chép tên món; liên kết tìm kiếm vẫn dùng tên tiếng Việt ở cả hai ngôn ngữ.
 - Chọn TP. HCM hoặc Hà Nội để mở website ShopeeFood với tên món điền sẵn. Khu vực khác dùng “Chọn trên ShopeeFood”. Khu vực đã chọn lưu qua cookie hiện tại; không thu thập tọa độ.
 - Gợi ý quán affiliate chỉ hiện cho tên món đã được chủ website xác nhận. Tìm kiếm thông thường vẫn luôn truy cập được.
 - Google Maps và GrabFood nằm trong “Tìm bằng cách khác”.
@@ -38,6 +39,8 @@ Cấu hình thiếu/sai hoặc URL không phải HTTPS trên miền Shopee Việ
 
 `pnpm test` và `pnpm build`. Test bao gồm URL không an toàn, giữ nguyên link tracking, Unicode/từ khóa đặc biệt, khu vực không hỗ trợ và không gán link quán cho món không khớp.
 
-Kiểm thử thủ công: popup sau quay; copy thành công/thất bại; khu vực sau reload và cookie bị chặn; gợi ý quán chỉ cho món phù hợp; keyboard/Escape; desktop/mobile. Chuyển app và đối soát đơn cần thiết bị/tài khoản thực.
+Kiểm thử thủ công: popup sau quay và khi chọn thẻ; không có nút sao chép; khu vực sau reload và cookie bị chặn; gợi ý quán chỉ cho món phù hợp; keyboard/Escape; desktop/mobile. Chuyển app và đối soát đơn cần thiết bị/tài khoản thực.
 
 Kết quả kiểm tra local 20/09/2026: 20 test Node và bộ personal-pool qua; build Vite/TypeScript qua. Đã kiểm tra lượt quay thật và khóa điều khiển; trạng thái copy thành công; giả lập clipboard bị từ chối thì chọn sẵn đúng tên món; khu vực Hà Nội được giữ qua lần mở mới; hai món được gán đúng link, “Bún chả cá” không hiện affiliate; tiếng Anh và Escape. Kiểm tra riêng component trong popup ở desktop và 360 × 640 không tràn ngang, popup cuộn khi cần. Trang kiểm thử tạm đã được gỡ. Chưa giả lập cookie bị chặn trực tiếp trong browser; bộ test cookie hiện có kiểm tra tình huống đó.
+
+Cập nhật 21/09/2026: bỏ ô/nút sao chép và thêm mở popup từ thẻ thực đơn. Đã kiểm tra bấm thẻ, Enter/Space, Escape trả focus đúng thẻ, đổi món và nút “Khám phá tiếp”; chọn trực tiếp giữ nguyên 6 lượt quay và lựa chọn gần nhất. Lượt quay thử tiếp theo khóa toàn bộ thẻ, hiện đúng món kết quả và tăng lên 7 lượt; mở lại trang vẫn giữ kết quả. Popup được kiểm tra trên desktop và 360 × 640. `pnpm test` (20 test và personal-pool), `pnpm build` đều qua.

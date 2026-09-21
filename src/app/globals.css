@@ -738,13 +738,17 @@ h1 > span {
   gap: 17px;
 }
 .food-card.small {
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  font: inherit;
   transition:
     transform 0.2s,
     box-shadow 0.2s;
   content-visibility: auto;
   contain-intrinsic-size: auto 220px;
 }
-.food-card.small:hover {
+.food-card.small:not(:disabled):hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px #30241614;
 }

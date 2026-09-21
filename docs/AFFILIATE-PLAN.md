@@ -2,7 +2,7 @@
 
 Ngày nghiên cứu: 20/09/2026. Trạng thái: đề xuất sản phẩm và kỹ thuật; chưa tích hợp API, đăng ký chương trình, tạo đơn hàng hoặc xác minh hoa hồng thực tế.
 
-**Cập nhật triển khai:** đã bổ sung tìm món trên website ShopeeFood, sao chép tên món và gợi ý affiliate theo món đã xác minh. Người dùng cung cấp link Bún Đậu Phố Cổ và xác nhận bán bún đậu mắm tôm/bún chả; cấu hình local chỉ hiện quán cho hai món đó. Chưa có lọc 3 km/xếp hạng tự động hoặc xác minh tracking trên app. Xem [hướng dẫn và giới hạn bản triển khai](SHOPEEFOOD-SETUP.md).
+**Cập nhật triển khai:** đã bổ sung tìm món trên website ShopeeFood và gợi ý affiliate theo món đã xác minh. Popup mở sau quay hoặc khi bấm vào món trong thực đơn; nút sao chép đã bỏ theo yêu cầu. Người dùng cung cấp link Bún Đậu Phố Cổ và xác nhận bán bún đậu mắm tôm/bún chả; cấu hình local chỉ hiện quán cho hai món đó. Chưa có lọc 3 km/xếp hạng tự động hoặc xác minh tracking trên app. Xem [hướng dẫn và giới hạn bản triển khai](SHOPEEFOOD-SETUP.md).
 
 ## Cập nhật theo yêu cầu tiếp theo
 
