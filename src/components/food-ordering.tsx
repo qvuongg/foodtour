@@ -1,11 +1,19 @@
 import { useId, useState } from "react";
-import { ArrowUpRight, MapPin, ShoppingBag } from "lucide-react";
+import {
+  ArrowUpRight,
+  MapPin,
+  QrCode,
+  ShoppingBag,
+  Smartphone,
+} from "lucide-react";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import {
   ORDERING_CITIES,
   resolveDishAffiliateLink,
   shopeeFoodSearchUrl,
 } from "@/lib/food-ordering";
+import { QRCodeSVG } from "@/components/qr-code";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { Language } from "@/lib/i18n";
 
 const messages = {
@@ -15,10 +23,18 @@ const messages = {
     chooseCity: "Chọn trên ShopeeFood",
     search: "Tìm món trên ShopeeFood",
     open: "Mở ShopeeFood",
-    restaurant: "Xem quán trên ShopeeFood",
+    restaurantMobile: "Mở quán trên App ShopeeFood",
+    restaurantDesktop: "Xem quán trên ShopeeFood",
     restaurantLabel: "Quán có món này",
+    restaurantQrLabel: "Quán có món này · Quét mã để đặt món",
+    qrInstructions:
+      "Dùng Camera điện thoại hoặc App Shopee quét mã QR để mở quán và nhận ưu đãi.",
+    qrFallbackLink: "Hoặc mở liên kết trên web",
     searchHint: "Chọn địa chỉ giao hàng và quán phù hợp trên ShopeeFood.",
-    affiliateHint: "Kiểm tra địa chỉ giao hàng và món còn bán trên ShopeeFood.",
+    affiliateHintMobile:
+      "Ứng dụng Shopee sẽ mở để bạn kiểm tra địa chỉ giao hàng và áp mã khuyến mãi.",
+    affiliateHintDesktop:
+      "Kiểm tra địa chỉ giao hàng và món còn bán trên ShopeeFood.",
     disclosure:
       "Liên kết tiếp thị · Website có thể nhận hoa hồng từ đơn hợp lệ.",
     saveError:
@@ -30,10 +46,17 @@ const messages = {
     chooseCity: "Choose on ShopeeFood",
     search: "Find this dish on ShopeeFood",
     open: "Open ShopeeFood",
-    restaurant: "View restaurant on ShopeeFood",
+    restaurantMobile: "Open in ShopeeFood App",
+    restaurantDesktop: "View restaurant on ShopeeFood",
     restaurantLabel: "A restaurant serving this dish",
+    restaurantQrLabel: "Serving this dish · Scan QR to order",
+    qrInstructions:
+      "Scan QR code with your phone camera or Shopee App to open this restaurant on mobile.",
+    qrFallbackLink: "Or open link on web",
     searchHint: "Choose your delivery address and restaurant on ShopeeFood.",
-    affiliateHint:
+    affiliateHintMobile:
+      "Shopee App will open to check your delivery address and apply discounts.",
+    affiliateHintDesktop:
       "Check delivery to your address and dish availability on ShopeeFood.",
     disclosure: "Affiliate link · We may earn a commission on eligible orders.",
     saveError:
@@ -50,6 +73,7 @@ export function FoodOrdering({
 }) {
   const t = messages[language];
   const id = useId();
+  const isMobile = useIsMobile();
   const [city, setCity] = useState(() => {
     const saved = readCookie<string>("ordering-city");
     return ORDERING_CITIES.some((option) => option.value === saved)
@@ -84,20 +108,61 @@ export function FoodOrdering({
       </h3>
       {showAffiliate && (
         <div className="ordering-restaurant">
-          <span>{t.restaurantLabel}</span>
-          <strong>{restaurant}</strong>
-          <a
-            className="shopeefood-button"
-            href={affiliate.href}
-            target="_blank"
-            rel="sponsored noopener"
-            aria-describedby={`${id}-affiliate-hint`}
-          >
-            {t.restaurant}
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-          <p id={`${id}-affiliate-hint`}>{t.affiliateHint}</p>
-          <p className="ordering-disclosure">{t.disclosure}</p>
+          {/* Desktop view: QR code card for phone scanning */}
+          <div className="ordering-desktop-view">
+            <div className="ordering-qr-header">
+              <span className="ordering-badge">
+                <QrCode size={13} aria-hidden="true" />
+                {t.restaurantQrLabel}
+              </span>
+              <strong className="ordering-restaurant-name">{restaurant}</strong>
+            </div>
+            <div className="ordering-qr-frame">
+              <div className="ordering-qr-box">
+                <QRCodeSVG
+                  value={affiliate.href}
+                  size={136}
+                  level="M"
+                  title={`${restaurant} QR Code`}
+                />
+              </div>
+              <div className="ordering-qr-text">
+                <p className="ordering-qr-instructions">{t.qrInstructions}</p>
+                <a
+                  className="ordering-qr-fallback"
+                  href={affiliate.href}
+                  target="_blank"
+                  rel="sponsored noopener"
+                >
+                  {t.qrFallbackLink}
+                  <ArrowUpRight size={13} aria-hidden="true" />
+                </a>
+              </div>
+            </div>
+            <p className="ordering-disclosure">{t.disclosure}</p>
+          </div>
+
+          {/* Mobile view: Direct CTA button navigating in same tab */}
+          <div className="ordering-mobile-view">
+            <span className="ordering-badge">
+              <Smartphone size={13} aria-hidden="true" />
+              {t.restaurantLabel}
+            </span>
+            <strong className="ordering-restaurant-name">{restaurant}</strong>
+            <a
+              className="shopeefood-button"
+              href={affiliate.href}
+              target="_self"
+              rel="sponsored"
+              aria-describedby={`${id}-affiliate-hint`}
+            >
+              <Smartphone size={17} aria-hidden="true" />
+              {t.restaurantMobile}
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+            <p id={`${id}-affiliate-hint`}>{t.affiliateHintMobile}</p>
+            <p className="ordering-disclosure">{t.disclosure}</p>
+          </div>
         </div>
       )}
       <div className="ordering-city">

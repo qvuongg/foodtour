@@ -100,20 +100,86 @@
 .ordering-restaurant {
   border: 1px solid #dfbba2;
   border-radius: 14px;
-  background: #fff3e8;
-  padding: 12px;
+  background: #fff8f2;
+  padding: 14px;
   margin: 0 0 14px;
 }
-.ordering-restaurant > span {
+.ordering-desktop-view {
   display: block;
-  font-size: 10px;
-  color: var(--muted-foreground);
 }
-.ordering-restaurant > strong {
+.ordering-mobile-view {
+  display: none;
+}
+@media (max-width: 767px) {
+  .ordering-desktop-view {
+    display: none;
+  }
+  .ordering-mobile-view {
+    display: block;
+  }
+}
+.ordering-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #c8401a;
+  margin-bottom: 2px;
+}
+.ordering-restaurant-name {
   display: block;
   font-size: 16px;
-  margin: 4px 0 10px;
+  font-weight: 750;
+  color: var(--foreground);
+  margin: 2px 0 10px;
   overflow-wrap: anywhere;
+}
+.ordering-qr-frame {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ffffff;
+  border: 1px solid #eed8ca;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.ordering-qr-box {
+  flex-shrink: 0;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0e2d8;
+}
+.ordering-qr-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+.ordering-qr-instructions {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: var(--foreground) !important;
+  margin: 0 !important;
+}
+.ordering-qr-fallback {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+.ordering-qr-fallback:hover {
+  color: var(--primary);
 }
 .ordering-restaurant p {
   font-size: 11px;
@@ -123,6 +189,18 @@
 }
 .ordering-restaurant .ordering-disclosure {
   font-size: 10px;
+  color: #8c7365;
+  margin-top: 6px;
+}
+@media (max-width: 460px) {
+  .ordering-qr-frame {
+    flex-direction: column;
+    text-align: center;
+  }
+  .ordering-qr-text {
+    align-items: center;
+    text-align: center;
+  }
 }
 .ordering-alternatives {
   width: 100%;

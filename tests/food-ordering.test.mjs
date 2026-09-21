@@ -15,12 +15,22 @@ try {
     platform: "node",
     format: "cjs",
   });
+  buildSync({
+    entryPoints: ["src/lib/qrcodegen.ts"],
+    outfile: join(out, "qrcodegen.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+  });
   const {
     ORDERING_CITIES,
     resolveShopeeFoodLink,
     shopeeFoodSearchUrl,
     resolveDishAffiliateLink,
   } = createRequire(import.meta.url)(join(out, "food-ordering.cjs"));
+  const { qrcodegen } = createRequire(import.meta.url)(
+    join(out, "qrcodegen.cjs"),
+  );
   const fallback = { href: "https://shopeefood.vn/", affiliate: false };
 
   test("Missing or malformed configuration falls back to the official homepage", () => {
@@ -198,6 +208,21 @@ try {
       resolveDishAffiliateLink(verifiedRestaurantLink, '[""]', ""),
       fallback,
     );
+  });
+
+  test("QR Code generator accurately encodes ShopeeFood long affiliate URLs", () => {
+    const longUrl =
+      "https://shopeefood.vn/now-food/affiliate/landing-page?brandId=15544&mmp_pid=an_17316810077&restaurantId=947982&shareChannel=copy_link&uls_trackid=56mc6ju601k1&utm_campaign=food_rLueyKdh9uJuAeR-id_7pCuiJhD5gf&utm_content=ShopeeFood&utm_medium=affiliate_food&utm_source=an_17316810077&utm_term=fjz82tfdd639";
+    const qr = qrcodegen.QrCode.encodeText(
+      longUrl,
+      qrcodegen.QrCode.Ecc.MEDIUM,
+    );
+    assert.ok(qr.size >= 21);
+    assert.equal(typeof qr.getModule(0, 0), "boolean");
+    // Finder pattern corners are always dark
+    assert.equal(qr.getModule(0, 0), true);
+    assert.equal(qr.getModule(qr.size - 1, 0), true);
+    assert.equal(qr.getModule(0, qr.size - 1), true);
   });
 } finally {
   rmSync(out, { recursive: true, force: true });
