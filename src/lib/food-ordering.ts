@@ -1,3 +1,12 @@
+import {
+  CATEGORY_HUBS,
+  DEFAULT_SHOPEEFOOD_HUB_URL,
+  detectFoodCategory,
+  attachSubIdToUrl,
+  slugifySubId,
+  type FoodCategory,
+} from "./smart-category-hub";
+
 export type ShopeeFoodLink = {
   href: string;
   affiliate: boolean;
@@ -16,15 +25,37 @@ function isSupportedCity(city: string): boolean {
   return ORDERING_CITIES.some(({ value }) => value === city);
 }
 
-export function shopeeFoodSearchUrl(dish: string, city: string): string {
+export function shopeeFoodSearchUrl(
+  dish: string,
+  city: string,
+  options?: { affiliate?: boolean; subId?: string },
+): string {
+  const isAff = options?.affiliate;
+  const subId = options?.subId || (dish ? slugifySubId(dish) : undefined);
+
   if (typeof dish !== "string" || !dish.trim() || !isSupportedCity(city)) {
+    if (isAff) {
+      return attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, dish || "food");
+    }
     return SHOPEEFOOD_HOME;
   }
+
   try {
     const query = encodeURIComponent(dish.trim());
-    return `${SHOPEEFOOD_HOME}${city}/danh-sach-dia-diem-giao-tan-noi?q=${query}`;
+    const rawUrl = `${SHOPEEFOOD_HOME}${city}/danh-sach-dia-diem-giao-tan-noi?q=${query}`;
+    if (!isAff) return rawUrl;
+
+    const url = new URL(rawUrl);
+    url.searchParams.set("mmp_pid", "an_17316810077");
+    url.searchParams.set("utm_source", "an_17316810077");
+    url.searchParams.set("utm_medium", "affiliate_food");
+    url.searchParams.set("utm_campaign", "foodtour_search");
+    if (subId) url.searchParams.set("sub_id", subId);
+    return url.toString();
   } catch {
-    // Malformed Unicode in a custom dish must not prevent showing its result.
+    if (isAff) {
+      return attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, dish || "food");
+    }
     return SHOPEEFOOD_HOME;
   }
 }
@@ -107,4 +138,125 @@ export function resolveDishAffiliateLink(
   } catch {
     return fallback;
   }
+}
+
+export type AffiliateMatchResult = {
+  href: string;
+  restaurant: string;
+  affiliate: boolean;
+};
+
+import { AFFILIATE_CATALOG } from "./affiliate-catalog";
+
+export function findAffiliateRestaurant(
+  dish?: string,
+  city?: string,
+): AffiliateMatchResult | null {
+  if (typeof dish !== "string" || !dish.trim()) return null;
+
+  const targetDish = normalizedDish(dish);
+
+  // 1. Prioritize matching from catalog (scalable to 1000+ restaurants without Vercel env limits)
+  for (const item of AFFILIATE_CATALOG) {
+    const matchesDish = item.dishes.some(
+      (d) => normalizedDish(d) === targetDish,
+    );
+    if (!matchesDish) continue;
+
+    // If catalog item specifies a city, check against user's selected city
+    if (item.city && city && item.city !== city) {
+      continue;
+    }
+
+    const resolved = resolveShopeeFoodLink(item.url);
+    if (resolved.affiliate) {
+      return {
+        href: resolved.href,
+        restaurant: item.restaurant,
+        affiliate: true,
+      };
+    }
+  }
+
+  // 2. Fallback to environment variables if catalog doesn't have it
+  try {
+    const envUrl =
+      typeof import.meta !== "undefined" && import.meta.env
+        ? import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_URL
+        : undefined;
+    const envDishes =
+      typeof import.meta !== "undefined" && import.meta.env
+        ? import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_DISHES
+        : undefined;
+    const envRestaurant =
+      typeof import.meta !== "undefined" && import.meta.env
+        ? import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_RESTAURANT?.trim()
+        : undefined;
+
+    if (envUrl && envDishes && envRestaurant) {
+      const resolved = resolveDishAffiliateLink(envUrl, envDishes, dish);
+      if (resolved.affiliate) {
+        return {
+          href: resolved.href,
+          restaurant: envRestaurant,
+          affiliate: true,
+        };
+      }
+    }
+  } catch {}
+
+  return null;
+}
+
+export type SmartHubAffiliateResult = {
+  href: string;
+  title: string;
+  badge: string;
+  category: FoodCategory;
+  isSpecificRestaurant: boolean;
+  affiliate: boolean;
+};
+
+export function resolveSmartHubAffiliate(
+  dish?: string,
+  city?: string,
+  language: "vi" | "en" = "vi",
+): SmartHubAffiliateResult | null {
+  if (typeof dish !== "string" || !dish.trim()) return null;
+
+  // 1. Check if there is an explicit restaurant override (e.g. Bún Đậu Phố Cổ)
+  const specificMatch = findAffiliateRestaurant(dish, city);
+  if (specificMatch && specificMatch.affiliate) {
+    return {
+      href: specificMatch.href,
+      title: specificMatch.restaurant,
+      badge:
+        language === "vi"
+          ? "Quán có món này"
+          : "A restaurant serving this dish",
+      category: detectFoodCategory(dish),
+      isSpecificRestaurant: true,
+      affiliate: true,
+    };
+  }
+
+  // 2. Smart Category Hub: 100% coverage for any dish
+  const cat = detectFoodCategory(dish);
+  const hub = CATEGORY_HUBS[cat];
+  const baseUrl = hub.hubUrl || DEFAULT_SHOPEEFOOD_HUB_URL;
+  const hubLink = resolveShopeeFoodLink(attachSubIdToUrl(baseUrl, dish));
+
+  if (!hubLink.affiliate) return null;
+
+  return {
+    href: hubLink.href,
+    title:
+      language === "vi"
+        ? `Quán ${dish.trim()} gần bạn`
+        : `${dish.trim()} spots near you`,
+    badge: language === "vi" ? hub.badgeVi : hub.badgeEn,
+    category: cat,
+    isSpecificRestaurant: false,
+    affiliate: true,
+  };
 }

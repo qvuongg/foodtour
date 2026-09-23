@@ -49,3 +49,34 @@ Cập nhật tối ưu Mobile & QR Desktop (21/09/2026):
 - **Desktop (Mac/PC)**: Thay vì nút bấm link mở trang mobile gây đơ/trắng màn hình, hiển thị khối **Mã QR SVG** (`<QRCodeSVG />`, zero-dependency) chứa liên kết affiliate đầy đủ tham số tracking. Người dùng quét bằng Camera điện thoại hoặc App Shopee để mở thẳng quán ăn trên di động. Kèm liên kết phụ mở trang tìm kiếm ShopeeFood Web.
 - **Mobile (iOS/Android)**: Chuyển đổi thành nút bấm **"Mở quán trên App ShopeeFood"** với `target="_self"` (điều hướng cùng tab) nhằm tránh nhân đôi tab Safari và tối ưu khả năng kích hoạt Universal Link trực tiếp vào App Shopee/ShopeeFood. Bổ sung micro-copy hướng dẫn rõ ràng.
 - Đã bổ sung unit test kiểm tra khả năng mã hóa QR Code cho các URL tracking dài của ShopeeFood. Toàn bộ 21 test, typecheck và build đều thành công.
+
+Cập nhật Chiến lược A: Smart Category Hub (23/09/2026):
+- **Phủ sóng 100% món ăn**: Tự động phân loại toàn bộ món ăn vào các Category Hub (`noodles`, `rice`, `rolls_bread`, `vegetarian`, `drinks_desserts`, `international_hotpot`, `general`). Không còn tình trạng chỉ có 1-2 món có affiliate.
+- **Giải quyết triệt để lỗi bán kính 3km**: Khi mở trên App ShopeeFood, ứng dụng tự động dùng GPS người dùng để hiển thị các quán đang mở cửa gần địa chỉ của họ nhất trong bán kính 3km. Khách đặt bất kỳ quán nào, đối tác đều nhận được 100% hoa hồng.
+- **Theo dõi chi tiết theo món (`sub_id`)**: Tự động đính kèm tham số `sub_id` theo tên món ăn vào link affiliate để theo dõi chuyển đổi chi tiết trên Shopee Affiliate Dashboard.
+- **Vận hành không cần biến môi trường**: Dữ liệu hub và catalog được lưu trực tiếp trong code (`smart-category-hub.ts`, `affiliate-catalog.ts`), triển khai lên Vercel tự động mà không cần nhập biến môi trường thủ công.
+- Đã bổ sung bộ test kiểm tra phân loại danh mục và độ phủ 100%. Toàn bộ 24 tests đều pass.
+
+## Khắc phục triệt để lỗi Mì xào bò & Mất tracking trên Mobile (23/09/2026)
+
+### 1. Nguyên nhân "Mì xào bò" nhảy vào quán "Bún Đậu Phố Cổ" (Đà Nẵng)
+- **Nguyên nhân**: Link mẫu ban đầu của Bún Đậu Phố Cổ có chứa `brandId=15544` và `restaurantId=947982`. Khi dùng làm link mặc định, hệ thống gán `&sub_id=mi_xao_bo` nhưng vẫn giữ nguyên `restaurantId=947982`, khiến Shopee mở thẳng quán Bún Đậu Phố Cổ.
+- **Cách xử lý**:
+  - Tách riêng `restaurantId=947982` vào `src/lib/affiliate-catalog.ts`, **chỉ kích hoạt** cho món `"Bún đậu mắm tôm"` và `"Bún chả"`.
+  - Link mặc định (`DEFAULT_SHOPEEFOOD_HUB_URL`) và các Hub danh mục (`smart-category-hub.ts`) đã gỡ bỏ hoàn toàn `restaurantId` và `brandId`. Khi quay trúng Mì xào bò, link mở trang Hub/chiến dịch ShopeeFood với `sub_id=mi_xao_bo`, không bị trỏ sai quán.
+
+### 2. Nguyên nhân trên Mobile quay trúng món gì cũng ra `https://shopeefood.vn` không có tracking
+- **Nguyên nhân**:
+  1. Các file cấu hình Smart Hub và Catalog mới chỉ nằm ở local, chưa được `git push` lên Vercel. Trên Vercel vẫn chạy bản build cũ, không có biến môi trường nên ẩn nút Affiliate.
+  2. Nút tìm kiếm phụ phía dưới gọi `shopeeFoodSearchUrl(dish, city)` khi chưa chọn khu vực (`city = ""`) sẽ trả về trang chủ thô `https://shopeefood.vn/` với 0 tham số tracking.
+- **Cách xử lý**:
+  - Nâng cấp `shopeeFoodSearchUrl` hỗ trợ `{ affiliate: true }`: Tự động gắn đầy đủ `mmp_pid=an_17316810077`, `utm_source=an_17316810077`, `utm_medium=affiliate_food`, `sub_id=${slugifySubId(dish)}`.
+  - Khi chưa chọn khu vực, trang Mobile ưu tiên hiển thị duy nhất nút Affiliate CTA chính ("Tìm quán [Món] gần bạn trên App Shopee"), tuyệt đối không để lọt link thô không tracking.
+  - Khi người dùng chọn khu vực (TP. HCM / Hà Nội), nút tìm kiếm phụ mới xuất hiện và cũng mang 100% tham số tracking.
+
+### 3. Về trang trung gian Safari vs. Mở thẳng App Shopee
+- **Giải thích**: Đường link dạng `https://shopeefood.vn/now-food/affiliate/landing-page?...` bản chất là **Web Landing Page**. Trình duyệt iOS Safari sẽ mở trang web này trước, sau đó người dùng bấm "Đặt ngay trên App" để mở app.
+- **Giải pháp mở thẳng App 100% không qua Safari**:
+  - Vào Shopee Affiliate Dashboard -> Tạo link rút gọn dạng **Shortlink**: `https://s.shopee.vn/xxxxxx`.
+  - Do Shopee đã đăng ký Universal Link với Apple cho tên miền `s.shopee.vn`, khi người dùng bấm vào shortlink trên điện thoại, iOS sẽ **tự động mở thẳng App Shopee ngay lập tức**, không mở Safari, không qua bất kỳ trang trung gian nào, đồng thời ghi nhận hoa hồng đầy đủ.
+  - Bạn chỉ cần dán link `s.shopee.vn` vào `CATEGORY_HUBS` trong `src/lib/smart-category-hub.ts` hoặc `AFFILIATE_CATALOG` trong `src/lib/affiliate-catalog.ts`.

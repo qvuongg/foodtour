@@ -27,6 +27,8 @@ try {
     resolveShopeeFoodLink,
     shopeeFoodSearchUrl,
     resolveDishAffiliateLink,
+    findAffiliateRestaurant,
+    resolveSmartHubAffiliate,
   } = createRequire(import.meta.url)(join(out, "food-ordering.cjs"));
   const { qrcodegen } = createRequire(import.meta.url)(
     join(out, "qrcodegen.cjs"),
@@ -223,6 +225,100 @@ try {
     assert.equal(qr.getModule(0, 0), true);
     assert.equal(qr.getModule(qr.size - 1, 0), true);
     assert.equal(qr.getModule(0, qr.size - 1), true);
+  });
+
+  test("findAffiliateRestaurant matches dishes from catalog and returns verified affiliate restaurant", () => {
+    const match = findAffiliateRestaurant("Bún đậu mắm tôm", "ha-noi");
+    assert.ok(match);
+    assert.equal(match.restaurant, "Bún Đậu Phố Cổ");
+    assert.equal(match.affiliate, true);
+    assert.ok(
+      match.href.includes("shopeefood.vn") || match.href.includes("s.shopee.vn"),
+    );
+
+    // Case insensitive & whitespace trimmed
+    const matchCase = findAffiliateRestaurant("  BÚN ĐẬU MẮM TÔM  ");
+    assert.ok(matchCase);
+    assert.equal(matchCase.restaurant, "Bún Đậu Phố Cổ");
+
+    // Unrelated dish returns null
+    assert.equal(findAffiliateRestaurant("Pizza"), null);
+    assert.equal(findAffiliateRestaurant(""), null);
+  });
+
+  test("resolveSmartHubAffiliate provides 100% coverage across any dish and sets sub_id", () => {
+    // 1. Specific restaurant override priority (Bún Đậu Phố Cổ)
+    const bunDau = resolveSmartHubAffiliate("Bún đậu mắm tôm", "ha-noi", "vi");
+    assert.ok(bunDau);
+    assert.equal(bunDau.title, "Bún Đậu Phố Cổ");
+    assert.equal(bunDau.isSpecificRestaurant, true);
+    assert.equal(bunDau.affiliate, true);
+
+    // 2. Smart Category Hub for other dishes (Cơm tấm -> rice, Phở -> noodles, Pizza -> fastfood, Chay -> veg)
+    const comTam = resolveSmartHubAffiliate("Cơm tấm sườn bì chả", "ho-chi-minh", "vi");
+    assert.ok(comTam);
+    assert.equal(comTam.category, "rice");
+    assert.equal(comTam.isSpecificRestaurant, false);
+    assert.ok(comTam.title.includes("Cơm tấm"));
+    assert.ok(comTam.href.includes("sub_id=com_tam_suon_bi_cha"));
+
+    const pho = resolveSmartHubAffiliate("Phở bò tái nạm", "ha-noi", "vi");
+    assert.ok(pho);
+    assert.equal(pho.category, "noodles");
+    assert.ok(pho.href.includes("sub_id=pho_bo_tai_nam"));
+
+    const pizza = resolveSmartHubAffiliate("Pizza hải sản", "ha-noi", "vi");
+    assert.ok(pizza);
+    assert.equal(pizza.category, "rolls_bread");
+
+    const chay = resolveSmartHubAffiliate("Cơm chiên chay", "ho-chi-minh", "vi");
+    assert.ok(chay);
+    assert.equal(chay.category, "vegetarian");
+
+    // Test "Mì xào bò" specifically (ensure it never binds to Bún Đậu Phố Cổ or has restaurantId=947982)
+    const miXaoBo = resolveSmartHubAffiliate("Mì xào bò", "ha-noi", "vi");
+    assert.ok(miXaoBo);
+    assert.equal(miXaoBo.category, "noodles");
+    assert.equal(miXaoBo.isSpecificRestaurant, false);
+    assert.ok(miXaoBo.href.includes("sub_id=mi_xao_bo"));
+    assert.ok(miXaoBo.href.includes("mmp_pid=an_17316810077"));
+    assert.equal(miXaoBo.href.includes("restaurantId="), false);
+    assert.equal(miXaoBo.href.includes("brandId="), false);
+
+    // 3. English localization
+    const enResult = resolveSmartHubAffiliate("Cơm tấm", "ho-chi-minh", "en");
+    assert.ok(enResult);
+    assert.ok(enResult.title.includes("spots near you"));
+
+    // 4. Empty dish safely returns null
+    assert.equal(resolveSmartHubAffiliate(""), null);
+    assert.equal(resolveSmartHubAffiliate(undefined), null);
+  });
+
+  test("shopeeFoodSearchUrl supports affiliate tracking parameters and safe fallbacks", () => {
+    // With affiliate tracking enabled:
+    const trackedCity = shopeeFoodSearchUrl("Mì xào bò", "ha-noi", {
+      affiliate: true,
+    });
+    assert.ok(trackedCity.includes("/ha-noi/danh-sach-dia-diem-giao-tan-noi"));
+    assert.ok(trackedCity.includes("mmp_pid=an_17316810077"));
+    assert.ok(trackedCity.includes("sub_id=mi_xao_bo"));
+    assert.ok(trackedCity.includes("utm_source=an_17316810077"));
+
+    // When city is empty, affiliate fallback must NOT be bare un-tracked homepage
+    const trackedEmptyCity = shopeeFoodSearchUrl("Mì xào bò", "", {
+      affiliate: true,
+    });
+    assert.notEqual(trackedEmptyCity, "https://shopeefood.vn/");
+    assert.ok(trackedEmptyCity.includes("mmp_pid=an_17316810077"));
+    assert.ok(trackedEmptyCity.includes("sub_id=mi_xao_bo"));
+
+    // Backwards-compatible without options: returns raw search URL
+    const rawSearch = shopeeFoodSearchUrl("Cơm tấm", "ho-chi-minh");
+    assert.equal(
+      rawSearch,
+      "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=C%C6%A1m%20t%E1%BA%A5m",
+    );
   });
 } finally {
   rmSync(out, { recursive: true, force: true });

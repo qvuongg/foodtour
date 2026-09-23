@@ -5,11 +5,12 @@ import {
   QrCode,
   ShoppingBag,
   Smartphone,
+  Sparkles,
 } from "lucide-react";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import {
   ORDERING_CITIES,
-  resolveDishAffiliateLink,
+  resolveSmartHubAffiliate,
   shopeeFoodSearchUrl,
 } from "@/lib/food-ordering";
 import { QRCodeSVG } from "@/components/qr-code";
@@ -23,18 +24,22 @@ const messages = {
     chooseCity: "Chọn trên ShopeeFood",
     search: "Tìm món trên ShopeeFood",
     open: "Mở ShopeeFood",
-    restaurantMobile: "Mở quán trên App ShopeeFood",
+    restaurantMobileSpecific: "Mở quán trên App ShopeeFood",
+    restaurantMobileHub: (dish: string) =>
+      `Tìm quán ${dish} gần bạn trên App Shopee`,
     restaurantDesktop: "Xem quán trên ShopeeFood",
     restaurantLabel: "Quán có món này",
-    restaurantQrLabel: "Quán có món này · Quét mã để đặt món",
-    qrInstructions:
+    restaurantQrLabel: "Gợi ý thông minh · Bán kính 3km",
+    qrInstructionsSpecific:
       "Dùng Camera điện thoại hoặc App Shopee quét mã QR để mở quán và nhận ưu đãi.",
+    qrInstructionsHub: (dish: string) =>
+      `Dùng Camera điện thoại hoặc App Shopee quét mã QR để tìm quán ${dish} ngon nhất gần bạn (bán kính 3km).`,
     qrFallbackLink: "Hoặc mở liên kết trên web",
     searchHint: "Chọn địa chỉ giao hàng và quán phù hợp trên ShopeeFood.",
-    affiliateHintMobile:
+    affiliateHintMobileSpecific:
       "Ứng dụng Shopee sẽ mở để bạn kiểm tra địa chỉ giao hàng và áp mã khuyến mãi.",
-    affiliateHintDesktop:
-      "Kiểm tra địa chỉ giao hàng và món còn bán trên ShopeeFood.",
+    affiliateHintMobileHub:
+      "Shopee App sẽ tự động định vị các quán đang mở cửa gần bạn nhất để giao nhanh & áp mã giảm giá.",
     disclosure:
       "Liên kết tiếp thị · Website có thể nhận hoa hồng từ đơn hợp lệ.",
     saveError:
@@ -46,18 +51,21 @@ const messages = {
     chooseCity: "Choose on ShopeeFood",
     search: "Find this dish on ShopeeFood",
     open: "Open ShopeeFood",
-    restaurantMobile: "Open in ShopeeFood App",
-    restaurantDesktop: "View restaurant on ShopeeFood",
+    restaurantMobileSpecific: "Open in ShopeeFood App",
+    restaurantMobileHub: (dish: string) => `Find ${dish} spots on Shopee App`,
+    restaurantDesktop: "View on ShopeeFood",
     restaurantLabel: "A restaurant serving this dish",
-    restaurantQrLabel: "Serving this dish · Scan QR to order",
-    qrInstructions:
+    restaurantQrLabel: "Smart Hub · 3km Delivery",
+    qrInstructionsSpecific:
       "Scan QR code with your phone camera or Shopee App to open this restaurant on mobile.",
+    qrInstructionsHub: (dish: string) =>
+      `Scan QR code with phone camera or Shopee App to find top-rated ${dish} spots near you.`,
     qrFallbackLink: "Or open link on web",
     searchHint: "Choose your delivery address and restaurant on ShopeeFood.",
-    affiliateHintMobile:
+    affiliateHintMobileSpecific:
       "Shopee App will open to check your delivery address and apply discounts.",
-    affiliateHintDesktop:
-      "Check delivery to your address and dish availability on ShopeeFood.",
+    affiliateHintMobileHub:
+      "Shopee App will locate open restaurants near you to deliver fast with vouchers.",
     disclosure: "Affiliate link · We may earn a commission on eligible orders.",
     saveError:
       "Your area couldn't be saved. You may need to select it again next time.",
@@ -81,14 +89,14 @@ export function FoodOrdering({
       : "";
   });
   const [saveError, setSaveError] = useState(false);
-  const affiliate = resolveDishAffiliateLink(
-    import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_URL,
-    import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_DISHES,
-    dish,
-  );
-  const restaurant =
-    import.meta.env.VITE_SHOPEEFOOD_AFFILIATE_RESTAURANT?.trim();
-  const showAffiliate = affiliate.affiliate && !!restaurant;
+
+  // Smart Category Hub: 100% coverage across all dishes with 3km radius matching
+  const hubResult = resolveSmartHubAffiliate(dish, city, language);
+  const showAffiliate = !!hubResult?.affiliate;
+  const title = hubResult?.title ?? "";
+  const badge = hubResult?.badge ?? "";
+  const affiliateHref = hubResult?.href ?? "";
+  const isSpecific = hubResult?.isSpecificRestaurant ?? false;
 
   function changeCity(value: string) {
     setCity(value);
@@ -112,25 +120,33 @@ export function FoodOrdering({
           <div className="ordering-desktop-view">
             <div className="ordering-qr-header">
               <span className="ordering-badge">
-                <QrCode size={13} aria-hidden="true" />
-                {t.restaurantQrLabel}
+                {isSpecific ? (
+                  <QrCode size={13} aria-hidden="true" />
+                ) : (
+                  <Sparkles size={13} aria-hidden="true" />
+                )}
+                {badge || t.restaurantQrLabel}
               </span>
-              <strong className="ordering-restaurant-name">{restaurant}</strong>
+              <strong className="ordering-restaurant-name">{title}</strong>
             </div>
             <div className="ordering-qr-frame">
               <div className="ordering-qr-box">
                 <QRCodeSVG
-                  value={affiliate.href}
+                  value={affiliateHref}
                   size={136}
                   level="M"
-                  title={`${restaurant} QR Code`}
+                  title={`${title} QR Code`}
                 />
               </div>
               <div className="ordering-qr-text">
-                <p className="ordering-qr-instructions">{t.qrInstructions}</p>
+                <p className="ordering-qr-instructions">
+                  {isSpecific
+                    ? t.qrInstructionsSpecific
+                    : t.qrInstructionsHub(dish)}
+                </p>
                 <a
                   className="ordering-qr-fallback"
-                  href={affiliate.href}
+                  href={affiliateHref}
                   target="_blank"
                   rel="sponsored noopener"
                 >
@@ -146,21 +162,27 @@ export function FoodOrdering({
           <div className="ordering-mobile-view">
             <span className="ordering-badge">
               <Smartphone size={13} aria-hidden="true" />
-              {t.restaurantLabel}
+              {badge || t.restaurantLabel}
             </span>
-            <strong className="ordering-restaurant-name">{restaurant}</strong>
+            <strong className="ordering-restaurant-name">{title}</strong>
             <a
               className="shopeefood-button"
-              href={affiliate.href}
+              href={affiliateHref}
               target="_self"
               rel="sponsored"
               aria-describedby={`${id}-affiliate-hint`}
             >
               <Smartphone size={17} aria-hidden="true" />
-              {t.restaurantMobile}
+              {isSpecific
+                ? t.restaurantMobileSpecific
+                : t.restaurantMobileHub(dish)}
               <ArrowUpRight size={18} aria-hidden="true" />
             </a>
-            <p id={`${id}-affiliate-hint`}>{t.affiliateHintMobile}</p>
+            <p id={`${id}-affiliate-hint`}>
+              {isSpecific
+                ? t.affiliateHintMobileSpecific
+                : t.affiliateHintMobileHub}
+            </p>
             <p className="ordering-disclosure">{t.disclosure}</p>
           </div>
         </div>
@@ -188,18 +210,20 @@ export function FoodOrdering({
           {t.saveError}
         </p>
       )}
-      <a
-        className={`shopeefood-button${showAffiliate ? " secondary" : ""}`}
-        href={shopeeFoodSearchUrl(dish, city)}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-describedby={`${id}-hint`}
-      >
-        {city ? t.search : t.open}
-        <ArrowUpRight size={18} aria-hidden="true" />
-      </a>
+      {(!showAffiliate || city) && (
+        <a
+          className={`shopeefood-button${showAffiliate ? " secondary" : ""}`}
+          href={shopeeFoodSearchUrl(dish, city, { affiliate: true })}
+          target="_blank"
+          rel="sponsored noopener"
+          aria-describedby={`${id}-hint`}
+        >
+          {city ? t.search : t.open}
+          <ArrowUpRight size={18} aria-hidden="true" />
+        </a>
+      )}
       <p className="ordering-hint" id={`${id}-hint`}>
-        {t.searchHint}
+        {city ? t.searchHint : t.disclosure}
       </p>
     </section>
   );
