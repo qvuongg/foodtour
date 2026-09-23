@@ -13,7 +13,7 @@ export type ShopeeFoodLink = {
 };
 
 const SHOPEEFOOD_HOME = "https://shopeefood.vn/";
-const ALLOWED_HOSTS = ["shopeefood.vn", "shopee.vn"];
+const ALLOWED_HOSTS = ["shopeefood.vn", "shopee.vn", "spf.shopee.vn"];
 
 // These city routes have been verified using ShopeeFood's public search UI.
 export const ORDERING_CITIES = [

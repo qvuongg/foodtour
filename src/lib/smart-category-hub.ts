@@ -70,10 +70,9 @@ export const CATEGORY_HUBS: Record<FoodCategory, CategoryHubInfo> = {
 
 /**
  * Link ShopeeFood Universal Hub mặc định của tài khoản bạn.
- * Bạn có thể thay bằng Shortlink s.shopee.vn chiến dịch ShopeeFood của bạn.
+ * Dùng Shortlink chính thức của ShopeeFood (spf.shopee.vn) để mở thẳng vào App Shopee không lỗi.
  */
-export const DEFAULT_SHOPEEFOOD_HUB_URL =
-  "https://shopeefood.vn/now-food/affiliate/landing-page?mmp_pid=an_17316810077&shareChannel=copy_link&uls_trackid=56mc6ju601k1&utm_campaign=food_rLueyKdh9uJuAeR-id_7pCuiJhD5gf&utm_content=ShopeeFood&utm_medium=affiliate_food&utm_source=an_17316810077&utm_term=fjz82tfdd639";
+export const DEFAULT_SHOPEEFOOD_HUB_URL = "https://spf.shopee.vn/3LR3btm4Yj";
 
 /**
  * Tự động phân loại món ăn vào Category Hub thông minh dựa trên từ khóa tiếng Việt.

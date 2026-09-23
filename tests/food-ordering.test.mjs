@@ -54,6 +54,7 @@ try {
       "https://www.shopeefood.vn/ho-chi-minh/quan-an?x=1&x=2#menu",
       "https://shopee.vn/food?redirect=https%3a%2f%2fshopeefood.vn%2f&tag=a+b%20c",
       "https://s.shopee.vn/AbCd123?sub_id=food%2Fpho&sign=A%2bB%3d#section",
+      "https://spf.shopee.vn/3LR3btm4Yj?sub_id=mi_xao_bo",
       "HTTPS://S.SHOPEE.VN/CaseSensitive?utm_source=TruaNayAnGi",
       "https://shopeefood.vn:443/food?encoded=%7e%2f",
     ];
@@ -281,7 +282,10 @@ try {
     assert.equal(miXaoBo.category, "noodles");
     assert.equal(miXaoBo.isSpecificRestaurant, false);
     assert.ok(miXaoBo.href.includes("sub_id=mi_xao_bo"));
-    assert.ok(miXaoBo.href.includes("mmp_pid=an_17316810077"));
+    assert.ok(
+      miXaoBo.href.includes("spf.shopee.vn") ||
+        miXaoBo.href.includes("mmp_pid=an_17316810077"),
+    );
     assert.equal(miXaoBo.href.includes("restaurantId="), false);
     assert.equal(miXaoBo.href.includes("brandId="), false);
 
@@ -310,7 +314,10 @@ try {
       affiliate: true,
     });
     assert.notEqual(trackedEmptyCity, "https://shopeefood.vn/");
-    assert.ok(trackedEmptyCity.includes("mmp_pid=an_17316810077"));
+    assert.ok(
+      trackedEmptyCity.includes("spf.shopee.vn") ||
+        trackedEmptyCity.includes("mmp_pid=an_17316810077"),
+    );
     assert.ok(trackedEmptyCity.includes("sub_id=mi_xao_bo"));
 
     // Backwards-compatible without options: returns raw search URL

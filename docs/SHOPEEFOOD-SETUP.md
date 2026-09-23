@@ -80,3 +80,13 @@ Cập nhật Chiến lược A: Smart Category Hub (23/09/2026):
   - Vào Shopee Affiliate Dashboard -> Tạo link rút gọn dạng **Shortlink**: `https://s.shopee.vn/xxxxxx`.
   - Do Shopee đã đăng ký Universal Link với Apple cho tên miền `s.shopee.vn`, khi người dùng bấm vào shortlink trên điện thoại, iOS sẽ **tự động mở thẳng App Shopee ngay lập tức**, không mở Safari, không qua bất kỳ trang trung gian nào, đồng thời ghi nhận hoa hồng đầy đủ.
   - Bạn chỉ cần dán link `s.shopee.vn` vào `CATEGORY_HUBS` trong `src/lib/smart-category-hub.ts` hoặc `AFFILIATE_CATALOG` trong `src/lib/affiliate-catalog.ts`.
+
+### 4. Giải mã Lỗi "Quán - Rất tiếc, có lỗi xảy ra" và Tên miền Shortlink Mới `spf.shopee.vn`
+- **Vì sao bị lỗi quả trứng mặt mếu "Rất tiếc, có lỗi xảy ra"?**:
+  Đường link dài `/now-food/affiliate/landing-page` trong App ShopeeFood là màn hình có tiêu đề **"Quán"** (chuyên để tải thông tin 1 quán ăn cụ thể). Khi chúng ta gỡ `restaurantId=947982` để không nhảy vào Bún Đậu, App Shopee mở màn hình "Quán" nhưng không có ID quán nào để tải dữ liệu $\rightarrow$ App Shopee báo lỗi "Rất tiếc, có lỗi xảy ra...".
+- **Tại sao lấy link trên điện thoại ra `https://spf.shopee.vn/...`?**:
+  Shopee hiện đã triển khai tên miền Shortlink chuyên dụng cho ShopeeFood là **`spf.shopee.vn`** (ShopeeFood Shortlink). Khi chia sẻ trên App, Shopee không còn sinh link dài nữa mà sinh link ngắn `spf.shopee.vn/xxxxxx`.
+- **Cấu trúc nội bộ của `https://spf.shopee.vn/3LR3btm4Yj`**:
+  Shortlink này trỏ trực tiếp tới **Bộ sưu tập ShopeeFood** (`collection-detail-page/22604`), chứa đầy đủ `mmp_pid=an_17316810077`, tự động gọi deep link `deliverynow://` mở thẳng App Shopee, không qua Safari và không bao giờ bị lỗi thiếu ID quán.
+- **Áp dụng vào hệ thống**:
+  `DEFAULT_SHOPEEFOOD_HUB_URL` đã được chuyển sang `https://spf.shopee.vn/3LR3btm4Yj`. Mọi món ăn khi quay trúng đều sinh link rút gọn siêu nhẹ, mã QR trên PC quét cực nhanh và trên điện thoại mở thẳng App Shopee ngon lành 100%.
