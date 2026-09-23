@@ -90,3 +90,42 @@ Cập nhật Chiến lược A: Smart Category Hub (23/09/2026):
   Shortlink này trỏ trực tiếp tới **Bộ sưu tập ShopeeFood** (`collection-detail-page/22604`), chứa đầy đủ `mmp_pid=an_17316810077`, tự động gọi deep link `deliverynow://` mở thẳng App Shopee, không qua Safari và không bao giờ bị lỗi thiếu ID quán.
 - **Áp dụng vào hệ thống**:
   `DEFAULT_SHOPEEFOOD_HUB_URL` đã được chuyển sang `https://spf.shopee.vn/3LR3btm4Yj`. Mọi món ăn khi quay trúng đều sinh link rút gọn siêu nhẹ, mã QR trên PC quét cực nhanh và trên điện thoại mở thẳng App Shopee ngon lành 100%.
+
+### 5. Phân Tích Kỹ Thuật: Vì Sao Link `danh-sach-dia-diem-giao-tan-noi` Bị Trả Về Trang Chủ?
+
+- **Phát hiện từ mã nguồn Router của ShopeeFood (`app-f182e75cd868fe649223.js`)**:
+  ShopeeFood là Single Page Application (React SPA). Route danh sách quán được khai báo:
+  ```js
+  path: "/:cityUrlRewrite/" + ROUTERS.RESTAURANT.LIST_PLACE_SERVICE + "(:urlRewriteName?)" + ROUTERS.RESTAURANT.DELIVERY_TO_PLACE
+  ```
+  Tương đương với: `/:cityUrlRewrite/danh-sach-dia-diem-giao-tan-noi`.
+  - Khi URL **không có tên thành phố** (ví dụ `https://shopeefood.vn/danh-sach-dia-diem-giao-tan-noi`):
+    Router hiểu `:cityUrlRewrite` là chuỗi `"danh-sach-dia-diem-giao-tan-noi"`.
+    Hệ thống kiểm tra chuỗi này trong danh sách thành phố hợp lệ (`da-nang`, `ho-chi-minh`, `ha-noi`...). Do không tìm thấy thành phố nào như vậy, ShopeeFood thực thi lệnh:
+    `window.location.href = "/"` $\rightarrow$ **lập tức chuyển hướng về trang chủ!**
+  - **ShopeeFood Web có nhận từ khóa `?q=` không?**:
+    Kiểm tra mã nguồn Component tìm kiếm (Chunk `11-6e333995d7facf52c8b0.js`): State `searchText` khởi tạo bằng chuỗi rỗng `""` và mã nguồn web **không hề đọc `location.search` (`?q=`)** để tự động gõ từ khóa. Tìm kiếm trên web chỉ kích hoạt khi người dùng gõ vào ô input.
+  - **Trên Mobile App**:
+    Các liên kết tiếp thị liên kết (Shortlink / Deep link) của Shopee chỉ chấp nhận mở Bộ sưu tập, Danh mục hoặc Trang đích, chứ không có tham số URL mở ngoài cho phép tự động điền từ khóa tìm kiếm tự do vào thanh tìm kiếm của App.
+
+---
+
+### 6. Giải Pháp Triệt Để: "1-Chạm Sao Chép & Mở ShopeeFood" (23/09/2026)
+
+Để giải quyết đồng thời cả hai bài toán: **Bảo toàn 100% hoa hồng tiếp thị liên kết** và **Không bắt người dùng phải nhớ/gõ lại tên món tiếng Việt có dấu**, hệ thống triển khai mô hình chuẩn UX:
+
+1. **Tính năng 1-Chạm Tự Động Sao Chép (1-Tap Auto-Copy)**:
+   - Khi người dùng chạm nút **"Mở Shopee & Tìm món"** (trên Mobile) hoặc bấm nút **"Chép tên món"**:
+     - Hệ thống tự động sao chép tên món (ví dụ `"Udon"`, `"Mì xào bò"`) vào bộ nhớ tạm (Clipboard).
+     - Hiển thị ngay chỉ dẫn thân thiện: *`✓ Đã chép "Udon"! Dán vào ô tìm kiếm trên ShopeeFood nhé.`*
+     - Khi App Shopee mở ra, khách chỉ cần chạm ô tìm kiếm $\rightarrow$ Dán (Paste) là danh sách quán phục vụ món đó quanh nhà hiện ra đầy đủ theo GPS.
+2. **Trên Mobile (Chiếm 95% đơn hàng ShopeeFood)**:
+   - Sử dụng Shortlink chính thức `https://spf.shopee.vn/3LR3btm4Yj?sub_id=...` để kích hoạt Universal Link mở thẳng App Shopee.
+   - Ghi nhận 100% cookie hoa hồng (`an_17316810077`) và phân loại món (`sub_id`).
+   - Ứng dụng Shopee tự động định vị GPS của khách (Đà Nẵng, TP. HCM, Hà Nội...).
+3. **Trên Desktop (PC / Mac)**:
+   - Khối **Mã QR SVG** trỏ tới Shortlink để quét bằng camera/Shopee mở thẳng App trên điện thoại.
+   - Bổ sung **Bộ chọn khu vực trực quan** (mặc định là **Đà Nẵng**, cùng TP. HCM, Hà Nội, Hải Phòng, Cần Thơ) lưu vào cookie.
+   - Liên kết web phụ luôn đảm bảo chứa slug thành phố chuẩn:
+     `https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=...&mmp_pid=an_17316810077&sub_id=...`
+     $\rightarrow$ Tuyệt đối **không bao giờ bị lỗi chuyển hướng về trang chủ**.

@@ -1,74 +1,70 @@
 import { useId, useState } from "react";
 import {
   ArrowUpRight,
+  Check,
+  Copy,
   MapPin,
   QrCode,
   ShoppingBag,
   Smartphone,
   Sparkles,
 } from "lucide-react";
-import { readCookie, writeCookie } from "@/lib/cookies";
 import {
   ORDERING_CITIES,
+  DEFAULT_ORDERING_CITY,
   resolveSmartHubAffiliate,
-  shopeeFoodSearchUrl,
 } from "@/lib/food-ordering";
+import { readCookie, writeCookie } from "@/lib/cookies";
 import { QRCodeSVG } from "@/components/qr-code";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { Language } from "@/lib/i18n";
 
 const messages = {
   vi: {
     title: "Chốt món. Tìm quán thôi.",
-    city: "Khu vực tìm quán",
-    chooseCity: "Chọn trên ShopeeFood",
-    search: "Tìm món trên ShopeeFood",
-    open: "Mở ShopeeFood",
-    restaurantMobileSpecific: "Mở quán trên App ShopeeFood",
-    restaurantMobileHub: (dish: string) =>
-      `Tìm quán ${dish} gần bạn trên App Shopee`,
+    restaurantMobileSpecific: "Xem quán trên ShopeeFood",
+    restaurantMobileHub: (dish: string) => `Tìm quán ${dish} trên ShopeeFood`,
     restaurantDesktop: "Xem quán trên ShopeeFood",
     restaurantLabel: "Quán có món này",
     restaurantQrLabel: "Gợi ý thông minh · Bán kính 3km",
     qrInstructionsSpecific:
       "Dùng Camera điện thoại hoặc App Shopee quét mã QR để mở quán và nhận ưu đãi.",
     qrInstructionsHub: (dish: string) =>
-      `Dùng Camera điện thoại hoặc App Shopee quét mã QR để tìm quán ${dish} ngon nhất gần bạn (bán kính 3km).`,
-    qrFallbackLink: "Hoặc mở liên kết trên web",
-    searchHint: "Chọn địa chỉ giao hàng và quán phù hợp trên ShopeeFood.",
+      `Dùng Camera điện thoại quét mã QR để mở App Shopee và tìm quán ${dish} gần bạn.`,
+    qrFallbackLink: "Mở danh sách quán trên web",
     affiliateHintMobileSpecific:
-      "Ứng dụng Shopee sẽ mở để bạn kiểm tra địa chỉ giao hàng và áp mã khuyến mãi.",
+      "ShopeeFood sẽ mở để bạn kiểm tra địa chỉ giao hàng và áp mã khuyến mãi.",
     affiliateHintMobileHub:
-      "Shopee App sẽ tự động định vị các quán đang mở cửa gần bạn nhất để giao nhanh & áp mã giảm giá.",
+      "Chạm nút để tự động sao chép tên món, khi Shopee mở chỉ cần Dán (Paste) vào ô tìm kiếm!",
+    copiedHint: (dish: string) =>
+      `✓ Đã chép "${dish}"! Dán vào ô tìm kiếm trên ShopeeFood nhé.`,
+    copyButton: "Chép tên món",
+    copiedButton: "Đã chép",
+    cityLabel: "Khu vực:",
     disclosure:
       "Liên kết tiếp thị · Website có thể nhận hoa hồng từ đơn hợp lệ.",
-    saveError:
-      "Chưa lưu được khu vực. Bạn có thể cần chọn lại ở lượt tiếp theo.",
   },
   en: {
     title: "Lunch picked. Find your place.",
-    city: "Search area",
-    chooseCity: "Choose on ShopeeFood",
-    search: "Find this dish on ShopeeFood",
-    open: "Open ShopeeFood",
-    restaurantMobileSpecific: "Open in ShopeeFood App",
-    restaurantMobileHub: (dish: string) => `Find ${dish} spots on Shopee App`,
+    restaurantMobileSpecific: "View restaurant on ShopeeFood",
+    restaurantMobileHub: (dish: string) => `Find ${dish} spots on ShopeeFood`,
     restaurantDesktop: "View on ShopeeFood",
     restaurantLabel: "A restaurant serving this dish",
-    restaurantQrLabel: "Smart Hub · 3km Delivery",
+    restaurantQrLabel: "Smart Search · 3km Delivery",
     qrInstructionsSpecific:
       "Scan QR code with your phone camera or Shopee App to open this restaurant on mobile.",
     qrInstructionsHub: (dish: string) =>
-      `Scan QR code with phone camera or Shopee App to find top-rated ${dish} spots near you.`,
-    qrFallbackLink: "Or open link on web",
-    searchHint: "Choose your delivery address and restaurant on ShopeeFood.",
+      `Scan QR code with phone camera to open Shopee and find ${dish} spots near you.`,
+    qrFallbackLink: "Open restaurant listing on web",
     affiliateHintMobileSpecific:
-      "Shopee App will open to check your delivery address and apply discounts.",
+      "ShopeeFood will open to check your delivery address and apply discounts.",
     affiliateHintMobileHub:
-      "Shopee App will locate open restaurants near you to deliver fast with vouchers.",
+      "Tap to auto-copy dish name, then Paste into the search box once Shopee opens!",
+    copiedHint: (dish: string) =>
+      `✓ Copied "${dish}"! Paste into ShopeeFood search box.`,
+    copyButton: "Copy dish",
+    copiedButton: "Copied",
+    cityLabel: "City:",
     disclosure: "Affiliate link · We may earn a commission on eligible orders.",
-    saveError:
-      "Your area couldn't be saved. You may need to select it again next time.",
   },
 } as const;
 
@@ -81,32 +77,54 @@ export function FoodOrdering({
 }) {
   const t = messages[language];
   const id = useId();
-  const isMobile = useIsMobile();
-  const [city, setCity] = useState(() => {
-    const saved = readCookie<string>("ordering-city");
-    return ORDERING_CITIES.some((option) => option.value === saved)
-      ? saved!
-      : "";
-  });
-  const [saveError, setSaveError] = useState(false);
 
-  // Smart Category Hub: 100% coverage across all dishes with 3km radius matching
+  const [city, setCity] = useState<string>(() => {
+    try {
+      const saved = readCookie<string>("ordering-city");
+      if (saved && ORDERING_CITIES.some((c) => c.value === saved)) return saved;
+    } catch {}
+    return DEFAULT_ORDERING_CITY;
+  });
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCityChange = (newCity: string) => {
+    setCity(newCity);
+    try {
+      writeCookie("ordering-city", newCity);
+    } catch {}
+  };
+
+  const handleCopyOnly = async (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(dish.trim());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 3000);
+      }
+    } catch {}
+  };
+
+  const handleMobileCtaClick = () => {
+    // Auto-copy dish name to clipboard so user can instantly paste into Shopee search
+    try {
+      if (navigator?.clipboard?.writeText) {
+        void navigator.clipboard.writeText(dish.trim());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 3000);
+      }
+    } catch {}
+  };
+
+  // Smart Search & Hub: resolves both mobile app shortlink and city web search URL
   const hubResult = resolveSmartHubAffiliate(dish, city, language);
   const showAffiliate = !!hubResult?.affiliate;
   const title = hubResult?.title ?? "";
   const badge = hubResult?.badge ?? "";
-  const affiliateHref = hubResult?.href ?? "";
+  const appHref = hubResult?.appHref ?? hubResult?.href ?? "";
+  const webHref = hubResult?.webHref ?? hubResult?.href ?? "";
   const isSpecific = hubResult?.isSpecificRestaurant ?? false;
-
-  function changeCity(value: string) {
-    setCity(value);
-    try {
-      writeCookie("ordering-city", value);
-      setSaveError(false);
-    } catch {
-      setSaveError(true);
-    }
-  }
 
   return (
     <section className="food-ordering" aria-labelledby={`${id}-title`}>
@@ -127,12 +145,24 @@ export function FoodOrdering({
                 )}
                 {badge || t.restaurantQrLabel}
               </span>
-              <strong className="ordering-restaurant-name">{title}</strong>
+              <div className="ordering-title-row">
+                <strong className="ordering-restaurant-name">{title}</strong>
+                <button
+                  type="button"
+                  className={`ordering-copy-chip ${copied ? "copied" : ""}`}
+                  onClick={handleCopyOnly}
+                  title={copied ? t.copiedButton : t.copyButton}
+                  aria-label={copied ? t.copiedButton : t.copyButton}
+                >
+                  {copied ? <Check size={12} /> : <Copy size={12} />}
+                  <span>{copied ? t.copiedButton : t.copyButton}</span>
+                </button>
+              </div>
             </div>
             <div className="ordering-qr-frame">
               <div className="ordering-qr-box">
                 <QRCodeSVG
-                  value={affiliateHref}
+                  value={appHref}
                   size={136}
                   level="M"
                   title={`${title} QR Code`}
@@ -144,9 +174,26 @@ export function FoodOrdering({
                     ? t.qrInstructionsSpecific
                     : t.qrInstructionsHub(dish)}
                 </p>
+
+                <div className="ordering-city-selector">
+                  <MapPin size={13} aria-hidden="true" />
+                  <label htmlFor={`${id}-desktop-city`}>{t.cityLabel}</label>
+                  <select
+                    id={`${id}-desktop-city`}
+                    value={city}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                  >
+                    {ORDERING_CITIES.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <a
                   className="ordering-qr-fallback"
-                  href={affiliateHref}
+                  href={webHref}
                   target="_blank"
                   rel="sponsored noopener"
                 >
@@ -158,73 +205,50 @@ export function FoodOrdering({
             <p className="ordering-disclosure">{t.disclosure}</p>
           </div>
 
-          {/* Mobile view: Direct CTA button navigating in same tab */}
+          {/* Mobile view: Direct CTA button navigating to ShopeeFood */}
           <div className="ordering-mobile-view">
             <span className="ordering-badge">
               <Smartphone size={13} aria-hidden="true" />
               {badge || t.restaurantLabel}
             </span>
-            <strong className="ordering-restaurant-name">{title}</strong>
+            <div className="ordering-title-row">
+              <strong className="ordering-restaurant-name">{title}</strong>
+              <button
+                type="button"
+                className={`ordering-copy-chip ${copied ? "copied" : ""}`}
+                onClick={handleCopyOnly}
+                title={copied ? t.copiedButton : t.copyButton}
+                aria-label={copied ? t.copiedButton : t.copyButton}
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                <span>{copied ? t.copiedButton : t.copyButton}</span>
+              </button>
+            </div>
             <a
               className="shopeefood-button"
-              href={affiliateHref}
-              target="_self"
-              rel="sponsored"
+              href={appHref}
+              onClick={handleMobileCtaClick}
+              target="_blank"
+              rel="sponsored noopener"
               aria-describedby={`${id}-affiliate-hint`}
             >
-              <Smartphone size={17} aria-hidden="true" />
+              <ShoppingBag size={17} aria-hidden="true" />
               {isSpecific
                 ? t.restaurantMobileSpecific
                 : t.restaurantMobileHub(dish)}
               <ArrowUpRight size={18} aria-hidden="true" />
             </a>
-            <p id={`${id}-affiliate-hint`}>
-              {isSpecific
-                ? t.affiliateHintMobileSpecific
-                : t.affiliateHintMobileHub}
+            <p id={`${id}-affiliate-hint`} className="ordering-hint">
+              {copied
+                ? t.copiedHint(dish)
+                : isSpecific
+                  ? t.affiliateHintMobileSpecific
+                  : t.affiliateHintMobileHub}
             </p>
             <p className="ordering-disclosure">{t.disclosure}</p>
           </div>
         </div>
       )}
-      <div className="ordering-city">
-        <label htmlFor={`${id}-city`}>
-          <MapPin size={15} aria-hidden="true" />
-          {t.city}
-        </label>
-        <select
-          id={`${id}-city`}
-          value={city}
-          onChange={(event) => changeCity(event.target.value)}
-        >
-          <option value="">{t.chooseCity}</option>
-          {ORDERING_CITIES.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      {saveError && (
-        <p className="ordering-save-error" role="status">
-          {t.saveError}
-        </p>
-      )}
-      {(!showAffiliate || city) && (
-        <a
-          className={`shopeefood-button${showAffiliate ? " secondary" : ""}`}
-          href={shopeeFoodSearchUrl(dish, city, { affiliate: true })}
-          target="_blank"
-          rel="sponsored noopener"
-          aria-describedby={`${id}-hint`}
-        >
-          {city ? t.search : t.open}
-          <ArrowUpRight size={18} aria-hidden="true" />
-        </a>
-      )}
-      <p className="ordering-hint" id={`${id}-hint`}>
-        {city ? t.searchHint : t.disclosure}
-      </p>
     </section>
   );
 }

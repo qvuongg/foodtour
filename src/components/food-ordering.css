@@ -102,7 +102,7 @@
   border-radius: 14px;
   background: #fff8f2;
   padding: 14px;
-  margin: 0 0 14px;
+  margin: 0;
 }
 .ordering-desktop-view {
   display: block;
@@ -126,6 +126,65 @@
   font-weight: 600;
   color: #c8401a;
   margin-bottom: 2px;
+}
+.ordering-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0 10px;
+}
+.ordering-title-row .ordering-restaurant-name {
+  margin: 0;
+  flex: 1;
+}
+.ordering-copy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  background: #fdf2ea;
+  border: 1px solid #f0d5c2;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.ordering-copy-chip:hover {
+  background: #fae4d4;
+  border-color: #e5bfab;
+}
+.ordering-copy-chip.copied {
+  color: #1b7a42;
+  background: #eafaf1;
+  border-color: #b7e8cb;
+}
+.ordering-city-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin: 2px 0;
+}
+.ordering-city-selector svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.ordering-city-selector select {
+  padding: 3px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
 }
 .ordering-restaurant-name {
   display: block;

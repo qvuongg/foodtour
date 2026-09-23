@@ -114,8 +114,11 @@ try {
 
   test("Search links encode Vietnamese dish names and only use verified cities", () => {
     assert.deepEqual(ORDERING_CITIES, [
+      { value: "da-nang", label: "Đà Nẵng" },
       { value: "ho-chi-minh", label: "TP. HCM" },
       { value: "ha-noi", label: "Hà Nội" },
+      { value: "hai-phong", label: "Hải Phòng" },
+      { value: "can-tho", label: "Cần Thơ" },
     ]);
     assert.equal(
       shopeeFoodSearchUrl("Cơm tấm", "ho-chi-minh"),
@@ -277,15 +280,15 @@ try {
     assert.equal(chay.category, "vegetarian");
 
     // Test "Mì xào bò" specifically (ensure it never binds to Bún Đậu Phố Cổ or has restaurantId=947982)
-    const miXaoBo = resolveSmartHubAffiliate("Mì xào bò", "ha-noi", "vi");
+    const miXaoBo = resolveSmartHubAffiliate("Mì xào bò", undefined, "vi");
     assert.ok(miXaoBo);
     assert.equal(miXaoBo.category, "noodles");
     assert.equal(miXaoBo.isSpecificRestaurant, false);
+    assert.ok(miXaoBo.href.includes("danh-sach-dia-diem-giao-tan-noi"));
+    const parsedMi = new URL(miXaoBo.href);
+    assert.equal(parsedMi.searchParams.get("q"), "Mì xào bò");
     assert.ok(miXaoBo.href.includes("sub_id=mi_xao_bo"));
-    assert.ok(
-      miXaoBo.href.includes("spf.shopee.vn") ||
-        miXaoBo.href.includes("mmp_pid=an_17316810077"),
-    );
+    assert.ok(miXaoBo.href.includes("mmp_pid=an_17316810077"));
     assert.equal(miXaoBo.href.includes("restaurantId="), false);
     assert.equal(miXaoBo.href.includes("brandId="), false);
 

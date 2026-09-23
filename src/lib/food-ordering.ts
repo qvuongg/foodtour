@@ -15,11 +15,16 @@ export type ShopeeFoodLink = {
 const SHOPEEFOOD_HOME = "https://shopeefood.vn/";
 const ALLOWED_HOSTS = ["shopeefood.vn", "shopee.vn", "spf.shopee.vn"];
 
-// These city routes have been verified using ShopeeFood's public search UI.
+// These city routes have been verified using ShopeeFood's public router and search UI.
 export const ORDERING_CITIES = [
+  { value: "da-nang", label: "Đà Nẵng" },
   { value: "ho-chi-minh", label: "TP. HCM" },
   { value: "ha-noi", label: "Hà Nội" },
+  { value: "hai-phong", label: "Hải Phòng" },
+  { value: "can-tho", label: "Cần Thơ" },
 ] as const;
+
+export const DEFAULT_ORDERING_CITY = "da-nang";
 
 function isSupportedCity(city: string): boolean {
   return ORDERING_CITIES.some(({ value }) => value === city);
@@ -27,24 +32,43 @@ function isSupportedCity(city: string): boolean {
 
 export function shopeeFoodSearchUrl(
   dish: string,
-  city: string,
+  city?: string,
   options?: { affiliate?: boolean; subId?: string },
 ): string {
   const isAff = options?.affiliate;
   const subId = options?.subId || (dish ? slugifySubId(dish) : undefined);
 
-  if (typeof dish !== "string" || !dish.trim() || !isSupportedCity(city)) {
+  if (typeof dish !== "string" || !dish.trim()) {
     if (isAff) {
-      return attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, dish || "food");
+      return attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, "food");
     }
     return SHOPEEFOOD_HOME;
   }
 
+  // Without affiliate options: maintain backwards compatibility with existing tests
+  if (!isAff) {
+    if (!city || !isSupportedCity(city)) {
+      return SHOPEEFOOD_HOME;
+    }
+    try {
+      const query = encodeURIComponent(dish.trim());
+      return `${SHOPEEFOOD_HOME}${city}/danh-sach-dia-diem-giao-tan-noi?q=${query}`;
+    } catch {
+      return SHOPEEFOOD_HOME;
+    }
+  }
+
+  // With affiliate options:
+  // ShopeeFood's SPA router strictly requires a valid city prefix (e.g. /da-nang/, /ho-chi-minh/, /ha-noi/).
+  // Omitting the city slug causes the router to fallback and redirect to "/" (homepage).
+  const effectiveCity =
+    typeof city === "string" && isSupportedCity(city)
+      ? city
+      : DEFAULT_ORDERING_CITY;
+
   try {
     const query = encodeURIComponent(dish.trim());
-    const rawUrl = `${SHOPEEFOOD_HOME}${city}/danh-sach-dia-diem-giao-tan-noi?q=${query}`;
-    if (!isAff) return rawUrl;
-
+    const rawUrl = `${SHOPEEFOOD_HOME}${effectiveCity}/danh-sach-dia-diem-giao-tan-noi?q=${query}`;
     const url = new URL(rawUrl);
     url.searchParams.set("mmp_pid", "an_17316810077");
     url.searchParams.set("utm_source", "an_17316810077");
@@ -210,6 +234,8 @@ export function findAffiliateRestaurant(
 
 export type SmartHubAffiliateResult = {
   href: string;
+  appHref: string;
+  webHref: string;
   title: string;
   badge: string;
   category: FoodCategory;
@@ -227,8 +253,11 @@ export function resolveSmartHubAffiliate(
   // 1. Check if there is an explicit restaurant override (e.g. Bún Đậu Phố Cổ)
   const specificMatch = findAffiliateRestaurant(dish, city);
   if (specificMatch && specificMatch.affiliate) {
+    const appHref = attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, dish);
     return {
       href: specificMatch.href,
+      appHref,
+      webHref: specificMatch.href,
       title: specificMatch.restaurant,
       badge:
         language === "vi"
@@ -240,16 +269,16 @@ export function resolveSmartHubAffiliate(
     };
   }
 
-  // 2. Smart Category Hub: 100% coverage for any dish
+  // 2. Direct Dish Search with Affiliate Tracking: always uses a valid city prefix
   const cat = detectFoodCategory(dish);
   const hub = CATEGORY_HUBS[cat];
-  const baseUrl = hub.hubUrl || DEFAULT_SHOPEEFOOD_HUB_URL;
-  const hubLink = resolveShopeeFoodLink(attachSubIdToUrl(baseUrl, dish));
-
-  if (!hubLink.affiliate) return null;
+  const searchHref = shopeeFoodSearchUrl(dish, city, { affiliate: true });
+  const appHref = attachSubIdToUrl(hub.hubUrl || DEFAULT_SHOPEEFOOD_HUB_URL, dish);
 
   return {
-    href: hubLink.href,
+    href: searchHref,
+    appHref,
+    webHref: searchHref,
     title:
       language === "vi"
         ? `Quán ${dish.trim()} gần bạn`
