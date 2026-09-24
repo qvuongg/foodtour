@@ -33,6 +33,25 @@ try {
   const { qrcodegen } = createRequire(import.meta.url)(
     join(out, "qrcodegen.cjs"),
   );
+  // Mirror the supported legacy environment configuration alongside the catalog.
+  const configuredRestaurant = findAffiliateRestaurant("Bún chả", "ha-noi");
+  buildSync({
+    entryPoints: ["src/lib/food-ordering.ts"],
+    outfile: join(out, "food-ordering-env.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    define: {
+      "import.meta.env": JSON.stringify({
+        VITE_SHOPEEFOOD_AFFILIATE_URL: configuredRestaurant.href,
+        VITE_SHOPEEFOOD_AFFILIATE_RESTAURANT: configuredRestaurant.restaurant,
+        VITE_SHOPEEFOOD_AFFILIATE_DISHES: '["Bún chả","Bún đậu mắm tôm"]',
+      }),
+    },
+  });
+  const { resolveSmartHubAffiliate: resolveWithLegacyEnv } = createRequire(
+    import.meta.url,
+  )(join(out, "food-ordering-env.cjs"));
   const fallback = { href: "https://shopeefood.vn/", affiliate: false };
 
   test("Missing or malformed configuration falls back to the official homepage", () => {
@@ -237,7 +256,8 @@ try {
     assert.equal(match.restaurant, "Bún Đậu Phố Cổ");
     assert.equal(match.affiliate, true);
     assert.ok(
-      match.href.includes("shopeefood.vn") || match.href.includes("s.shopee.vn"),
+      match.href.includes("shopeefood.vn") ||
+        match.href.includes("s.shopee.vn"),
     );
 
     // Case insensitive & whitespace trimmed
@@ -250,7 +270,7 @@ try {
     assert.equal(findAffiliateRestaurant(""), null);
   });
 
-  test("resolveSmartHubAffiliate provides 100% coverage across any dish and sets sub_id", () => {
+  test("Ordering offers app and web destinations for dishes without promising nearby results", () => {
     // 1. Specific restaurant override priority (Bún Đậu Phố Cổ)
     const bunDau = resolveSmartHubAffiliate("Bún đậu mắm tôm", "ha-noi", "vi");
     assert.ok(bunDau);
@@ -259,7 +279,11 @@ try {
     assert.equal(bunDau.affiliate, true);
 
     // 2. Smart Category Hub for other dishes (Cơm tấm -> rice, Phở -> noodles, Pizza -> fastfood, Chay -> veg)
-    const comTam = resolveSmartHubAffiliate("Cơm tấm sườn bì chả", "ho-chi-minh", "vi");
+    const comTam = resolveSmartHubAffiliate(
+      "Cơm tấm sườn bì chả",
+      "ho-chi-minh",
+      "vi",
+    );
     assert.ok(comTam);
     assert.equal(comTam.category, "rice");
     assert.equal(comTam.isSpecificRestaurant, false);
@@ -275,7 +299,11 @@ try {
     assert.ok(pizza);
     assert.equal(pizza.category, "rolls_bread");
 
-    const chay = resolveSmartHubAffiliate("Cơm chiên chay", "ho-chi-minh", "vi");
+    const chay = resolveSmartHubAffiliate(
+      "Cơm chiên chay",
+      "ho-chi-minh",
+      "vi",
+    );
     assert.ok(chay);
     assert.equal(chay.category, "vegetarian");
 
@@ -295,11 +323,62 @@ try {
     // 3. English localization
     const enResult = resolveSmartHubAffiliate("Cơm tấm", "ho-chi-minh", "en");
     assert.ok(enResult);
-    assert.ok(enResult.title.includes("spots near you"));
+    assert.equal(enResult.title, "Cơm tấm");
 
     // 4. Empty dish safely returns null
     assert.equal(resolveSmartHubAffiliate(""), null);
     assert.equal(resolveSmartHubAffiliate(undefined), null);
+  });
+
+  test("Restaurant CTA and QR preserve the exact configured URL, with a separate city search", () => {
+    for (const dish of ["Bún đậu mắm tôm", "Bún chả"]) {
+      const restaurant = findAffiliateRestaurant(dish, "ha-noi");
+      const result = resolveSmartHubAffiliate(dish, "ha-noi");
+      assert.ok(restaurant && result);
+      assert.equal(result.appHref, restaurant.href);
+      assert.equal(result.href, restaurant.href);
+      assert.equal(result.appDestinationType, "restaurant");
+      assert.equal(result.restaurantCity, "ha-noi");
+      assert.equal(result.webDestinationType, "web-search");
+      const web = new URL(result.webHref);
+      assert.equal(web.pathname, "/ha-noi/danh-sach-dia-diem-giao-tan-noi");
+      assert.equal(web.searchParams.get("q"), dish);
+      assert.equal(web.searchParams.has("restaurantId"), false);
+    }
+  });
+
+  test("Other cities and unmatched dishes use a generic hub and correctly scoped web search", () => {
+    for (const [dish, city] of [
+      ["Bún chả", "ho-chi-minh"],
+      ["Bún chả cá", "ha-noi"],
+      ["Trà đào", "can-tho"],
+    ]) {
+      const result = resolveSmartHubAffiliate(dish, city);
+      assert.ok(result);
+      assert.equal(result.appDestinationType, "app-hub");
+      assert.equal(result.isSpecificRestaurant, false);
+      assert.equal(new URL(result.appHref).hostname, "spf.shopee.vn");
+      assert.equal(result.webDestinationType, "web-search");
+      const web = new URL(result.webHref);
+      assert.equal(web.pathname, `/${city}/danh-sach-dia-diem-giao-tan-noi`);
+      assert.equal(web.searchParams.get("q"), dish);
+      assert.doesNotMatch(
+        result.title + result.badge,
+        /3\s?km|gần bạn|near you/i,
+      );
+    }
+  });
+
+  test("Legacy environment configuration cannot bypass the catalog restaurant’s city", () => {
+    const hanoi = resolveWithLegacyEnv("Bún chả", "ha-noi");
+    assert.equal(hanoi.appDestinationType, "restaurant");
+    assert.equal(hanoi.appHref, configuredRestaurant.href);
+    for (const city of ["da-nang", "ho-chi-minh", "can-tho"]) {
+      const elsewhere = resolveWithLegacyEnv("Bún chả", city);
+      assert.equal(elsewhere.appDestinationType, "app-hub");
+      assert.equal(elsewhere.isSpecificRestaurant, false);
+      assert.ok(elsewhere.webHref.includes(`/${city}/`));
+    }
   });
 
   test("shopeeFoodSearchUrl supports affiliate tracking parameters and safe fallbacks", () => {

@@ -168,6 +168,7 @@ export type AffiliateMatchResult = {
   href: string;
   restaurant: string;
   affiliate: boolean;
+  city?: string;
 };
 
 import { AFFILIATE_CATALOG } from "./affiliate-catalog";
@@ -198,6 +199,7 @@ export function findAffiliateRestaurant(
         href: resolved.href,
         restaurant: item.restaurant,
         affiliate: true,
+        city: item.city,
       };
     }
   }
@@ -220,10 +222,17 @@ export function findAffiliateRestaurant(
     if (envUrl && envDishes && envRestaurant) {
       const resolved = resolveDishAffiliateLink(envUrl, envDishes, dish);
       if (resolved.affiliate) {
+        const catalogEntry = AFFILIATE_CATALOG.find(
+          (item) => item.url === resolved.href,
+        );
+        // The environment fallback must not bypass a known city restriction.
+        if (catalogEntry?.city && city && catalogEntry.city !== city)
+          return null;
         return {
           href: resolved.href,
           restaurant: envRestaurant,
           affiliate: true,
+          city: catalogEntry?.city,
         };
       }
     }
@@ -235,7 +244,11 @@ export function findAffiliateRestaurant(
 export type SmartHubAffiliateResult = {
   href: string;
   appHref: string;
+  appDestinationType: "restaurant" | "app-hub";
   webHref: string;
+  webDestinationType: "web-search";
+  city: string;
+  restaurantCity?: string;
   title: string;
   badge: string;
   category: FoodCategory;
@@ -250,14 +263,24 @@ export function resolveSmartHubAffiliate(
 ): SmartHubAffiliateResult | null {
   if (typeof dish !== "string" || !dish.trim()) return null;
 
-  // 1. Check if there is an explicit restaurant override (e.g. Bún Đậu Phố Cổ)
-  const specificMatch = findAffiliateRestaurant(dish, city);
+  const effectiveCity =
+    city && isSupportedCity(city) ? city : DEFAULT_ORDERING_CITY;
+  const searchHref = shopeeFoodSearchUrl(dish, effectiveCity, {
+    affiliate: true,
+  });
+
+  // A configured restaurant must keep the same exact destination in the CTA
+  // and QR code. City metadata is not proof of delivery availability.
+  const specificMatch = findAffiliateRestaurant(dish, effectiveCity);
   if (specificMatch && specificMatch.affiliate) {
-    const appHref = attachSubIdToUrl(DEFAULT_SHOPEEFOOD_HUB_URL, dish);
     return {
       href: specificMatch.href,
-      appHref,
-      webHref: specificMatch.href,
+      appHref: specificMatch.href,
+      appDestinationType: "restaurant",
+      webHref: searchHref,
+      webDestinationType: "web-search",
+      city: effectiveCity,
+      restaurantCity: specificMatch.city,
       title: specificMatch.restaurant,
       badge:
         language === "vi"
@@ -269,20 +292,23 @@ export function resolveSmartHubAffiliate(
     };
   }
 
-  // 2. Direct Dish Search with Affiliate Tracking: always uses a valid city prefix
+  // The generic hub does not preselect a dish, restaurant or delivery address.
+  // Tracking parameters do not establish that a search or order is attributed.
   const cat = detectFoodCategory(dish);
   const hub = CATEGORY_HUBS[cat];
-  const searchHref = shopeeFoodSearchUrl(dish, city, { affiliate: true });
-  const appHref = attachSubIdToUrl(hub.hubUrl || DEFAULT_SHOPEEFOOD_HUB_URL, dish);
+  const appHref = attachSubIdToUrl(
+    hub.hubUrl || DEFAULT_SHOPEEFOOD_HUB_URL,
+    dish,
+  );
 
   return {
     href: searchHref,
     appHref,
+    appDestinationType: "app-hub",
     webHref: searchHref,
-    title:
-      language === "vi"
-        ? `Quán ${dish.trim()} gần bạn`
-        : `${dish.trim()} spots near you`,
+    webDestinationType: "web-search",
+    city: effectiveCity,
+    title: dish.trim(),
     badge: language === "vi" ? hub.badgeVi : hub.badgeEn,
     category: cat,
     isSpecificRestaurant: false,

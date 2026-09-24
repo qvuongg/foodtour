@@ -9,9 +9,11 @@ import {
   Play,
 } from "lucide-react";
 import type { Food } from "@/lib/foods";
-import { foodName, foodSubtitle, priceLabel, type Language } from "@/lib/i18n";
+import { foodName, priceLabel, type Language } from "@/lib/i18n";
 import { spotlightProgress } from "@/lib/spotlight-motion";
 import { FoodImage } from "./food-image";
+import { getMealConfig, type MealKind } from "@/lib/food-categories";
+import { foodServingUnit } from "@/lib/meal-settings";
 
 export type SpotlightSpin = {
   winner: Food;
@@ -22,18 +24,24 @@ export type SpotlightSpin = {
 export function FoodSpotlight({
   foods,
   language,
+  mealKind,
   spin,
   spinning,
   won,
+  suspended,
+  onClearFilter,
   onFinish,
   onTick,
   onBrowse,
 }: {
   foods: Food[];
   language: Language;
+  mealKind: MealKind;
   spin: SpotlightSpin | null;
   spinning: boolean;
   won: boolean;
+  suspended: boolean;
+  onClearFilter: () => void;
   onFinish: (food: Food) => void;
   onTick: () => void;
   onBrowse: () => void;
@@ -103,7 +111,15 @@ export function FoodSpotlight({
   }, [spin]);
   // Decorative drift never selects a winner, plays audio or writes cookies.
   useEffect(() => {
-    if (spinning || won || paused || dragging || focused || foods.length < 2)
+    if (
+      spinning ||
+      won ||
+      suspended ||
+      paused ||
+      dragging ||
+      focused ||
+      foods.length < 2
+    )
       return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frame = 0,
@@ -124,7 +140,7 @@ export function FoodSpotlight({
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, [spinning, won, paused, hovered, focused, dragging, foods]);
+  }, [spinning, won, suspended, paused, hovered, focused, dragging, foods]);
   if (!foods.length)
     return (
       <div className="spotlight-empty">
@@ -135,6 +151,9 @@ export function FoodSpotlight({
             ? "Tắt bộ lọc chay hoặc thêm món trong “Món của tôi”."
             : "Turn off the vegetarian filter or add a dish in “My dishes”."}
         </p>
+        <button onClick={onClearFilter}>
+          {vi ? "Xem tất cả món ăn trưa" : "Show all lunch dishes"}
+        </button>
       </div>
     );
   const center = Math.round(position),
@@ -183,11 +202,16 @@ export function FoodSpotlight({
         onPointerMove={(event) => {
           const previous = drag.current;
           if (!previous || previous.id !== event.pointerId) return;
-          const pitch = parseFloat(
-            getComputedStyle(event.currentTarget).getPropertyValue(
-              "--hall-pitch",
-            ),
-          );
+          const card = event.currentTarget.querySelector(".spotlight-card");
+          if (!card) return;
+          const pitch =
+            parseFloat(getComputedStyle(card).width) +
+            parseFloat(
+              getComputedStyle(event.currentTarget).getPropertyValue(
+                "--hall-gap",
+              ),
+            );
+          if (!Number.isFinite(pitch) || pitch <= 0) return;
           const delta = (previous.x - event.clientX) / pitch;
           const dt = Math.max(1, event.timeStamp - previous.at);
           velocity.current = Math.max(-0.008, Math.min(0.008, delta / dt));
@@ -261,12 +285,14 @@ export function FoodSpotlight({
                 <div className="spotlight-copy">
                   <span className="dish-category">
                     {food.veg && <Leaf size={12} />}{" "}
-                    {foodSubtitle(food, language)}
+                    {vi
+                      ? getMealConfig(mealKind).labelVi
+                      : getMealConfig(mealKind).labelEn}
                   </span>
                   <h2>{foodName(food, language)}</h2>
                   <span className="spotlight-price">
                     {priceLabel(food.price, language, true)}{" "}
-                    <small>/ {vi ? "người" : "person"}</small>
+                    <small>/ {foodServingUnit(food, mealKind, language)}</small>
                   </span>
                 </div>
                 <div className="mirror-reflection" aria-hidden="true">
@@ -276,6 +302,22 @@ export function FoodSpotlight({
             );
           },
         )}
+      </div>
+      <div className="spotlight-caption" aria-hidden="true">
+        <strong>
+          {spinning
+            ? vi
+              ? "Đang tìm món hợp gu…"
+              : "Finding your next favorite…"
+            : foodName(selected, language)}
+        </strong>
+        <span>
+          {spinning
+            ? vi
+              ? "Một chút bất ngờ đang tới"
+              : "A little surprise is on its way"
+            : `${priceLabel(selected.price, language, true)} / ${foodServingUnit(selected, mealKind, language)}`}
+        </span>
       </div>
       <div className="browse-controls">
         <button

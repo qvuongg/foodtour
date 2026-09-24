@@ -1,17 +1,8 @@
-.winner-dialog .winner-art {
-  width: clamp(100px, 20dvh, 180px);
-  flex-shrink: 0;
-  margin: 4px 0;
-  border-radius: 18px;
-}
-.winner-title {
-  overflow-wrap: anywhere;
-}
 .food-ordering {
   width: 100%;
   text-align: left;
   border-top: 1px solid var(--border);
-  padding-top: 16px;
+  padding-top: 14px;
 }
 .food-ordering h3 {
   display: flex;
@@ -19,47 +10,68 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 700;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
-.food-ordering h3 svg {
+.food-ordering h3 svg,
+.ordering-city svg {
   color: var(--primary);
-}
-.ordering-hint,
-.ordering-save-error {
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--muted-foreground);
-  margin: 7px 0 10px;
+  flex-shrink: 0;
 }
 .ordering-city {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 .ordering-city label {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  flex-shrink: 0;
+  gap: 6px;
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.4;
 }
 .ordering-city select {
-  flex: 1;
+  width: 132px;
   min-width: 0;
   min-height: 44px;
-  padding: 8px 6px;
+  padding: 8px;
   font-family: inherit;
   font-size: 13px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 10px;
   color: var(--foreground);
 }
 .ordering-city select:focus-visible,
+.food-ordering a:focus-visible,
+.ordering-phone summary:focus-visible,
 .ordering-alternatives summary:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 3px;
+}
+.ordering-restaurant {
+  border: 1px solid #dfbba2;
+  border-radius: 14px;
+  background: #fff8f2;
+  padding: 12px 12px 0;
+}
+.ordering-restaurant-header {
+  margin: 0 0 10px;
+}
+.ordering-badge {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #9e391e;
+  margin-bottom: 4px;
+}
+.ordering-restaurant-name {
+  display: block;
+  font-size: 16px;
+  font-weight: 750;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
 }
 .shopeefood-button {
   display: flex;
@@ -72,10 +84,15 @@
   color: var(--primary-foreground);
   background: var(--primary);
   border: 1px solid var(--primary);
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 13px;
+  line-height: 1.4;
   font-weight: 700;
   text-align: center;
+}
+.shopeefood-button svg,
+.ordering-web-link svg {
+  flex-shrink: 0;
 }
 .shopeefood-button:hover {
   background: #992b14;
@@ -83,183 +100,91 @@
 .shopeefood-button:active {
   transform: translateY(1px);
 }
-.shopeefood-button.secondary {
-  background: var(--surface);
-  color: var(--primary);
+.ordering-hint,
+.ordering-web-hint,
+.ordering-save-error,
+.ordering-disclosure {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
 }
-.shopeefood-button.secondary:hover {
-  background: #fcece1;
-}
-.ordering-hint {
-  text-align: center;
-  margin-bottom: 0;
+.food-ordering .ordering-hint {
+  margin: 8px 0;
 }
 .ordering-save-error {
   color: #943b17;
+  margin: -4px 0 10px;
 }
-.ordering-restaurant {
-  border: 1px solid #dfbba2;
-  border-radius: 14px;
-  background: #fff8f2;
-  padding: 14px;
-  margin: 0;
+.ordering-phone summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+  border-top: 1px solid #eed8ca;
 }
-.ordering-desktop-view {
-  display: block;
-}
-.ordering-mobile-view {
+.ordering-phone summary::-webkit-details-marker {
   display: none;
 }
-@media (max-width: 767px) {
-  .ordering-desktop-view {
-    display: none;
-  }
-  .ordering-mobile-view {
-    display: block;
-  }
+.ordering-phone summary svg:last-child {
+  margin-left: auto;
 }
-.ordering-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #c8401a;
-  margin-bottom: 2px;
-}
-.ordering-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin: 2px 0 10px;
-}
-.ordering-title-row .ordering-restaurant-name {
-  margin: 0;
-  flex: 1;
-}
-.ordering-copy-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 9px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--primary);
-  background: #fdf2ea;
-  border: 1px solid #f0d5c2;
-  border-radius: 999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-.ordering-copy-chip:hover {
-  background: #fae4d4;
-  border-color: #e5bfab;
-}
-.ordering-copy-chip.copied {
-  color: #1b7a42;
-  background: #eafaf1;
-  border-color: #b7e8cb;
-}
-.ordering-city-selector {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  font-size: 11px;
-  color: var(--muted-foreground);
-  margin: 2px 0;
-}
-.ordering-city-selector svg {
-  color: var(--primary);
-  flex-shrink: 0;
-}
-.ordering-city-selector select {
-  padding: 3px 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--foreground);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-}
-.ordering-restaurant-name {
-  display: block;
-  font-size: 16px;
-  font-weight: 750;
-  color: var(--foreground);
-  margin: 2px 0 10px;
-  overflow-wrap: anywhere;
+.ordering-phone[open] summary svg:last-child {
+  transform: rotate(180deg);
 }
 .ordering-qr-frame {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #ffffff;
-  border: 1px solid #eed8ca;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
+  padding: 0 0 12px;
 }
 .ordering-qr-box {
   flex-shrink: 0;
-  background: #ffffff;
-  padding: 4px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #eed8ca;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0e2d8;
 }
-.ordering-qr-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  text-align: left;
+.ordering-qr-box svg {
+  display: block;
 }
-.ordering-qr-instructions {
-  font-size: 12px !important;
-  line-height: 1.45 !important;
-  color: var(--foreground) !important;
-  margin: 0 !important;
-}
-.ordering-qr-fallback {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.15s ease;
-}
-.ordering-qr-fallback:hover {
-  color: var(--primary);
-}
-.ordering-restaurant p {
-  font-size: 11px;
+.food-ordering .ordering-qr-instructions {
+  font-size: 12px;
   line-height: 1.5;
-  color: var(--muted-foreground);
-  margin: 8px 0 0;
+  color: var(--foreground);
+  margin: 0;
 }
-.ordering-restaurant .ordering-disclosure {
-  font-size: 10px;
-  color: #8c7365;
-  margin-top: 6px;
+.ordering-web-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  padding: 8px;
+  color: var(--foreground);
+  background: var(--surface);
 }
-@media (max-width: 460px) {
-  .ordering-qr-frame {
-    flex-direction: column;
-    text-align: center;
-  }
-  .ordering-qr-text {
-    align-items: center;
-    text-align: center;
-  }
+.ordering-web-link:hover {
+  background: var(--accent);
+}
+.food-ordering .ordering-web-hint {
+  margin: 5px 0 0;
+  text-align: center;
+}
+.food-ordering .ordering-disclosure {
+  font-size: 11px;
+  margin: 10px 0 0;
+  text-align: center;
 }
 .ordering-alternatives {
   width: 100%;
@@ -279,7 +204,8 @@
 .ordering-alternative-links a {
   flex: 1;
   min-width: 0;
-  font-size: 11px;
+  min-height: 44px;
+  font-size: 12px;
   background: var(--background);
   color: var(--foreground);
   border: 1px solid var(--border);
@@ -290,15 +216,11 @@
 .winner-actions:has(.ordering-alternatives) {
   gap: 0;
 }
-@media (max-width: 640px) {
-  .food-ordering {
-    padding-top: 12px;
-  }
-  .ordering-city {
-    gap: 6px;
-  }
-  .ordering-city label {
-    font-size: 10px;
+@media (max-width: 380px) {
+  .ordering-qr-frame {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
   }
 }
 @media (max-height: 740px) {

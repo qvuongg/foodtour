@@ -21,36 +21,36 @@ export const CATEGORY_HUBS: Record<FoodCategory, CategoryHubInfo> = {
     category: "noodles",
     nameVi: "Món Nước, Bún & Phở",
     nameEn: "Noodles & Soups",
-    badgeVi: "Bún · Phở · Mì gần bạn",
-    badgeEn: "Noodles & Soups near you",
+    badgeVi: "Bún · Phở · Mì",
+    badgeEn: "Noodles & Soups",
   },
   rice: {
     category: "rice",
     nameVi: "Cơm & Món Mặn",
     nameEn: "Rice & Warm Meals",
-    badgeVi: "Cơm ngon nóng hổi gần bạn",
-    badgeEn: "Rice dishes near you",
+    badgeVi: "Cơm & Món mặn",
+    badgeEn: "Rice dishes",
   },
   rolls_bread: {
     category: "rolls_bread",
     nameVi: "Bánh Mì, Món Cuốn & Fastfood",
     nameEn: "Bread, Rolls & Fastfood",
-    badgeVi: "Bánh mì · Món cuốn giao nhanh",
-    badgeEn: "Fastfood & Rolls near you",
+    badgeVi: "Bánh mì · Món cuốn",
+    badgeEn: "Fastfood & Rolls",
   },
   vegetarian: {
     category: "vegetarian",
     nameVi: "Món Chay & Healthy",
     nameEn: "Vegetarian & Healthy",
-    badgeVi: "Món chay thanh tịnh gần bạn",
-    badgeEn: "Vegetarian food near you",
+    badgeVi: "Món chay & Healthy",
+    badgeEn: "Vegetarian food",
   },
   drinks_desserts: {
     category: "drinks_desserts",
     nameVi: "Trà Sữa, Đồ Uống & Ăn Vặt",
     nameEn: "Drinks & Desserts",
-    badgeVi: "Trà sữa · Đồ uống gần bạn",
-    badgeEn: "Drinks & Desserts near you",
+    badgeVi: "Trà sữa · Đồ uống",
+    badgeEn: "Drinks & Desserts",
   },
   international_hotpot: {
     category: "international_hotpot",
@@ -63,14 +63,14 @@ export const CATEGORY_HUBS: Record<FoodCategory, CategoryHubInfo> = {
     category: "general",
     nameVi: "Món Ngon Đặc Sắc",
     nameEn: "Popular Delicacies",
-    badgeVi: "Quán ngon gần bạn",
-    badgeEn: "Top spots near you",
+    badgeVi: "Khám phá quán trên ShopeeFood",
+    badgeEn: "Explore ShopeeFood",
   },
 };
 
 /**
  * Link ShopeeFood Universal Hub mặc định của tài khoản bạn.
- * Dùng Shortlink chính thức của ShopeeFood (spf.shopee.vn) để mở thẳng vào App Shopee không lỗi.
+ * Đích mở app phụ thuộc thiết bị và cài đặt Shopee; không tự chọn món hoặc quán.
  */
 export const DEFAULT_SHOPEEFOOD_HUB_URL = "https://spf.shopee.vn/3LR3btm4Yj";
 

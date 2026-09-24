@@ -1,0 +1,325 @@
+.preferences-dialog[data-slot="dialog-content"] {
+  width: min(640px, calc(100vw - 24px));
+  max-width: 640px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  background: var(--surface);
+  border-radius: 24px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding: 16px;
+}
+.preferences-dialog .preferences-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+.preferences-close:hover {
+  background: var(--muted);
+}
+.preferences-heading {
+  padding-right: 28px;
+}
+.preferences-dialog h2 {
+  font-size: 26px;
+  font-weight: 750;
+  line-height: 1.18;
+  letter-spacing: -0.8px;
+  padding: 0;
+}
+.preferences-dialog [data-slot="dialog-description"] {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 0;
+  color: var(--muted-foreground);
+}
+.preferences-dialog input:not([type="checkbox"]) {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 10px 12px;
+  font-size: 16px;
+}
+.preferences-dialog input[aria-invalid="true"] {
+  border-color: #a13321;
+}
+.preferences-dialog input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+.preferences-dialog .pool-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: var(--muted);
+  border: 0;
+  border-radius: 12px;
+}
+.preferences-dialog .pool-tabs button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.preferences-dialog .pool-tabs .selected {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 1px 3px #3024160d;
+}
+.pool-tabs button span {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+.preferences-dialog .pool-body {
+  min-height: 0;
+  flex-shrink: 0;
+}
+.preferences-dialog .pool-list {
+  max-height: min(34dvh, 280px);
+  overflow: auto;
+  margin-top: 12px;
+  overscroll-behavior: contain;
+  scroll-padding: 8px;
+}
+.preferences-dialog .pool-list > p {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 20px 4px;
+  color: var(--muted-foreground);
+}
+.preferences-dialog .pool-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 3px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.preferences-dialog .pool-row > span,
+.preferences-dialog .pool-row > button:first-child {
+  flex: 1;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.pool-row > span svg,
+.pool-row > button:first-child svg {
+  display: inline-block;
+  margin-left: 6px;
+  color: #426c2d;
+  vertical-align: -2px;
+}
+.preferences-dialog .pool-row button {
+  min-height: 44px;
+  min-width: 44px;
+}
+.preferences-dialog .pool-row .pool-remove {
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+}
+.pool-remove:hover {
+  background: #fae9e3;
+  color: #a13321;
+}
+.preferences-dialog .pool-row small {
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  margin-left: auto;
+  font-size: 12px;
+}
+.preferences-dialog .custom-form {
+  display: grid;
+  grid-template-columns: 1fr 165px;
+  gap: 12px;
+  align-items: start;
+}
+.preferences-dialog .custom-form label {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.preferences-dialog .custom-form input {
+  margin-top: 6px;
+}
+.preferences-dialog .custom-form .inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.preferences-dialog .custom-form .inline-check input {
+  margin: 0;
+}
+.inline-check svg {
+  color: #426c2d;
+}
+.preferences-dialog .pool-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.pool-field-error {
+  display: block;
+  margin-top: 6px;
+  color: #a13321;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.preferences-dialog .custom-cancel {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+.preferences-dialog .pool-save {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.pool-save p {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.pool-save p svg {
+  color: #426c2d;
+  flex-shrink: 0;
+}
+.pool-save.has-error p {
+  color: #a13321;
+}
+.preferences-dialog .pool-retry {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--foreground);
+  background: var(--background);
+}
+.preferences-dialog .subtle-button {
+  min-height: 44px;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.preferences-dialog .preferences-bottom {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.preferences-dialog .preferences-bottom button {
+  min-height: 44px;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.preferences-dialog .preferences-clear {
+  color: #a13321;
+}
+.preferences-dialog .delete-confirm {
+  background: #fae9e3;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.delete-confirm > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.preferences-dialog .delete-confirm button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+.preferences-dialog .delete-confirm .delete-cancel {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+.preferences-dialog .delete-confirm .delete-approve {
+  background: #a13321;
+  color: white;
+}
+.preferences-dialog .preferences-message {
+  color: #a13321;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.preferences-dialog .preferences-message.is-info {
+  color: var(--muted-foreground);
+}
+.preferences-dialog :focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .preferences-dialog[data-slot="dialog-content"] {
+    padding: 24px 16px 16px;
+    border-radius: 22px;
+    gap: 14px;
+  }
+  .preferences-dialog h2 {
+    font-size: 24px;
+    padding: 0;
+  }
+  .preferences-dialog .custom-form {
+    grid-template-columns: minmax(0, 1fr) 124px;
+  }
+  .preferences-dialog .pool-tabs button {
+    gap: 6px;
+    font-size: 13px;
+  }
+  .preferences-dialog .pool-row {
+    gap: 8px;
+    font-size: 13px;
+  }
+  .preferences-dialog .pool-row small {
+    font-size: 11px;
+  }
+}
