@@ -1,237 +1,38 @@
-.food-ordering {
+.food-ordering-action {
   width: 100%;
-  text-align: left;
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
-}
-.food-ordering h3 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  margin: 0 0 12px;
-}
-.food-ordering h3 svg,
-.ordering-city svg {
-  color: var(--primary);
-  flex-shrink: 0;
-}
-.ordering-city {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.ordering-city label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.ordering-city select {
-  width: 132px;
-  min-width: 0;
-  min-height: 44px;
-  padding: 8px;
-  font-family: inherit;
-  font-size: 13px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--foreground);
-}
-.ordering-city select:focus-visible,
-.food-ordering a:focus-visible,
-.ordering-phone summary:focus-visible,
-.ordering-alternatives summary:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 3px;
-}
-.ordering-restaurant {
-  border: 1px solid #dfbba2;
-  border-radius: 14px;
-  background: #fff8f2;
-  padding: 12px 12px 0;
-}
-.ordering-restaurant-header {
-  margin: 0 0 10px;
-}
-.ordering-badge {
-  display: block;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #9e391e;
-  margin-bottom: 4px;
-}
-.ordering-restaurant-name {
-  display: block;
-  font-size: 16px;
-  font-weight: 750;
-  color: var(--foreground);
-  overflow-wrap: anywhere;
+  margin: 14px 0 10px;
 }
 .shopeefood-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 9px;
   width: 100%;
   min-height: 48px;
-  padding: 12px 10px;
-  color: var(--primary-foreground);
+  padding: 12px 16px;
+  color: #ffffff;
   background: var(--primary);
   border: 1px solid var(--primary);
-  border-radius: 10px;
-  font-size: 13px;
+  border-radius: 12px;
+  font-size: 14.5px;
   line-height: 1.4;
   font-weight: 700;
   text-align: center;
-}
-.shopeefood-button svg,
-.ordering-web-link svg {
-  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(187, 56, 28, 0.25);
+  transition: background 0.18s, transform 0.18s;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 .shopeefood-button:hover {
-  background: #992b14;
+  background: #a12f16;
 }
 .shopeefood-button:active {
   transform: translateY(1px);
 }
-.ordering-hint,
-.ordering-web-hint,
-.ordering-save-error,
-.ordering-disclosure {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--muted-foreground);
-}
-.food-ordering .ordering-hint {
-  margin: 8px 0;
-}
-.ordering-save-error {
-  color: #943b17;
-  margin: -4px 0 10px;
-}
-.ordering-phone summary {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 44px;
-  cursor: pointer;
+.ordering-specific-restaurant {
+  margin: 6px 0 0;
   font-size: 12px;
   font-weight: 600;
-  list-style: none;
-  border-top: 1px solid #eed8ca;
-}
-.ordering-phone summary::-webkit-details-marker {
-  display: none;
-}
-.ordering-phone summary svg:last-child {
-  margin-left: auto;
-}
-.ordering-phone[open] summary svg:last-child {
-  transform: rotate(180deg);
-}
-.ordering-qr-frame {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 0 0 12px;
-}
-.ordering-qr-box {
-  flex-shrink: 0;
-  padding: 12px;
-  background: #fff;
-  border: 1px solid #eed8ca;
-  border-radius: 8px;
-}
-.ordering-qr-box svg {
-  display: block;
-}
-.food-ordering .ordering-qr-instructions {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--foreground);
-  margin: 0;
-}
-.ordering-web-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 44px;
-  margin-top: 8px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
+  color: var(--primary);
   text-align: center;
-  padding: 8px;
-  color: var(--foreground);
-  background: var(--surface);
-}
-.ordering-web-link:hover {
-  background: var(--accent);
-}
-.food-ordering .ordering-web-hint {
-  margin: 5px 0 0;
-  text-align: center;
-}
-.food-ordering .ordering-disclosure {
-  font-size: 11px;
-  margin: 10px 0 0;
-  text-align: center;
-}
-.ordering-alternatives {
-  width: 100%;
-}
-.ordering-alternatives summary {
-  min-height: 44px;
-  padding: 13px 8px;
-  cursor: pointer;
-  color: var(--muted-foreground);
-  font-size: 12px;
-  text-align: center;
-}
-.ordering-alternative-links {
-  display: flex;
-  gap: 8px;
-}
-.ordering-alternative-links a {
-  flex: 1;
-  min-width: 0;
-  min-height: 44px;
-  font-size: 12px;
-  background: var(--background);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-}
-.ordering-alternative-links a:hover {
-  background: var(--accent);
-}
-.winner-actions:has(.ordering-alternatives) {
-  gap: 0;
-}
-@media (max-width: 380px) {
-  .ordering-qr-frame {
-    flex-direction: column;
-    text-align: center;
-    gap: 8px;
-  }
-}
-@media (max-height: 740px) {
-  .winner-dialog[data-slot="dialog-content"] {
-    padding-top: 20px;
-    gap: 6px;
-  }
-  .winner-dialog .winner-art {
-    width: 96px;
-  }
-  .winner-dialog .winner-label {
-    padding-top: 0;
-  }
 }

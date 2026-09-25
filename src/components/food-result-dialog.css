@@ -1,6 +1,8 @@
 .food-result-dialog.winner-dialog[data-slot="dialog-content"] {
-  width: min(480px, calc(100vw - 24px));
-  max-width: 480px;
+  position: fixed;
+  z-index: 50;
+  width: min(440px, calc(100vw - 24px));
+  max-width: 440px;
   max-height: calc(100dvh - 32px);
   padding: 0;
   gap: 0;
@@ -10,36 +12,46 @@
   overflow: hidden;
   border-radius: 24px;
   background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
 }
 .food-result-dialog [data-slot="dialog-close"] {
   z-index: 2;
-  top: 6px;
-  right: 6px;
-  width: 44px;
-  height: 44px;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  color: var(--muted-foreground);
+  transition: background 0.18s, color 0.18s;
+}
+.food-result-dialog [data-slot="dialog-close"]:hover {
+  background: var(--border);
+  color: var(--foreground);
 }
 .food-result-dialog .food-result-scroll {
   min-height: 0;
-  padding: 32px 22px 0;
+  padding: 24px 20px 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scroll-padding: 12px;
 }
 .food-result-dialog .food-result-summary {
   display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
+  grid-template-columns: 88px minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 .food-result-dialog.winner-dialog .winner-art {
-  width: 108px;
-  height: 108px;
+  width: 88px;
+  height: 88px;
   margin: 0;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 14px;
   background: var(--background);
   overflow: hidden;
 }
@@ -50,12 +62,12 @@
 }
 .food-result-dialog .food-result-heading {
   min-width: 0;
-  padding-right: 16px;
+  padding-right: 24px;
 }
 .food-result-dialog .winner-label {
   display: block;
   padding: 0;
-  margin-bottom: 7px;
+  margin-bottom: 4px;
   font-size: 10px;
   font-weight: 700;
   line-height: 1.4;
@@ -65,42 +77,54 @@
 }
 .food-result-dialog .winner-title {
   padding: 0;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.7px;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
   text-align: left;
   overflow-wrap: anywhere;
 }
 .food-result-dialog .winner-description {
-  margin-top: 8px;
-  font-size: 12px;
-  line-height: 1.5;
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.4;
   text-align: left;
   color: var(--muted-foreground);
 }
-.food-result-dialog .winner-description > span {
-  display: block;
-  font-size: 11px;
-  margin-bottom: 2px;
-}
 .food-result-dialog .winner-description strong {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--foreground);
 }
-.food-result-dialog .food-ordering {
-  padding-top: 14px;
+.food-result-dialog .ordering-alternative-links {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 14px;
 }
-.food-result-dialog .food-ordering h3 {
-  margin-bottom: 10px;
+.food-result-dialog .ordering-alternative-links a {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  transition: background 0.18s;
+  text-align: center;
 }
-.food-result-dialog .ordering-city {
-  margin-bottom: 10px;
+.food-result-dialog .ordering-alternative-links a:hover {
+  background: var(--accent);
 }
 .food-result-dialog .food-result-footer {
   flex-shrink: 0;
-  padding: 10px 22px 16px;
+  padding: 10px 20px 16px;
   border-top: 1px solid var(--border);
   background: var(--surface);
 }
@@ -112,60 +136,56 @@
   padding: 10px 12px;
   color: var(--foreground);
   background: var(--background);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
 }
 .food-result-dialog .food-result-footer button:hover {
   background: var(--accent);
 }
-.food-result-dialog .ordering-alternative-links {
-  padding-bottom: 12px;
-}
-.food-result-dialog :is(button, a, select, summary):focus-visible {
+.food-result-dialog :is(button, a):focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
+
 @media (max-width: 640px) {
   .food-result-dialog.winner-dialog[data-slot="dialog-content"] {
-    top: auto;
-    bottom: 0;
-    left: 0;
-    translate: none;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
-    max-height: calc(100dvh - 16px);
-    border-radius: 24px 24px 0 0;
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 85dvh !important;
+    transform: none !important;
+    translate: 0 0 !important;
+    margin: 0 !important;
+    border-radius: 24px 24px 0 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    border-bottom: 0 !important;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15) !important;
   }
   .food-result-dialog .food-result-scroll {
-    padding: 32px 16px 0;
+    padding: 20px 16px 0;
   }
   .food-result-dialog .food-result-summary {
-    grid-template-columns: 96px minmax(0, 1fr);
-    gap: 14px;
-    margin-bottom: 14px;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    margin-bottom: 10px;
   }
   .food-result-dialog.winner-dialog .winner-art {
-    width: 96px;
-    height: 96px;
-    border-radius: 14px;
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
   }
   .food-result-dialog .winner-title {
-    font-size: 23px;
-    letter-spacing: -0.6px;
-  }
-  .food-result-dialog .winner-description {
-    margin-top: 6px;
+    font-size: 20px;
+    letter-spacing: -0.4px;
   }
   .food-result-dialog .food-result-footer {
-    padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
-  }
-}
-@media (max-height: 480px) {
-  .food-result-dialog.winner-dialog[data-slot="dialog-content"] {
-    max-height: calc(100dvh - 16px);
-  }
-  .food-result-dialog .food-result-summary {
-    margin-bottom: 12px;
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
   }
 }

@@ -79,35 +79,30 @@ export function FoodResultDialog({
                 dish={food.name}
                 language={language}
               />
-              <details className="ordering-alternatives">
-                <summary>
-                  {vi ? "Tìm bằng cách khác" : "More ways to find food"}
-                </summary>
-                <div className="ordering-alternative-links">
-                  <a
-                    className="find-button"
-                    href={`https://www.google.com/maps/search/${encodeURIComponent(food.name + " " + t.nearby)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {t.find}
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                  <a
-                    className="grabfood-button"
-                    href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: food.name, "support-deeplink": "true", searchParameter: food.name })}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {vi ? "Đặt qua GrabFood" : "Order on GrabFood"}
-                    <ArrowUpRight size={16} aria-hidden="true" />
-                  </a>
-                </div>
-              </details>
+              <div className="ordering-alternative-links">
+                <a
+                  className="grabfood-button"
+                  href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: food.name, "support-deeplink": "true", searchParameter: food.name })}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {vi ? "Đặt qua GrabFood" : "Order on GrabFood"}
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </a>
+                <a
+                  className="find-button"
+                  href={`https://www.google.com/maps/search/${encodeURIComponent(food.name + " " + t.nearby)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t.find}
+                  <ArrowUpRight size={15} aria-hidden="true" />
+                </a>
+              </div>
             </div>
             <div className="food-result-footer">
               <button type="button" onClick={onClose}>
-                {t.continue}
+                {vi ? "Quay tiếp" : t.continue}
               </button>
             </div>
           </>
