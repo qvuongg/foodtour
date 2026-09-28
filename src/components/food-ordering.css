@@ -1,7 +1,174 @@
 .food-ordering-action {
   width: 100%;
-  margin: 14px 0 10px;
+  margin: 12px 0 10px;
 }
+
+/* Nút Tìm quán gần tôi */
+.nearby-locate-section {
+  margin-bottom: 10px;
+}
+.nearby-locate-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #1e5a26;
+  background: #f1f7ed;
+  border: 1px solid #c9dec2;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  touch-action: manipulation;
+}
+.nearby-locate-button:hover:not(:disabled) {
+  background: #e3efdc;
+  border-color: #a9caa0;
+}
+.nearby-locate-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+.nearby-notice {
+  margin: 6px 0 10px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+/* Box hiển thị trạng thái đang xin vị trí tự động */
+.nearby-locating-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #fdf5ef;
+  border: 1px dashed #ebd0be;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  text-align: center;
+}
+
+/* Nút thử lại quyền vị trí */
+.nearby-retry-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  margin-bottom: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--primary);
+  background: #fbeee4;
+  border: 1px solid #ebd0be;
+  cursor: pointer;
+  transition: background 0.18s;
+  touch-action: manipulation;
+}
+.nearby-retry-button:hover {
+  background: #f5ddd0;
+}
+
+/* Thẻ thông tin quán gần nhất */
+.nearby-restaurant-card {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  background: #fff8f2;
+  border: 1px solid #ebd0be;
+  text-align: left;
+}
+.nearby-restaurant-header {
+  margin-bottom: 10px;
+}
+.nearby-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #fbeee4;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.nearby-restaurant-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--foreground);
+  line-height: 1.25;
+  margin-bottom: 3px;
+}
+.nearby-restaurant-address {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+/* Danh sách quán phụ lân cận */
+.nearby-alternatives {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #e8cebd;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nearby-alt-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.nearby-alt-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #ebd0be;
+  font-size: 12px;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background 0.18s;
+}
+.nearby-alt-item:hover {
+  background: #fdf2ea;
+}
+.nearby-alt-item .alt-name {
+  flex: 1;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nearby-alt-item .alt-dist {
+  font-size: 11px;
+  color: var(--primary);
+  font-weight: 600;
+}
+.nearby-alt-item svg {
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* Nút đặt ShopeeFood chính */
 .shopeefood-button {
   display: flex;
   align-items: center;
