@@ -57,6 +57,22 @@ export async function fetchNearbyRestaurantsFromDb(
 ): Promise<DbRestaurant[]> {
   if (!isSupabaseConfigured() || !dish) return [];
 
+  // Xác thực tọa độ hợp lệ, hữu hạn và nằm trong giới hạn địa lý GPS
+  if (
+    typeof lat !== "number" ||
+    typeof lng !== "number" ||
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return [];
+  }
+
+  const safeRadius = Math.min(Math.max(100, Math.floor(radiusMeters) || 3000), 50000);
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 15), 50);
   const slug = slugifyDish(dish);
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_nearby_restaurants`, {
@@ -70,8 +86,8 @@ export async function fetchNearbyRestaurantsFromDb(
         p_dish_slug: slug,
         p_lat: lat,
         p_lng: lng,
-        p_radius_meters: radiusMeters,
-        p_limit: limit,
+        p_radius_meters: safeRadius,
+        p_limit: safeLimit,
       }),
     });
 
@@ -98,6 +114,7 @@ export async function fetchTopRestaurantsFromDb(
 ): Promise<DbRestaurant[]> {
   if (!isSupabaseConfigured() || !dish) return [];
 
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 4), 50);
   const slug = slugifyDish(dish);
   try {
     const res = await fetch(
@@ -112,7 +129,7 @@ export async function fetchTopRestaurantsFromDb(
         body: JSON.stringify({
           p_dish_slug: slug,
           p_city: city || null,
-          p_limit: limit,
+          p_limit: safeLimit,
         }),
       },
     );

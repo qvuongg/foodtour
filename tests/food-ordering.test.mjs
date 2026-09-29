@@ -74,6 +74,7 @@ try {
       "https://shopee.vn/food?redirect=https%3a%2f%2fshopeefood.vn%2f&tag=a+b%20c",
       "https://s.shopee.vn/AbCd123?sub_id=food%2Fpho&sign=A%2bB%3d#section",
       "https://spf.shopee.vn/3LR3btm4Yj?sub_id=mi_xao_bo",
+      "https://shope.ee/1VzYfS5SML",
       "HTTPS://S.SHOPEE.VN/CaseSensitive?utm_source=TruaNayAnGi",
       "https://shopeefood.vn:443/food?encoded=%7e%2f",
     ];

@@ -36,6 +36,12 @@ test("formatDistance formats meters and kilometers properly", () => {
   assert.equal(formatDistance(0.854), "854 m");
   assert.equal(formatDistance(1.23), "1.2 km");
   assert.equal(formatDistance(2.8), "2.8 km");
+
+  // Xử lý an toàn các giá trị âm, vô hạn, NaN
+  assert.equal(formatDistance(-1), "");
+  assert.equal(formatDistance(NaN), "");
+  assert.equal(formatDistance(Infinity), "");
+  assert.equal(formatDistance(-Infinity), "");
 });
 
 test("findNearbyRestaurants filters strictly within 3km and picks top recommendations", () => {

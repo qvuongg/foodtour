@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -25,7 +25,15 @@ import { slugifySubId } from "@/lib/smart-category-hub";
 import type { Language } from "@/lib/i18n";
 
 function formatDistanceMeters(meters?: number): string {
-  if (meters === undefined || meters === null || isNaN(meters)) return "";
+  if (
+    meters === undefined ||
+    meters === null ||
+    typeof meters !== "number" ||
+    !Number.isFinite(meters) ||
+    meters < 0
+  ) {
+    return "";
+  }
   if (meters < 1000) {
     return `${Math.round(meters)} m`;
   }
@@ -33,21 +41,43 @@ function formatDistanceMeters(meters?: number): string {
 }
 
 function formatRatingCount(count?: number): string {
-  if (count === undefined || count === null || isNaN(count)) return "";
+  if (
+    count === undefined ||
+    count === null ||
+    typeof count !== "number" ||
+    !Number.isFinite(count) ||
+    count <= 0
+  ) {
+    return "";
+  }
   if (count >= 1000) return "999+";
-  return `${count}`;
+  return `${Math.floor(count)}`;
 }
 
 function resolveSpotLink(
   spot: { affiliate_url?: string | null; original_url?: string | null },
   dishName?: string,
 ): string {
-  if (spot.affiliate_url && spot.affiliate_url.startsWith("http")) {
-    return spot.affiliate_url;
+  if (spot.affiliate_url && typeof spot.affiliate_url === "string") {
+    const trimmedAff = spot.affiliate_url.trim();
+    if (/^https?:\/\//i.test(trimmedAff)) {
+      try {
+        const parsed = new URL(trimmedAff);
+        if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+          return trimmedAff;
+        }
+      } catch {}
+    }
   }
-  if (!spot.original_url) return "#";
+
+  if (!spot.original_url || typeof spot.original_url !== "string") return "#";
+  const trimmedOrig = spot.original_url.trim();
+  if (!/^https?:\/\//i.test(trimmedOrig)) return "#";
+
   try {
-    const url = new URL(spot.original_url);
+    const url = new URL(trimmedOrig);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return "#";
+
     url.searchParams.set("mmp_pid", "an_17316810077");
     url.searchParams.set("utm_source", "an_17316810077");
     url.searchParams.set("utm_medium", "affiliate_food");
@@ -55,7 +85,7 @@ function resolveSpotLink(
     if (dishName) url.searchParams.set("sub_id", slugifySubId(dishName));
     return url.toString();
   } catch {
-    return spot.original_url;
+    return "#";
   }
 }
 
@@ -102,6 +132,10 @@ export function FoodOrdering({
   >("locating");
   const [nearbySpots, setNearbySpots] = useState<DbRestaurant[]>([]);
   const [showAlternatives, setShowAlternatives] = useState(false);
+  const currentDishRef = useRef(dish);
+  useEffect(() => {
+    currentDishRef.current = dish;
+  }, [dish]);
 
   const requestLocation = useCallback(() => {
     if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
@@ -113,6 +147,7 @@ export function FoodOrdering({
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        if (currentDishRef.current !== dish) return;
         const { latitude, longitude } = pos.coords;
 
         let spots: DbRestaurant[] = [];
@@ -188,14 +223,17 @@ export function FoodOrdering({
             }
             return (a.distance_meters ?? 0) - (b.distance_meters ?? 0);
           });
+          if (currentDishRef.current !== dish) return;
           setNearbySpots(spots);
           setGeoStatus("found");
         } else {
+          if (currentDishRef.current !== dish) return;
           setNearbySpots([]);
           setGeoStatus("not_found");
         }
       },
       () => {
+        if (currentDishRef.current !== dish) return;
         setGeoStatus("denied");
       },
       {
@@ -358,7 +396,7 @@ export function FoodOrdering({
           className="maps-button"
           href={`https://www.google.com/maps/search/${encodeURIComponent(
             primarySpot
-              ? `${primarySpot.name} ${primarySpot.address}`
+              ? [primarySpot.name, primarySpot.address].filter(Boolean).join(" ")
               : `${dish} ${vi ? "gần đây" : "nearby"}`
           )}`}
           target="_blank"

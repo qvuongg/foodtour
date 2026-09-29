@@ -58,6 +58,13 @@ export function haversineDistanceKm(
  * Định dạng khoảng cách thân thiện với người dùng mobile
  */
 export function formatDistance(distanceKm: number): string {
+  if (
+    typeof distanceKm !== "number" ||
+    !Number.isFinite(distanceKm) ||
+    distanceKm < 0
+  ) {
+    return "";
+  }
   if (distanceKm < 1) {
     return `${Math.round(distanceKm * 1000)} m`;
   }
