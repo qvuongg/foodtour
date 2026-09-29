@@ -31,6 +31,12 @@ function formatDistanceMeters(meters?: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
+function formatRatingCount(count?: number): string {
+  if (count === undefined || count === null || isNaN(count)) return "";
+  if (count >= 1000) return "999+";
+  return `${count}`;
+}
+
 function resolveSpotLink(
   spot: { affiliate_url?: string | null; original_url?: string | null },
   dishName?: string,
@@ -140,17 +146,17 @@ export function FoodOrdering({
         }
 
         if (spots.length > 0) {
-          // Sắp xếp ưu tiên theo rating giảm dần -> số lượt đánh giá giảm dần -> khoảng cách gần nhất
+          // Sắp xếp ưu tiên theo số lượng đánh giá (rating_count) giảm dần -> rating giảm dần -> khoảng cách gần nhất
           spots.sort((a, b) => {
-            const ratingA = Number(a.rating) || 0;
-            const ratingB = Number(b.rating) || 0;
-            if (Math.abs(ratingB - ratingA) > 0.01) {
-              return ratingB - ratingA;
-            }
             const countA = Number(a.rating_count) || 0;
             const countB = Number(b.rating_count) || 0;
             if (countB !== countA) {
               return countB - countA;
+            }
+            const ratingA = Number(a.rating) || 0;
+            const ratingB = Number(b.rating) || 0;
+            if (Math.abs(ratingB - ratingA) > 0.01) {
+              return ratingB - ratingA;
             }
             return (a.distance_meters ?? 0) - (b.distance_meters ?? 0);
           });
@@ -211,10 +217,12 @@ export function FoodOrdering({
               <span className="nearby-meta-dot">·</span>
               <span className="nearby-meta-rating">
                 ⭐ {Number(primarySpot.rating || 4.5).toFixed(1).replace(".", ",")}
-                <span className="nearby-meta-count">
-                  ({(primarySpot.rating_count || 100) > 100 ? "100+" : primarySpot.rating_count}{" "}
-                  {vi ? "đánh giá" : "reviews"})
-                </span>
+                {primarySpot.rating_count !== undefined && primarySpot.rating_count > 0 && (
+                  <span className="nearby-meta-count">
+                    ({formatRatingCount(primarySpot.rating_count)}{" "}
+                    {vi ? "đánh giá" : "reviews"})
+                  </span>
+                )}
               </span>
             </div>
             {primarySpot.address && (
@@ -259,7 +267,10 @@ export function FoodOrdering({
                         <div className="nearby-alt-sub">
                           <span>{formatDistanceMeters(alt.distance_meters)}</span>
                           <span>·</span>
-                          <span>⭐ {Number(alt.rating || 4.5).toFixed(1).replace(".", ",")}</span>
+                          <span>
+                            ⭐ {Number(alt.rating || 4.5).toFixed(1).replace(".", ",")}
+                            {alt.rating_count ? ` (${formatRatingCount(alt.rating_count)})` : ""}
+                          </span>
                           {alt.address && <span className="alt-addr">· {alt.address}</span>}
                         </div>
                       </div>

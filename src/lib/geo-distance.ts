@@ -111,17 +111,17 @@ export function findNearbyRestaurants<
     }
   }
 
-  // Sắp xếp theo rating giảm dần -> số lượt đánh giá giảm dần -> khoảng cách gần nhất
+  // Sắp xếp ưu tiên theo số lượt đánh giá (ratingCount) giảm dần -> rating giảm dần -> khoảng cách gần nhất
   inRange.sort((a, b) => {
-    const ratingA = Number(a.restaurant.rating) || 0;
-    const ratingB = Number(b.restaurant.rating) || 0;
-    if (Math.abs(ratingB - ratingA) > 0.01) {
-      return ratingB - ratingA;
-    }
     const countA = Number(a.restaurant.ratingCount) || 0;
     const countB = Number(b.restaurant.ratingCount) || 0;
     if (countB !== countA) {
       return countB - countA;
+    }
+    const ratingA = Number(a.restaurant.rating) || 0;
+    const ratingB = Number(b.restaurant.rating) || 0;
+    if (Math.abs(ratingB - ratingA) > 0.01) {
+      return ratingB - ratingA;
     }
     return a.distanceKm - b.distanceKm;
   });

@@ -105,23 +105,11 @@
   text-align: left;
 }
 
-.food-result-dialog .winner-price-block {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
 .food-result-dialog .winner-price-val {
+  display: block;
   font-size: 15px;
   font-weight: 700;
   color: #1c1917;
-  line-height: 1.3;
-}
-
-.food-result-dialog .winner-price-sub {
-  font-size: 12px;
-  font-weight: 500;
-  color: #78716c;
   line-height: 1.3;
 }
 

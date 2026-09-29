@@ -68,7 +68,6 @@ export function FoodResultDialog({
                   <span className="winner-price-val">
                     ~{priceLabel(food.price, language, false)} / {foodServingUnit(food, mealKind, language)}
                   </span>
-                  <span className="winner-price-sub">{t.referencePrice}</span>
                 </DialogDescription>
               </div>
             </div>
