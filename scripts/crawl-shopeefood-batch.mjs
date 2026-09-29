@@ -37,6 +37,7 @@
 import { chromium } from "playwright";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { isRestaurantRelevantForDish } from "../src/lib/dish-relevance.ts";
 
 // Tự động nạp cấu hình từ .env.local
 function loadEnv() {
@@ -675,7 +676,10 @@ async function syncToSupabase(spots, dish, dbState) {
     }
 
     if (dishId) {
-      const junctionPayload = spots.map((s) => ({
+      const relevantSpots = spots.filter((s) =>
+        isRestaurantRelevantForDish(s.name, dish),
+      );
+      const junctionPayload = relevantSpots.map((s) => ({
         restaurant_id: s.id,
         dish_id: dishId,
       }));
