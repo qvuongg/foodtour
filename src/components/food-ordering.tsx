@@ -71,20 +71,14 @@ function handleShopeeFoodClick(
 
   if (!isMobile) return;
 
+  // Trên mobile: Chặn tạo tab mới và chặn chuyển hướng trang web
   e.preventDefault();
 
   const appDeeplink = `shopeevn://main?apprl=${encodeURIComponent(url)}&push=1`;
-  const startTime = Date.now();
 
+  // Mở thẳng App Shopee bằng Deep Link. Trình duyệt Safari không bị điều hướng đi đâu cả,
+  // nên khi người dùng quay lại Safari thì vẫn luôn ở trang Foodtour của mình.
   window.location.href = appDeeplink;
-
-  // Fallback an toàn: Nếu máy chưa cài App Shopee, sau 1.5s tự chuyển sang link web
-  setTimeout(() => {
-    if (document.hidden || Date.now() - startTime > 2500) {
-      return;
-    }
-    window.location.href = url;
-  }, 1500);
 }
 
 export function FoodOrdering({
@@ -220,6 +214,10 @@ export function FoodOrdering({
   if (!destination) return null;
   const isSpecific = destination.appDestinationType === "restaurant";
 
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   const primarySpot = nearbySpots[0] ?? null;
   const altSpots = nearbySpots.slice(1, 4);
   const primaryLink = primarySpot
@@ -300,7 +298,7 @@ export function FoodOrdering({
                         className="nearby-alt-row"
                         href={altLink}
                         onClick={(e) => handleShopeeFoodClick(altLink, e)}
-                        target="_blank"
+                        target={isMobile ? undefined : "_blank"}
                         rel="sponsored noopener"
                       >
                         <div className="nearby-alt-info">
@@ -390,7 +388,7 @@ export function FoodOrdering({
         className="shopeefood-button"
         href={primaryLink}
         onClick={(e) => handleShopeeFoodClick(primaryLink, e)}
-        target="_blank"
+        target={isMobile ? undefined : "_blank"}
         rel="sponsored noopener"
       >
         <ShoppingBag size={18} aria-hidden="true" />
