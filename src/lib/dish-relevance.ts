@@ -1,6 +1,10 @@
 /**
  * Module kiểm tra độ phù hợp của quán ăn với món ăn (Dish Relevance Filter)
- * Ngăn chặn triệt để các quán sai lệch (VD: Bún chả cá xuất hiện khi chọn Bún chả; Bánh canh, Bánh cá khi chọn Bánh xèo)
+ * Ngăn chặn triệt để các quán sai lệch:
+ * - Bún chả cá xuất hiện khi chọn Bún chả (Hà Nội)
+ * - Quán mặn (Cơm cháy chà bông, Ngan cháy tỏi, Bá cháy bù chét) xuất hiện khi chọn Món Chay
+ * - Bánh mì nấm chay xuất hiện khi chọn Mì nấm chay
+ * - Quán chay xuất hiện khi chọn món mặn (Bún bò Huế, Phở bò)
  */
 
 export function normalizeText(str: string): string {
@@ -16,23 +20,79 @@ export function normalizeText(str: string): string {
 
 /**
  * Khớp cụm từ nguyên vẹn với ranh giới từ, hỗ trợ chặn các từ mở rộng gây sai lệch món
- * Ví dụ: "Bún chả" không được khớp "Bún chả cá", "Bún chả giò"
- *        "Bánh xèo" không được khớp "Bánh xèo Nhật"
+ * Ví dụ: "Bún chả" không được khớp "Bún chả cá", "Bún chả giò" (illegalFollowers: ["ca", "gio"])
+ *        "Mì nấm chay" không được khớp "Bánh mì nấm chay" (illegalPreceders: ["banh"])
  */
 export function matchWholePhrase(
   text: string,
   phrase: string,
   illegalFollowers: string[] = [],
+  illegalPreceders: string[] = [],
 ): boolean {
   if (!text || !phrase) return false;
   const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  let regexStr = `(^|[^a-z0-9])${escaped}`;
+  let lookbehind = "";
+  if (illegalPreceders.length > 0) {
+    const precederPattern = illegalPreceders.join("|");
+    lookbehind = `(?<!\\b(${precederPattern})\\s+)`;
+  }
+  let lookahead = "";
   if (illegalFollowers.length > 0) {
     const followerPattern = illegalFollowers.join("|");
-    regexStr += `(?!\\s+(${followerPattern})(\\s|$|[^a-z0-9]))`;
+    lookahead = `(?!\\s+(${followerPattern})(\\s|$|[^a-z0-9]))`;
   }
-  regexStr += `([^a-z0-9]|$)`;
-  return new RegExp(regexStr, "i").test(text);
+  const regex = new RegExp(
+    `(^|[^a-z0-9])${lookbehind}${escaped}${lookahead}([^a-z0-9]|$)`,
+    "i",
+  );
+  return regex.test(text);
+}
+
+/**
+ * Kiểm tra xem món ăn có phải là món chay hay không
+ */
+export function isVegetarianDish(dishName: string): boolean {
+  if (!dishName) return false;
+  const n = normalizeText(dishName);
+  return (
+    n.includes("chay") ||
+    n === "salad quinoa dau ga" ||
+    n === "falafel kem pita"
+  );
+}
+
+/**
+ * Kiểm tra xem tên quán có thực sự là quán chay hay không
+ * LOẠI TRỪ TRIỆT ĐỂ:
+ * - Cơm cháy (gạo giòn chà bông)
+ * - Ngan/Bò/Vịt/Lòng cháy tỏi
+ * - Bá cháy (tiếng lóng Nam Bộ)
+ * - Lẩu bò khu nhà cháy (địa danh)
+ */
+export function isRealVegetarianRestaurant(rawName: string): boolean {
+  if (!rawName) return false;
+
+  // 1. Phải có từ khóa đồ chay chuẩn (thanh ngang)
+  const hasVegKeywords =
+    /(^|[^\p{L}\p{N}])(chay|vegan|veggie|thu[aâầ]n\s*chay|th[uự]c\s*d[uư][oỡ]ng|[aâ]u\s*l[aạ]c|b[oồ]\s*[dđ][eề]|an\s*l[aạ]c|thi[eệ]n\s*t[aâ]m|tu[eệ]\s*t[aâ]m)([^\p{L}\p{N}]|$)/iu.test(
+      rawName,
+    );
+
+  // 2. Chặn các quán mặn có từ "cháy" (dấu sắc: cơm cháy, cháy tỏi, bá cháy, nhà cháy, cháy cạnh)
+  const hasChaySac =
+    /\b(ch[aá]y\s*t[oỏ]i|c[oơ]m\s*ch[aá]y|b[aá]\s*ch[aá]y|nh[aà]\s*ch[aá]y|ch[aá]y\s*c[aạ]nh|ch[aá]y\s*m[aắ]m)\b/i.test(
+      rawName,
+    );
+  if (hasChaySac && !hasVegKeywords) {
+    return false;
+  }
+
+  // 3. Chặn nếu có chữ "cháy" độc lập mà không có từ khóa chay thanh ngang
+  if (/\bch[aá]y\b/i.test(rawName) && !hasVegKeywords) {
+    return false;
+  }
+
+  return hasVegKeywords;
 }
 
 /**
@@ -42,10 +102,172 @@ interface DishRule {
   strongSynonyms?: string[]; // Khẳng định mạnh mẽ (bỏ qua xung đột), VD: "bún chả hà nội", "bánh xèo tôm nhảy"
   synonyms?: string[]; // Từ đồng nghĩa hoặc tên mở rộng thông thường, VD: "nem cua bể", "nem lụi"
   illegalFollowers?: string[]; // Hậu tố gây biến tướng sang món khác, VD: "bún chả" + "cá/giò/sứa"
+  illegalPreceders?: string[]; // Tiền tố gây biến tướng sang món khác, VD: "bánh" + "mì nấm chay"
   conflicts?: string[]; // Tên món khác dễ bị lẫn lộn, VD: "bun cha ca", "cha ca", "banh canh"...
 }
 
 export const DISH_RULES: Record<string, DishRule> = {
+  // === MÓN CHAY (VEGETARIAN) ===
+  "com chay": {
+    strongSynonyms: [
+      "com chay",
+      "quan chay",
+      "am thuc chay",
+      "bep chay",
+      "nha hang chay",
+      "buffet chay",
+      "thuan chay",
+      "an chay",
+      "loving hut",
+      "au lac",
+      "bo de",
+      "an lac",
+      "thien tam",
+      "tue tam",
+    ],
+    synonyms: ["com chay", "quan chay"],
+    conflicts: [
+      "com chay", // Cơm cháy
+      "ba chay",
+      "chay toi",
+      "chay canh",
+      "com ga",
+      "com tam",
+      "com suon",
+      "com heo",
+      "com vit",
+      "cha ca",
+      "hai san",
+    ],
+  },
+  "banh mi chay": {
+    strongSynonyms: [
+      "banh mi chay",
+      "banh my chay",
+      "vegan bread",
+      "banh mi pate chay",
+      "banh mi thuan chay",
+    ],
+    synonyms: ["banh mi chay", "banh my chay"],
+    conflicts: [
+      "com chay",
+      "ba chay",
+      "chay toi",
+      "banh canh",
+      "hu tieu",
+      "banh mi thit",
+      "banh mi heo quay",
+      "banh mi cha ca",
+    ],
+  },
+  "bun chay": {
+    strongSynonyms: [
+      "bun chay",
+      "bun rieu chay",
+      "bun bo chay",
+      "bun bo hue chay",
+      "bun hue chay",
+      "bun mam chay",
+      "bun moc chay",
+      "bun nuoc tuong chay",
+      "bun nam chay",
+      "bun tron chay",
+      "bun xao chay",
+    ],
+    synonyms: ["bun chay"],
+    conflicts: [
+      "ba chay",
+      "chay toi",
+      "bun cha ca",
+      "bun thit nuong",
+      "bun mam",
+      "bun ngan",
+      "bun vit",
+    ],
+  },
+  "lau nam chay": {
+    strongSynonyms: [
+      "lau nam chay",
+      "lau chay",
+      "lau rau nam chay",
+      "lau thai chay",
+      "buffet lau chay",
+      "lau rau nam",
+    ],
+    synonyms: ["lau nam chay", "lau chay"],
+    conflicts: [
+      "lau bo",
+      "lau de",
+      "lau ga",
+      "lau ech",
+      "lau vit",
+      "lau hai san",
+      "ba chay",
+      "nha chay",
+    ],
+  },
+  "mi nam chay": {
+    strongSynonyms: [
+      "mi nam chay",
+      "my nam chay",
+      "mi y nam chay",
+      "mi chay",
+      "my chay",
+      "mi xao chay",
+      "mi quang chay",
+      "hu tieu mi chay",
+      "spaghetti vegetarian",
+    ],
+    synonyms: ["mi nam chay", "my nam chay"],
+    illegalPreceders: ["banh"], // Chặn triệt để "bánh mì nấm chay"
+    conflicts: [
+      "banh mi",
+      "banh my",
+      "com chay",
+      "ba chay",
+      "chay toi",
+      "mi vit tiem",
+      "mi xao bo",
+      "mi cay",
+    ],
+  },
+  "goi cuon chay": {
+    strongSynonyms: [
+      "goi cuon chay",
+      "bi cuon chay",
+      "cuon chay",
+      "cuon rau nam",
+      "nem cuon chay",
+      "goi cuon healthy",
+    ],
+    synonyms: ["goi cuon chay", "bi cuon chay"],
+    conflicts: [
+      "ba chay",
+      "com chay",
+      "chay toi",
+      "goi cuon tom thit",
+      "goi cuon thit heo",
+      "bo bia",
+    ],
+  },
+  "salad quinoa dau ga": {
+    strongSynonyms: [
+      "salad quinoa",
+      "quinoa",
+      "dau ga",
+      "chickpea",
+      "salad chay",
+      "healthy salad",
+      "eat clean",
+    ],
+    synonyms: ["salad quinoa", "dau ga", "quinoa"],
+  },
+  "falafel kem pita": {
+    strongSynonyms: ["falafel", "pita", "middle eastern", "trung dong"],
+    synonyms: ["falafel"],
+  },
+
+  // === MÓN MẶN PHỔ BIẾN ===
   "bun cha": {
     strongSynonyms: [
       "bun cha ha noi",
@@ -136,7 +358,6 @@ export const DISH_RULES: Record<string, DishRule> = {
     conflicts: [
       "bun bo nam bo",
       "bun cha",
-      "bun dau",
       "bun rieu",
       "bun ca",
       "bun mam",
@@ -396,29 +617,58 @@ export function isRestaurantRelevantForDish(
 ): boolean {
   if (!restaurantName || !dishName) return false;
 
+  const isVeg = isVegetarianDish(dishName);
+  const restIsVeg = isRealVegetarianRestaurant(restaurantName);
+
+  // 1. RÀNG BUỘC MÓN CHAY (VEGETARIAN SHIELD):
+  // 1.1. Nếu người dùng chọn món CHAY: Quán BẮT BUỘC phải là quán chay chuẩn.
+  // Tuyệt đối chặn các quán mặn (Cơm cháy chà bông, Ngan cháy tỏi, Bá cháy, Lẩu bò nhà cháy...)
+  if (isVeg && !restIsVeg) {
+    return false;
+  }
+
+  // 1.2. Nếu người dùng chọn món MẶN: Quán thuần chay không được nhận món mặn
+  // (trừ khi quán ghi rõ phục vụ cả 2: "Chay & Mặn")
+  if (!isVeg && restIsVeg) {
+    const n = normalizeText(restaurantName);
+    if (!n.includes("chay & man") && !n.includes("chay va man")) {
+      return false;
+    }
+  }
+
   const nRest = normalizeText(restaurantName);
   const nDish = normalizeText(dishName);
 
-  // 1. Tra cứu quy tắc đặc biệt nếu có
+  // 2. Tra cứu quy tắc đặc biệt nếu có
   const rule = DISH_RULES[nDish];
   if (rule) {
-    // 1.1. Strong Synonyms khẳng định tuyệt đối (VD: "Phở Nam Định & Bún Chả Hà Nội")
-    if (rule.strongSynonyms?.some((s) => matchWholePhrase(nRest, s))) {
+    // 2.1. Strong Synonyms khẳng định tuyệt đối (VD: "Phở Nam Định & Bún Chả Hà Nội")
+    if (
+      rule.strongSynonyms?.some((s) =>
+        matchWholePhrase(nRest, s, rule.illegalFollowers, rule.illegalPreceders),
+      )
+    ) {
       return true;
     }
 
-    // 1.2. Nếu chứa từ khóa xung đột -> Loại trừ ngay lập tức (VD: "Bún Chả Cá Tam Giác")
+    // 2.2. Nếu chứa từ khóa xung đột -> Loại trừ ngay lập tức (VD: "Bún Chả Cá Tam Giác", "Bánh Mì Nấm Chay")
     if (rule.conflicts?.some((c) => matchWholePhrase(nRest, c))) {
       return false;
     }
 
-    // 1.3. Khớp tên món chính nhưng kiểm soát nghiêm ngặt từ mở rộng (VD: "bún chả" không nhận "bún chả cá/giò")
-    if (matchWholePhrase(nRest, nDish, rule.illegalFollowers)) {
+    // 2.3. Khớp tên món chính nhưng kiểm soát nghiêm ngặt từ mở rộng
+    if (
+      matchWholePhrase(nRest, nDish, rule.illegalFollowers, rule.illegalPreceders)
+    ) {
       return true;
     }
 
-    // 1.4. Khớp các từ đồng nghĩa được chấp nhận
-    if (rule.synonyms?.some((s) => matchWholePhrase(nRest, s, rule.illegalFollowers))) {
+    // 2.4. Khớp các từ đồng nghĩa được chấp nhận
+    if (
+      rule.synonyms?.some((s) =>
+        matchWholePhrase(nRest, s, rule.illegalFollowers, rule.illegalPreceders),
+      )
+    ) {
       return true;
     }
 
@@ -426,13 +676,13 @@ export function isRestaurantRelevantForDish(
     return false;
   }
 
-  // 2. Mặc định cho các món chưa có rule riêng:
+  // 3. Mặc định cho các món chưa có rule riêng:
   // Nếu quán chứa trọn vẹn cụm từ tên món -> Phù hợp!
   if (matchWholePhrase(nRest, nDish)) {
     return true;
   }
 
-  // 3. Tách các từ chính của món đối với tên món dài (VD: "Burger bò phô mai & khoai tây")
+  // 4. Tách các từ chính của món đối với tên món dài (VD: "Burger bò phô mai & khoai tây")
   const dishWords = nDish
     .split(/\s+/)
     .filter((w) => !["va", "kem", "mot", "nguoi", "sot", "kieu"].includes(w));
@@ -457,16 +707,8 @@ export function filterRelevantRestaurants<T extends { name: string }>(
 ): T[] {
   if (!Array.isArray(restaurants) || restaurants.length === 0) return [];
 
-  // Lọc các quán vượt qua bộ kiểm tra phù hợp
-  const relevant = restaurants.filter((r) =>
+  return restaurants.filter((r) =>
     isRestaurantRelevantForDish(r.name, dishName),
   );
-
-  // Nếu sau khi lọc vẫn có ít nhất 1 quán phù hợp, trả về danh sách đã lọc sạch
-  if (relevant.length > 0) {
-    return relevant;
-  }
-
-  // Nếu không có quán nào có tên khớp (rất hiếm), trả về danh sách ban đầu để không bị rỗng
-  return restaurants;
 }
+

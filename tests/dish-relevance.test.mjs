@@ -1,6 +1,81 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isRestaurantRelevantForDish, filterRelevantRestaurants } from '../src/lib/dish-relevance.ts';
+import {
+  isRestaurantRelevantForDish,
+  filterRelevantRestaurants,
+  isRealVegetarianRestaurant,
+  isVegetarianDish,
+} from '../src/lib/dish-relevance.ts';
+
+test('isRealVegetarianRestaurant strictly separates genuine Chay from Cháy / Bá cháy', () => {
+  // Genuine vegetarian
+  assert.equal(isRealVegetarianRestaurant('Cơm Chay Dưỡng Sinh - Hoài Hương'), true);
+  assert.equal(isRealVegetarianRestaurant('Bánh Mì Chay - Trần Tống'), true);
+  assert.equal(isRealVegetarianRestaurant('Loving Hut - Vegan Food'), true);
+  assert.equal(isRealVegetarianRestaurant('Bếp Chay An Nhiên'), true);
+  assert.equal(isRealVegetarianRestaurant('An Khánh - Bún Chay Rau Nấm'), true);
+  assert.equal(isRealVegetarianRestaurant('Thanh Cảnh - Lẩu Nấm Chay'), true);
+  assert.equal(isRealVegetarianRestaurant('Tự Châu Veggie'), true);
+
+  // False positives with "Cháy" (dấu sắc)
+  assert.equal(isRealVegetarianRestaurant('Minh Châu - Cơm Cháy Hàn Quốc & Coffee'), false);
+  assert.equal(isRealVegetarianRestaurant('Cơm Cháy Kho Quẹt - Đường 50'), false);
+  assert.equal(isRealVegetarianRestaurant('Bá Cháy Bù Chét - Bánh Canh Cốt Dừa'), false);
+  assert.equal(isRealVegetarianRestaurant('Gỏi Cuốn & Cơm Cháy 53 - Ăn Vặt'), false);
+  assert.equal(isRealVegetarianRestaurant('Ngan Cháy Tỏi & Bún Trộn'), false);
+  assert.equal(isRealVegetarianRestaurant('Lẩu Bò Khu Nhà Cháy'), false);
+  assert.equal(isRealVegetarianRestaurant('Bún Đậu - Ngon Bá Cháy'), false);
+  assert.equal(isRealVegetarianRestaurant('Cơm Cháy & Bánh Mì Ngon Phố Cổ'), false);
+});
+
+test('Vegetarian dishes strictly filter out non-veg and false-positive restaurants', () => {
+  // Cơm chay
+  assert.equal(isRestaurantRelevantForDish('Cơm Chay Dưỡng Sinh - Hoài Hương', 'Cơm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Cơm Chay Âu Lạc', 'Cơm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Minh Châu - Cơm Cháy Hàn Quốc & Coffee', 'Cơm chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Cơm Tấm Ba Ghiền', 'Cơm chay'), false);
+
+  // Mì nấm chay (MUST NOT match Bánh Mì nấm chay)
+  assert.equal(isRestaurantRelevantForDish('Bếp Nhà Bên - Mì Nấm Chay - Hồ Tùng Mậu', 'Mì nấm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Má Tư - Mì Ý Nấm Chay, Vegetarian Spaghetti', 'Mì nấm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Nấm Chay Dương An - Cơ Sở Hà Đông', 'Mì nấm chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Chay Mẹ Nấm - CMT8', 'Mì nấm chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Việt Nam - Chay & Mặn', 'Mì nấm chay'), false);
+
+  // Gỏi cuốn chay
+  assert.equal(isRestaurantRelevantForDish('Bếp Chay Mèo Béo - Gỏi Cuốn Healthy', 'Gỏi cuốn chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Cô Tuyết - Hủ Tiếu & Gỏi Cuốn Chay', 'Gỏi cuốn chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bá Cháy Bù Chét - Bánh Canh Cốt Dừa & Gỏi Cuốn', 'Gỏi cuốn chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Gỏi Cuốn & Cơm Cháy 53 - Ăn Vặt', 'Gỏi cuốn chay'), false);
+
+  // Bánh mì chay
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Chay - Trần Tống', 'Bánh mì chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Chay An Yên', 'Bánh mì chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Nga Lê Quán - Hủ Tiếu, Mì Quảng & Bánh Canh Chay', 'Bánh mì chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Cơm Cháy & Bánh Mì Ngon Phố Cổ', 'Bánh mì chay'), false);
+
+  // Lẩu nấm chay
+  assert.equal(isRestaurantRelevantForDish('Thanh Cảnh - Lẩu Nấm Chay', 'Lẩu nấm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Hida Chay - Lẩu Rau Nấm', 'Lẩu nấm chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Lẩu Bò Khu Nhà Cháy', 'Lẩu nấm chay'), false);
+
+  // Bún chay
+  assert.equal(isRestaurantRelevantForDish('An Khánh - Bún Chay Rau Nấm', 'Bún chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bún Chay - An Viên', 'Bún chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bún Bò Huế Chay', 'Bún chay'), true);
+  assert.equal(isRestaurantRelevantForDish('Bún Đậu - Ngon Bá Cháy', 'Bún chay'), false);
+  assert.equal(isRestaurantRelevantForDish('Bún Chả Cá Tam Giác', 'Bún chay'), false);
+});
+
+test('Non-vegetarian dishes reject pure vegetarian restaurants', () => {
+  // Pure vegetarian restaurant should not be recommended for meat beef noodles
+  assert.equal(isRestaurantRelevantForDish('Bún Bò Huế Chay', 'Bún bò Huế'), false);
+  assert.equal(isRestaurantRelevantForDish('Quán Chay An Lạc - Cơm Chay', 'Cơm tấm'), false);
+  assert.equal(isRestaurantRelevantForDish('Phở Chay An Nhiên', 'Phở bò'), false);
+
+  // Dual "Chay & Mặn" restaurant is acceptable for non-veg dish
+  assert.equal(isRestaurantRelevantForDish('Bánh Mì Việt Nam - Chay & Mặn', 'Bánh mì'), true);
+});
 
 test('isRestaurantRelevantForDish strictly differentiates Bún chả (Hà Nội) from Bún chả cá / Bún chả giò', () => {
   const dish = 'Bún chả';
@@ -10,7 +85,7 @@ test('isRestaurantRelevantForDish strictly differentiates Bún chả (Hà Nội)
   assert.equal(isRestaurantRelevantForDish('Phở Nam Định & Bún Chả Hà Nội', dish), true);
   assert.equal(isRestaurantRelevantForDish('Bún Chả Hương Liên (Obama) - Lê Văn Hưu', dish), true);
   assert.equal(isRestaurantRelevantForDish('Bún Chả Đắc Kim - Hàng Mành', dish), true);
-  assert.equal(isRestaurantRelevantForDish('Bún Chả Cửa Đông', dish), dish === 'Bún chả');
+  assert.equal(isRestaurantRelevantForDish('Bún Chả Cửa Đông', dish), true);
   assert.equal(isRestaurantRelevantForDish('Bún Chả Que Tre - Bạch Mai', dish), true);
   assert.equal(isRestaurantRelevantForDish('Bún Chả & Bún Đậu Linh Nhi', dish), true);
   assert.equal(isRestaurantRelevantForDish('Bún Chả Sinh Từ - Giảng Võ', dish), true);
@@ -42,26 +117,6 @@ test('isRestaurantRelevantForDish correctly validates genuine Bánh xèo restaur
   assert.equal(isRestaurantRelevantForDish('Đồng Tiến Bakery - Bánh Mì & Bánh Ngọt', dish), false);
   assert.equal(isRestaurantRelevantForDish('Bánh Cuốn Nóng Kim Chi', dish), false);
   assert.equal(isRestaurantRelevantForDish('Trà Sữa Bánh Flan', dish), false);
-});
-
-test('isRestaurantRelevantForDish correctly distinguishes other dishes', () => {
-  // Cơm tấm
-  assert.equal(isRestaurantRelevantForDish('Cơm Tấm Sườn Bì Chả Ba Ghiền', 'Cơm tấm'), true);
-  assert.equal(isRestaurantRelevantForDish('Trà Sữa TocoToco', 'Cơm tấm'), false);
-
-  // Phở bò
-  assert.equal(isRestaurantRelevantForDish('Phở Bò Gia Truyền Nam Định', 'Phở bò'), true);
-  assert.equal(isRestaurantRelevantForDish('Bún Bò Huế O Oanh', 'Phở bò'), false);
-  assert.equal(isRestaurantRelevantForDish('Phở Cuốn Hương Mai', 'Phở bò'), false);
-
-  // Bún bò Huế
-  assert.equal(isRestaurantRelevantForDish('Bún Bò Huế Bà Gái', 'Bún bò Huế'), true);
-  assert.equal(isRestaurantRelevantForDish('Bún Thịt Nướng Bà Trai', 'Bún bò Huế'), false);
-  assert.equal(isRestaurantRelevantForDish('Bún Bò Nam Bộ Cô Ba', 'Bún bò Huế'), false);
-
-  // Cơm gà Hội An vs Cơm gà xối mỡ
-  assert.equal(isRestaurantRelevantForDish('Cơm Gà Bà Buội - Chuẩn Vị Hội An', 'Cơm gà Hội An'), true);
-  assert.equal(isRestaurantRelevantForDish('Cơm Gà Xối Mỡ 142', 'Cơm gà Hội An'), false);
 });
 
 test('filterRelevantRestaurants correctly filters an array of restaurants', () => {

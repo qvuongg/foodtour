@@ -148,11 +148,10 @@ export function FoodOrdering({
 
         if (spots.length > 0) {
           // Lọc bỏ những quán không phù hợp / sai lệch thể loại (VD: Bánh canh, Bánh cá khi chọn Bánh xèo)
-          const filtered = filterRelevantRestaurants(spots, dish);
-          if (filtered.length > 0) {
-            spots = filtered;
-          }
+          spots = filterRelevantRestaurants(spots, dish);
+        }
 
+        if (spots.length > 0) {
           // Sắp xếp ưu tiên theo số lượng đánh giá (rating_count) giảm dần -> rating giảm dần -> khoảng cách gần nhất
           spots.sort((a, b) => {
             const countA = Number(a.rating_count) || 0;
@@ -170,6 +169,7 @@ export function FoodOrdering({
           setNearbySpots(spots);
           setGeoStatus("found");
         } else {
+          setNearbySpots([]);
           setGeoStatus("not_found");
         }
       },
