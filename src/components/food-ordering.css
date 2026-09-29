@@ -1,64 +1,37 @@
 .food-ordering-action {
   width: 100%;
-  margin: 12px 0 10px;
+  margin: 8px 0 0;
 }
 
-/* Nút Tìm quán gần tôi */
-.nearby-locate-section {
-  margin-bottom: 10px;
-}
-.nearby-locate-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  width: 100%;
-  min-height: 42px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 650;
-  color: #1e5a26;
-  background: #f1f7ed;
-  border: 1px solid #c9dec2;
-  cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
-  touch-action: manipulation;
-}
-.nearby-locate-button:hover:not(:disabled) {
-  background: #e3efdc;
-  border-color: #a9caa0;
-}
-.nearby-locate-button:disabled {
-  opacity: 0.7;
-  cursor: wait;
-}
+/* Thông báo và loading vị trí */
 .nearby-notice {
   margin: 6px 0 10px;
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.4;
   color: var(--muted-foreground);
   text-align: center;
 }
 
-/* Box hiển thị trạng thái đang xin vị trí tự động */
 .nearby-locating-box {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
   border-radius: 12px;
   background: #fdf5ef;
   border: 1px dashed #ebd0be;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--primary);
   text-align: center;
 }
 
-/* Nút thử lại quyền vị trí */
+.nearby-denied-box {
+  margin-bottom: 10px;
+}
+
 .nearby-retry-button {
   display: flex;
   align-items: center;
@@ -82,124 +55,259 @@
   background: #f5ddd0;
 }
 
-/* Thẻ thông tin quán gần nhất */
+/* Thẻ thông tin quán gần nhất và xếp hạng cao nhất */
 .nearby-restaurant-card {
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  border-radius: 14px;
-  background: #fff8f2;
-  border: 1px solid #ebd0be;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 16px;
+  background: #f6efe7;
+  border: 1px solid #ebd9cc;
   text-align: left;
 }
-.nearby-restaurant-header {
-  margin-bottom: 10px;
-}
-.nearby-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: #fbeee4;
-  color: var(--primary);
-  font-size: 11px;
-  font-weight: 700;
-  margin-bottom: 5px;
-}
+
 .nearby-restaurant-name {
   display: block;
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 800;
-  color: var(--foreground);
-  line-height: 1.25;
-  margin-bottom: 3px;
-}
-.nearby-restaurant-address {
-  font-size: 11.5px;
-  line-height: 1.4;
-  color: var(--muted-foreground);
-  margin: 0;
+  color: #1c1917;
+  line-height: 1.3;
+  margin-bottom: 4px;
 }
 
-/* Danh sách quán phụ lân cận */
-.nearby-alternatives {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px dashed #e8cebd;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.nearby-alt-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-}
-.nearby-alt-item {
+.nearby-meta-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid #ebd0be;
-  font-size: 12px;
-  color: var(--foreground);
-  text-decoration: none;
-  transition: background 0.18s;
-}
-.nearby-alt-item:hover {
-  background: #fdf2ea;
-}
-.nearby-alt-item .alt-name {
-  flex: 1;
+  font-size: 12.5px;
   font-weight: 600;
+  color: #57534e;
+  margin-bottom: 4px;
+}
+
+.nearby-meta-dist {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #57534e;
+}
+
+.nearby-meta-dot {
+  color: #a8a29e;
+}
+
+.nearby-meta-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #57534e;
+}
+
+.nearby-meta-count {
+  font-weight: 500;
+  color: #78716c;
+}
+
+.nearby-restaurant-address {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #78716c;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.nearby-alt-item .alt-dist {
-  font-size: 11px;
-  color: var(--primary);
-  font-weight: 600;
+
+/* Danh sách quán khác thu gọn (Accordion) */
+.nearby-alternatives-accordion {
+  margin-bottom: 10px;
 }
-.nearby-alt-item svg {
-  color: var(--muted-foreground);
+
+.nearby-accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #292524;
+  cursor: pointer;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.nearby-accordion-header:hover {
+  color: var(--primary);
+}
+
+.accordion-chevron {
+  transition: transform 0.2s ease;
+  color: #78716c;
+}
+.accordion-chevron.is-expanded {
+  transform: rotate(180deg);
+}
+
+.nearby-accordion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 0 10px;
+}
+
+.nearby-alt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #faf5ef;
+  border: 1px solid #ebd9cc;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.nearby-alt-row:hover {
+  background: #f4ece2;
+  border-color: #dfc5b2;
+}
+
+.nearby-alt-info {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.nearby-alt-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1c1917;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nearby-alt-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #78716c;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nearby-alt-icon {
+  color: #78716c;
   flex-shrink: 0;
 }
 
-/* Nút đặt ShopeeFood chính */
+/* Hàng nút thay thế: "Tìm trên Maps" & "Mở GrabFood" (12px, nền trung tính, không đổ bóng) */
+.nearby-secondary-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin: 8px 0 12px;
+}
+
+.nearby-secondary-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  height: 38px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  color: #57534e;
+  border: 1px solid #e2d9ce;
+  box-shadow: none;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  white-space: nowrap;
+}
+.nearby-secondary-links a:hover {
+  background: #f4ece2;
+  color: #1c1917;
+  border-color: #d1c5b6;
+}
+.nearby-secondary-links a svg {
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* Nút đặt ShopeeFood chính: Rộng toàn hàng, cao tối thiểu 52–56px, màu cam đỏ */
 .shopeefood-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   width: 100%;
-  min-height: 48px;
-  padding: 12px 16px;
+  min-height: 54px;
+  height: 54px;
+  padding: 0 16px;
   color: #ffffff;
-  background: var(--primary);
-  border: 1px solid var(--primary);
-  border-radius: 12px;
-  font-size: 14.5px;
-  line-height: 1.4;
+  background: #c43c23;
+  border: 1px solid #b3341c;
+  border-radius: 14px;
+  font-size: 15px;
   font-weight: 700;
   text-align: center;
-  box-shadow: 0 4px 14px rgba(187, 56, 28, 0.25);
-  transition: background 0.18s, transform 0.18s;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(196, 60, 35, 0.22);
+  transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
   cursor: pointer;
   touch-action: manipulation;
+  margin-bottom: 4px;
 }
 .shopeefood-button:hover {
-  background: #a12f16;
+  background: #ad311a;
+  box-shadow: 0 6px 18px rgba(196, 60, 35, 0.3);
 }
 .shopeefood-button:active {
   transform: translateY(1px);
 }
+
 .ordering-specific-restaurant {
   margin: 6px 0 0;
   font-size: 12px;
   font-weight: 600;
   color: var(--primary);
   text-align: center;
+}
+
+/* Quay lại chọn món: "Chọn món khác" - Nút nhẹ, dễ thấy và bấm */
+.change-food-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: #57534e;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  margin-top: 4px;
+}
+.change-food-button:hover {
+  background: #f4ece2;
+  color: #1c1917;
 }

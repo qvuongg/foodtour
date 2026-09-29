@@ -53,7 +53,7 @@ export async function fetchNearbyRestaurantsFromDb(
   lat: number,
   lng: number,
   radiusMeters = 3000,
-  limit = 4,
+  limit = 15,
 ): Promise<DbRestaurant[]> {
   if (!isSupabaseConfigured() || !dish) return [];
 

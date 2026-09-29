@@ -1,5 +1,4 @@
 import type { RefObject } from "react";
-import { ArrowUpRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,65 +46,39 @@ export function FoodResultDialog({
         finalFocus={triggerRef}
       >
         {food && (
-          <>
-            <div className="food-result-scroll">
-              <div className="food-result-summary">
-                <div className="winner-art">
-                  <FoodImage food={food} language={language} />
-                </div>
-                <div className="food-result-heading">
-                  <span className="winner-label">
-                    {isPreview
-                      ? vi
-                        ? "Món bạn chọn"
-                        : "Your pick"
-                      : vi
-                        ? "Kết quả quay"
-                        : "Your spin result"}
+          <div className="food-result-scroll">
+            <div className="food-result-summary">
+              <div className="winner-art">
+                <FoodImage food={food} language={language} />
+              </div>
+              <div className="food-result-heading">
+                <span className="winner-label">
+                  {isPreview
+                    ? vi
+                      ? "Món bạn chọn"
+                      : "Your pick"
+                    : vi
+                      ? "KẾT QUẢ QUAY"
+                      : "SPIN RESULT"}
+                </span>
+                <DialogTitle className="winner-title">
+                  {foodName(food, language)}
+                </DialogTitle>
+                <DialogDescription className="winner-description">
+                  <span className="winner-price-val">
+                    ~{priceLabel(food.price, language, false)} / {foodServingUnit(food, mealKind, language)}
                   </span>
-                  <DialogTitle className="winner-title">
-                    {foodName(food, language)}
-                  </DialogTitle>
-                  <DialogDescription className="winner-description">
-                    <span>{t.referencePrice}</span>
-                    <strong>{priceLabel(food.price, language, true)}</strong>
-                    {" / "}
-                    {foodServingUnit(food, mealKind, language)}
-                  </DialogDescription>
-                </div>
-              </div>
-              <FoodOrdering
-                key={food.customId ?? food.name}
-                dish={food.name}
-                language={language}
-              />
-              <div className="ordering-alternative-links">
-                <a
-                  className="grabfood-button"
-                  href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({ search: food.name, "support-deeplink": "true", searchParameter: food.name })}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {vi ? "Đặt qua GrabFood" : "Order on GrabFood"}
-                  <ArrowUpRight size={15} aria-hidden="true" />
-                </a>
-                <a
-                  className="find-button"
-                  href={`https://www.google.com/maps/search/${encodeURIComponent(food.name + " " + t.nearby)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t.find}
-                  <ArrowUpRight size={15} aria-hidden="true" />
-                </a>
+                  <span className="winner-price-sub">{t.referencePrice}</span>
+                </DialogDescription>
               </div>
             </div>
-            <div className="food-result-footer">
-              <button type="button" onClick={onClose}>
-                {vi ? "Quay tiếp" : t.continue}
-              </button>
-            </div>
-          </>
+            <FoodOrdering
+              key={food.customId ?? food.name}
+              dish={food.name}
+              language={language}
+              onClose={onClose}
+            />
+          </div>
         )}
       </DialogContent>
     </Dialog>

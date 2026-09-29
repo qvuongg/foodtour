@@ -1,5 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import { ArrowUpRight, Loader2, MapPin, ShoppingBag } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronDown,
+  Loader2,
+  MapPin,
+  RotateCcw,
+  ShoppingBag,
+} from "lucide-react";
 import {
   DEFAULT_ORDERING_CITY,
   resolveSmartHubAffiliate,
@@ -48,9 +55,11 @@ function resolveSpotLink(
 export function FoodOrdering({
   dish,
   language,
+  onClose,
 }: {
   dish: string;
   language: Language;
+  onClose?: () => void;
 }) {
   const vi = language === "vi";
   const destination = resolveSmartHubAffiliate(
@@ -63,6 +72,7 @@ export function FoodOrdering({
     "locating" | "found" | "not_found" | "denied"
   >("locating");
   const [nearbySpots, setNearbySpots] = useState<DbRestaurant[]>([]);
+  const [showAlternatives, setShowAlternatives] = useState(false);
 
   const requestLocation = useCallback(() => {
     if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
@@ -86,7 +96,7 @@ export function FoodOrdering({
               latitude,
               longitude,
               3000,
-              4,
+              15,
             );
           } catch {}
         }
@@ -130,6 +140,20 @@ export function FoodOrdering({
         }
 
         if (spots.length > 0) {
+          // Sắp xếp ưu tiên theo rating giảm dần -> số lượt đánh giá giảm dần -> khoảng cách gần nhất
+          spots.sort((a, b) => {
+            const ratingA = Number(a.rating) || 0;
+            const ratingB = Number(b.rating) || 0;
+            if (Math.abs(ratingB - ratingA) > 0.01) {
+              return ratingB - ratingA;
+            }
+            const countA = Number(a.rating_count) || 0;
+            const countB = Number(b.rating_count) || 0;
+            if (countB !== countA) {
+              return countB - countA;
+            }
+            return (a.distance_meters ?? 0) - (b.distance_meters ?? 0);
+          });
           setNearbySpots(spots);
           setGeoStatus("found");
         } else {
@@ -166,99 +190,104 @@ export function FoodOrdering({
           <Loader2 size={16} className="animate-spin" />
           <span>
             {vi
-              ? "Đang xác định vị trí để tìm quán gần bạn (trong 3km)…"
-              : "Detecting location to find nearby spots (within 3km)…"}
+              ? "Đang xác định vị trí để tìm quán gần bạn…"
+              : "Detecting location to find nearby spots…"}
           </span>
         </div>
       )}
 
       {/* 2. Trạng thái: Người dùng ĐÃ ĐỒNG Ý BẬT VỊ TRÍ & tìm thấy quán trong 3km */}
       {geoStatus === "found" && primarySpot && (
-        <div className="nearby-restaurant-card">
-          <div className="nearby-restaurant-header">
-            <div className="nearby-badge">
-              <MapPin size={13} aria-hidden="true" />
-              <span>
-                {vi ? "Cách bạn" : ""} {formatDistanceMeters(primarySpot.distance_meters)} · ⭐{" "}
-                {primarySpot.rating} (
-                {primarySpot.rating_count.toLocaleString()}+{" "}
-                {vi ? "đánh giá" : "reviews"})
-              </span>
-            </div>
+        <>
+          <div className="nearby-restaurant-card">
             <strong className="nearby-restaurant-name">
               {primarySpot.name}
             </strong>
-            <p className="nearby-restaurant-address">
-              {primarySpot.address}
-            </p>
-          </div>
-          <a
-            className="shopeefood-button"
-            href={resolveSpotLink(primarySpot, dish)}
-            target="_blank"
-            rel="sponsored noopener"
-          >
-            <ShoppingBag size={18} aria-hidden="true" />
-            <span>
-              {vi ? "Mở quán trên ShopeeFood" : "Open Restaurant in ShopeeFood"}
-            </span>
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-
-          {altSpots.length > 0 && (
-            <div className="nearby-alternatives">
-              <span className="nearby-alt-title">
-                {vi ? "Quán khác gần bạn:" : "Other spots nearby:"}
+            <div className="nearby-meta-row">
+              <span className="nearby-meta-dist">
+                <MapPin size={13} aria-hidden="true" />
+                {formatDistanceMeters(primarySpot.distance_meters)}
               </span>
-              {altSpots.map((alt) => (
-                <a
-                  key={alt.id}
-                  className="nearby-alt-item"
-                  href={resolveSpotLink(alt, dish)}
-                  target="_blank"
-                  rel="sponsored noopener"
-                >
-                  <span className="alt-name">{alt.name}</span>
-                  <small className="alt-dist">
-                    {formatDistanceMeters(alt.distance_meters)} · ⭐{alt.rating}
-                  </small>
-                  <ArrowUpRight size={13} aria-hidden="true" />
-                </a>
-              ))}
+              <span className="nearby-meta-dot">·</span>
+              <span className="nearby-meta-rating">
+                ⭐ {Number(primarySpot.rating || 4.5).toFixed(1).replace(".", ",")}
+                <span className="nearby-meta-count">
+                  ({(primarySpot.rating_count || 100) > 100 ? "100+" : primarySpot.rating_count}{" "}
+                  {vi ? "đánh giá" : "reviews"})
+                </span>
+              </span>
+            </div>
+            {primarySpot.address && (
+              <p className="nearby-restaurant-address">
+                {primarySpot.address}
+              </p>
+            )}
+          </div>
+
+          {/* Quán khác thu gọn (Accordion) */}
+          {altSpots.length > 0 && (
+            <div className="nearby-alternatives-accordion">
+              <button
+                type="button"
+                className="nearby-accordion-header"
+                onClick={() => setShowAlternatives((prev) => !prev)}
+                aria-expanded={showAlternatives}
+              >
+                <span>
+                  {vi
+                    ? `Xem thêm ${altSpots.length} quán có ${dish.toLowerCase()} gần bạn`
+                    : `See ${altSpots.length} more spots nearby`}
+                </span>
+                <ChevronDown
+                  size={16}
+                  className={`accordion-chevron ${showAlternatives ? "is-expanded" : ""}`}
+                  aria-hidden="true"
+                />
+              </button>
+              {showAlternatives && (
+                <div className="nearby-accordion-content">
+                  {altSpots.map((alt) => (
+                    <a
+                      key={alt.id}
+                      className="nearby-alt-row"
+                      href={resolveSpotLink(alt, dish)}
+                      target="_blank"
+                      rel="sponsored noopener"
+                    >
+                      <div className="nearby-alt-info">
+                        <span className="nearby-alt-name">{alt.name}</span>
+                        <div className="nearby-alt-sub">
+                          <span>{formatDistanceMeters(alt.distance_meters)}</span>
+                          <span>·</span>
+                          <span>⭐ {Number(alt.rating || 4.5).toFixed(1).replace(".", ",")}</span>
+                          {alt.address && <span className="alt-addr">· {alt.address}</span>}
+                        </div>
+                      </div>
+                      <ArrowUpRight size={14} className="nearby-alt-icon" aria-hidden="true" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* 3. Trạng thái: Người dùng ĐỒNG Ý vị trí nhưng KHÔNG CÓ QUÁN TRONG 3KM */}
       {geoStatus === "not_found" && (
-        <>
-          <p className="nearby-notice">
-            {vi
-              ? `Chưa tìm thấy quán "${dish}" trong bán kính 3km từ vị trí của bạn.`
-              : `No "${dish}" spots found within 3km of your location.`}
-          </p>
-          <a
-            className="shopeefood-button"
-            href={destination.appHref}
-            target="_blank"
-            rel="sponsored noopener"
-          >
-            <ShoppingBag size={18} aria-hidden="true" />
-            <span>
-              {vi ? "Tìm quán trên ShopeeFood" : "Search on ShopeeFood"}
-            </span>
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-        </>
+        <p className="nearby-notice">
+          {vi
+            ? `Chưa tìm thấy quán "${dish}" trong bán kính 3km từ vị trí của bạn.`
+            : `No "${dish}" spots found within 3km of your location.`}
+        </p>
       )}
 
       {/* 4. Trạng thái: Người dùng TỪ CHỐI cấp quyền vị trí (Denied / Blocked) */}
       {geoStatus === "denied" && (
-        <>
+        <div className="nearby-denied-box">
           <p className="nearby-notice">
             {vi
-              ? "Bạn chưa bật vị trí. Bật vị trí để tự động hiển thị các quán gần bạn nhất (trong 3km)."
+              ? "Bạn chưa bật vị trí. Bật vị trí để tự động hiển thị quán ngon gần bạn nhất (trong 3km)."
               : "Location not enabled. Enable location to see spots near you (within 3km)."}
           </p>
           <button
@@ -266,27 +295,85 @@ export function FoodOrdering({
             className="nearby-retry-button"
             onClick={requestLocation}
           >
-            <MapPin size={15} />
+            <MapPin size={14} />
             <span>{vi ? "Bật vị trí để tìm quán gần tôi" : "Enable location to find nearby"}</span>
           </button>
-          <a
-            className="shopeefood-button"
-            href={destination.appHref}
-            target="_blank"
-            rel="sponsored noopener"
-          >
-            <ShoppingBag size={18} aria-hidden="true" />
-            <span>
-              {isSpecific
-                ? vi ? "Xem quán trên ShopeeFood" : "View on ShopeeFood"
-                : vi ? "Đặt món trên ShopeeFood" : "Order on ShopeeFood"}
-            </span>
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-          {isSpecific && (
-            <p className="ordering-specific-restaurant">{destination.title}</p>
-          )}
-        </>
+        </div>
+      )}
+
+      {/* Hàng nút thay thế: "Tìm trên Maps" bên trái, "Mở GrabFood" bên phải (12px, nền trung tính, không đổ bóng) */}
+      <div className="nearby-secondary-links">
+        <a
+          className="maps-button"
+          href={`https://www.google.com/maps/search/${encodeURIComponent(
+            primarySpot
+              ? `${primarySpot.name} ${primarySpot.address}`
+              : `${dish} ${vi ? "gần đây" : "nearby"}`
+          )}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <MapPin size={13} aria-hidden="true" />
+          <span>{vi ? "Tìm trên Maps" : "Find on Maps"}</span>
+          <ArrowUpRight size={12} aria-hidden="true" />
+        </a>
+        <a
+          className="grabfood-button"
+          href={`https://food.grab.com/vn/vi/restaurants?${new URLSearchParams({
+            search: dish,
+            "support-deeplink": "true",
+            searchParameter: dish,
+          })}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span>{vi ? "Mở GrabFood" : "Open GrabFood"}</span>
+          <ArrowUpRight size={12} aria-hidden="true" />
+        </a>
+      </div>
+
+      {/* Nút chính ShopeeFood: Rộng toàn hàng, cao tối thiểu 52–56px, màu cam đỏ nổi bật nhất */}
+      <a
+        className="shopeefood-button"
+        href={
+          primarySpot
+            ? resolveSpotLink(primarySpot, dish)
+            : destination.appHref
+        }
+        target="_blank"
+        rel="sponsored noopener"
+      >
+        <ShoppingBag size={18} aria-hidden="true" />
+        <span>
+          {primarySpot
+            ? vi
+              ? "Mở quán trên ShopeeFood"
+              : "Open on ShopeeFood"
+            : isSpecific
+              ? vi
+                ? "Xem quán trên ShopeeFood"
+                : "View on ShopeeFood"
+              : vi
+                ? "Đặt món trên ShopeeFood"
+                : "Order on ShopeeFood"}
+        </span>
+        <ArrowUpRight size={18} aria-hidden="true" />
+      </a>
+
+      {isSpecific && !primarySpot && (
+        <p className="ordering-specific-restaurant">{destination.title}</p>
+      )}
+
+      {/* Quay lại chọn món: "Chọn món khác" - Nút nhẹ, dễ thấy và bấm */}
+      {onClose && (
+        <button
+          type="button"
+          className="change-food-button"
+          onClick={onClose}
+        >
+          <RotateCcw size={15} aria-hidden="true" />
+          <span>{vi ? "Chọn món khác" : "Choose another dish"}</span>
+        </button>
       )}
     </div>
   );

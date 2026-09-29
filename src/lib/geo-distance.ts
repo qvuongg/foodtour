@@ -111,8 +111,20 @@ export function findNearbyRestaurants<
     }
   }
 
-  // Sắp xếp theo điểm tổng hợp giảm dần
-  inRange.sort((a, b) => b.score - a.score);
+  // Sắp xếp theo rating giảm dần -> số lượt đánh giá giảm dần -> khoảng cách gần nhất
+  inRange.sort((a, b) => {
+    const ratingA = Number(a.restaurant.rating) || 0;
+    const ratingB = Number(b.restaurant.rating) || 0;
+    if (Math.abs(ratingB - ratingA) > 0.01) {
+      return ratingB - ratingA;
+    }
+    const countA = Number(a.restaurant.ratingCount) || 0;
+    const countB = Number(b.restaurant.ratingCount) || 0;
+    if (countB !== countA) {
+      return countB - countA;
+    }
+    return a.distanceKm - b.distanceKm;
+  });
 
   if (!inRange.length) {
     return { primary: null, alternatives: [], totalFound: 0 };
@@ -120,7 +132,7 @@ export function findNearbyRestaurants<
 
   return {
     primary: inRange[0],
-    alternatives: inRange.slice(1, 3),
+    alternatives: inRange.slice(1, 4),
     totalFound: inRange.length,
   };
 }
