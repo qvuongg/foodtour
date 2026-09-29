@@ -59,6 +59,34 @@ function resolveSpotLink(
   }
 }
 
+function handleShopeeFoodClick(
+  url: string,
+  e: React.MouseEvent<HTMLAnchorElement>,
+) {
+  if (typeof window === "undefined" || !url || url === "#") return;
+
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (!isMobile) return;
+
+  e.preventDefault();
+
+  const appDeeplink = `shopeevn://main?apprl=${encodeURIComponent(url)}&push=1`;
+  const startTime = Date.now();
+
+  window.location.href = appDeeplink;
+
+  // Fallback an toàn: Nếu máy chưa cài App Shopee, sau 1.5s tự chuyển sang link web
+  setTimeout(() => {
+    if (document.hidden || Date.now() - startTime > 2500) {
+      return;
+    }
+    window.location.href = url;
+  }, 1500);
+}
+
 export function FoodOrdering({
   dish,
   language,
@@ -194,6 +222,9 @@ export function FoodOrdering({
 
   const primarySpot = nearbySpots[0] ?? null;
   const altSpots = nearbySpots.slice(1, 4);
+  const primaryLink = primarySpot
+    ? resolveSpotLink(primarySpot, dish)
+    : destination.appHref;
 
   return (
     <div className="food-ordering-action">
@@ -261,29 +292,33 @@ export function FoodOrdering({
               </button>
               {showAlternatives && (
                 <div className="nearby-accordion-content">
-                  {altSpots.map((alt) => (
-                    <a
-                      key={alt.id}
-                      className="nearby-alt-row"
-                      href={resolveSpotLink(alt, dish)}
-                      target="_blank"
-                      rel="sponsored noopener"
-                    >
-                      <div className="nearby-alt-info">
-                        <span className="nearby-alt-name">{alt.name}</span>
-                        <div className="nearby-alt-sub">
-                          <span>{formatDistanceMeters(alt.distance_meters)}</span>
-                          <span>·</span>
-                          <span>
-                            ⭐ {Number(alt.rating || 4.5).toFixed(1).replace(".", ",")}
-                            {alt.rating_count ? ` (${formatRatingCount(alt.rating_count)})` : ""}
-                          </span>
-                          {alt.address && <span className="alt-addr">· {alt.address}</span>}
+                  {altSpots.map((alt) => {
+                    const altLink = resolveSpotLink(alt, dish);
+                    return (
+                      <a
+                        key={alt.id}
+                        className="nearby-alt-row"
+                        href={altLink}
+                        onClick={(e) => handleShopeeFoodClick(altLink, e)}
+                        target="_blank"
+                        rel="sponsored noopener"
+                      >
+                        <div className="nearby-alt-info">
+                          <span className="nearby-alt-name">{alt.name}</span>
+                          <div className="nearby-alt-sub">
+                            <span>{formatDistanceMeters(alt.distance_meters)}</span>
+                            <span>·</span>
+                            <span>
+                              ⭐ {Number(alt.rating || 4.5).toFixed(1).replace(".", ",")}
+                              {alt.rating_count ? ` (${formatRatingCount(alt.rating_count)})` : ""}
+                            </span>
+                            {alt.address && <span className="alt-addr">· {alt.address}</span>}
+                          </div>
                         </div>
-                      </div>
-                      <ArrowUpRight size={14} className="nearby-alt-icon" aria-hidden="true" />
-                    </a>
-                  ))}
+                        <ArrowUpRight size={14} className="nearby-alt-icon" aria-hidden="true" />
+                      </a>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -353,11 +388,8 @@ export function FoodOrdering({
       {/* Nút chính ShopeeFood: Rộng toàn hàng, cao tối thiểu 52–56px, màu cam đỏ nổi bật nhất */}
       <a
         className="shopeefood-button"
-        href={
-          primarySpot
-            ? resolveSpotLink(primarySpot, dish)
-            : destination.appHref
-        }
+        href={primaryLink}
+        onClick={(e) => handleShopeeFoodClick(primaryLink, e)}
         target="_blank"
         rel="sponsored noopener"
       >
