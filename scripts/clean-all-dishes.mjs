@@ -77,9 +77,10 @@ async function main() {
     if (invalidRestaurantIds.length > 0) {
       console.log(`⚠️ [${dish.name}]: Phát hiện ${invalidRestaurantIds.length} quán không phù hợp. Đang dọn dẹp...`);
 
-      // Xóa theo lô nhỏ
-      for (const rId of invalidRestaurantIds) {
-        await fetch(`${SUPABASE_URL}/rest/v1/restaurant_dishes?restaurant_id=eq.${rId}&dish_id=eq.${dish.id}`, {
+      // Xóa theo lô 100
+      for (let i = 0; i < invalidRestaurantIds.length; i += 100) {
+        const delChunk = invalidRestaurantIds.slice(i, i + 100);
+        await fetch(`${SUPABASE_URL}/rest/v1/restaurant_dishes?dish_id=eq.${dish.id}&restaurant_id=in.(${delChunk.join(",")})`, {
           method: "DELETE",
           headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
         });
