@@ -89,27 +89,7 @@ function resolveSpotLink(
   }
 }
 
-function handleShopeeFoodClick(
-  url: string,
-  e: React.MouseEvent<HTMLAnchorElement>,
-) {
-  if (typeof window === "undefined" || !url || url === "#") return;
-
-  const isMobile =
-    typeof navigator !== "undefined" &&
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  if (!isMobile) return;
-
-  // Trên mobile: Chặn tạo tab mới và chặn chuyển hướng trang web
-  e.preventDefault();
-
-  const appDeeplink = `shopeevn://main?apprl=${encodeURIComponent(url)}&push=1`;
-
-  // Mở thẳng App Shopee bằng Deep Link. Trình duyệt Safari không bị điều hướng đi đâu cả,
-  // nên khi người dùng quay lại Safari thì vẫn luôn ở trang Foodtour của mình.
-  window.location.href = appDeeplink;
-}
+import { handleShopeeFoodClick } from "@/lib/shopee-deeplink";
 
 export function FoodOrdering({
   dish,

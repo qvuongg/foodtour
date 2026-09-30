@@ -3,6 +3,7 @@ import { MealKindTabs } from "@/components/meal-kind-tabs";
 import { SpinControls } from "@/components/spin-controls";
 import { FoodImage } from "@/components/food-image";
 import { FoodResultDialog } from "@/components/food-result-dialog";
+import { DistrictSpotsChecklist } from "@/components/district-spots-checklist";
 import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import { createSpinProfile } from "@/lib/case-mechanics";
@@ -343,6 +344,10 @@ export default function Home() {
           triggerRef={dialogTrigger}
           onClose={closeFoodDialog}
         />
+
+        {mealKind === "drink" && (
+          <DistrictSpotsChecklist language={language} />
+        )}
 
         <section className="inventory" id="menu" aria-labelledby="menu-title">
           <div className="section-heading">
