@@ -1,6 +1,7 @@
 {
-  "name": "truanayangi",
+  "name": "foodtour",
   "version": "1.0.0",
+  "description": "Ứng dụng mở hòm quay món ăn và đồ uống, tìm kiếm quán ngon gần 3km qua PostGIS và đặt hàng qua ShopeeFood.",
   "private": false,
   "type": "module",
   "scripts": {
@@ -10,6 +11,8 @@
     "test": "node --test tests/cookies.test.mjs tests/case-mechanics.test.mjs tests/food-ordering.test.mjs tests/food-categories.test.mjs tests/meal-settings.test.mjs tests/geo-distance.test.mjs tests/dish-relevance.test.mjs tests/district-spots.test.mjs tests/brand-catalog.test.mjs && node tests/personal-pool.cjs",
     "typecheck": "tsc --noEmit",
     "crawl:drinks": "node scripts/crawl-drinks.mjs",
+    "export:batch": "python3 scripts/export-batch-custom-links.py",
+    "sync:affiliate": "python3 scripts/merge-affiliate-results.py",
     "start": "vite --host 127.0.0.1"
   },
   "dependencies": {

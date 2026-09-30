@@ -1,58 +1,136 @@
-# Trưa Nay Ăn Gì 🍜
+# FoodTour — What To Eat & Drink Today? 🍜🥤
 
 [Tiếng Việt](README.md) · **English**
 
-**Official website: [truanayangi.com](https://truanayangi.com/)**
+A modern web application solving the classic dilemma: *"What to eat or drink today?"* with an exciting **CS2-style case opening roulette reel**, combined with real-world 3km nearby restaurant discovery via Supabase PostGIS and seamless 1-tap direct ordering through the ShopeeFood app.
 
-Can't decide what to eat for lunch? Open a case, spin for a dish, and add a little surprise to your day.
+---
 
-This is the community version that runs on your computer, with no login or backend required. Filter dishes, add your own meal lists, and save your preferences in your browser.
+## 🌟 Key Features
 
-## Run locally
+### 1. 🎰 CS2-Style Food Roulette Reel
+- **4 Rich Categories:**
+  - **Lunch:** Rice, noodles, pho, rolls, vegetarian... with budget selector and strict vegetarian filter.
+  - **Drinks:** Salt coffee, bubble milk tea, peach lemongrass tea, fresh juices, smoothies...
+  - **Snacks:** Vietnamese street food, grilled rice paper, fried fermented pork rolls, avocado ice cream...
+  - **Pubs / Gatherings:** Hotpot, BBQ, drinks and gatherings with friends.
+- **Authentic Case Opening Experience:** Realistic CS2 mechanical click sounds, smooth momentum deceleration, and celebratory confetti.
 
-You need **Node.js 22.12+** and the **pnpm** version specified in [package.json](package.json).
+### 2. 📍 3km Nearby Restaurant Discovery via Supabase PostGIS
+- Automatic GPS detection (only when permitted by the user).
+- Direct queries to the Supabase PostGIS RPC function `get_nearby_restaurants` to fetch restaurants open within a 3,000m radius.
+- Smart relevance filter (`dish-relevance`): Strictly prevents mismatches (e.g. spinning "Hanoi Bun Cha" will never return fish noodle soup; non-veg dishes reject vegetarian places).
+- Multi-tier ranking: Review count ➔ Rating score (⭐) ➔ Physical proximity.
 
-```sh
-git clone https://github.com/truanayangi-com/truanayangi.git
-cd truanayangi
-pnpm install --frozen-lockfile
-pnpm start
+### 3. 🥤 Dedicated Beverage Experience
+- **Famous Brands Carousel:**
+  - Features top national F&B chains: *Highlands Coffee, Phúc Long, Phê La, Katinat, The Coffee House, Starbucks, Mixue, ToCoToCo, Cộng Cà Phê, Gong Cha, KOI Thé*.
+  - Authentic brand vector logos, sleek compact card design, horizontal 1-touch swipeable track on mobile.
+- **District Spots Checklist:**
+  - Auto-detects the user's current urban district (e.g., Da Nang: *Liên Chiểu, Hải Châu, Thanh Khê, Sơn Trà, Ngũ Hành Sơn, Cẩm Lệ*).
+  - Dynamic curated top spots fetched from Supabase with an interactive visit tracker.
+
+### 4. ⚡ Direct ShopeeFood Mobile Deep Link
+- Universal deep linking (`shopee-deeplink.ts`): Tapping **"Order"** on iOS Safari or Android directly launches the Shopee / ShopeeFood native mobile app, **completely bypassing intermediate web redirects**.
+- Automatically attaches official affiliate tracking parameters (`mmp_pid`, `utm_source`, `utm_medium`, `utm_campaign`, `sub_id`).
+
+### 5. 🕷️ Crawler & Data Automation Suite
+- **ShopeeFood Crawler (`scripts/crawl-drinks.mjs`):** Crawls restaurants and beverage spots across 3 major cities (*Da Nang, Hanoi, Ho Chi Minh City*) with automatic district query expansion.
+- **Shopee Batch Link Exporter (`scripts/export-batch-custom-links.py`):** Exports thousands of URLs into standard Shopee Affiliate Excel batches for short link generation.
+- **Database Synchronizer (`scripts/merge-affiliate-results.py`):** Automatically ingests converted Shopee affiliate links and batch-updates `affiliate_url` on Supabase using multi-threaded concurrent requests.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) |
+| **Language** | [TypeScript 5.8](https://www.typescriptlang.org/) |
+| **Styling & Icons** | Vanilla CSS Modules + CSS Custom Properties, [Lucide React](https://lucide.dev/) |
+| **Database & Spatial** | [Supabase](https://supabase.com/) (PostgreSQL 15 + PostGIS extension) |
+| **Crawler & Automation** | [Playwright](https://playwright.dev/) (Chromium Stealth), Python 3 (openpyxl) |
+| **Testing** | Node.js Test Runner (`node --test`) + [esbuild](https://esbuild.github.io/) |
+
+---
+
+## 🚀 Local Development Setup
+
+### Prerequisites
+- **Node.js**: `22.12+`
+- **pnpm**: `9.x+`
+- **Python**: `3.9+` (with `openpyxl` installed if processing Excel batches)
+
+### Steps
+
+1. **Clone the repository and install dependencies:**
+   ```bash
+   git clone https://github.com/qvuongg/foodtour.git
+   cd foodtour
+   pnpm install
+   ```
+
+2. **Configure environment variables:**
+   Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Add your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # For crawling & database synchronization
+   ```
+
+3. **Start the development server:**
+   ```bash
+   pnpm dev
+   ```
+   Open [http://127.0.0.1:5173](http://127.0.0.1:5173) in your browser.
+
+---
+
+## 🧪 Testing & Building
+
+```bash
+# Run all 60 automated unit tests
+pnpm test
+
+# Run TypeScript typechecks
+pnpm typecheck
+
+# Build for production
+pnpm build
+
+# Preview production build locally
+pnpm preview
 ```
 
-Open [127.0.0.1:5173](http://127.0.0.1:5173). No `.env` file or external service setup is needed. If the port is busy, run `pnpm start --port 5188`.
+---
 
-Development commands:
+## 📊 Crawling & Data Synchronization
 
-```sh
-pnpm test       # Run checks
-pnpm build      # Create a build
-pnpm preview    # Preview at http://127.0.0.1:4173
+### 1. Crawl beverage spots
+```bash
+# Crawl all 3 target cities: Hanoi, Da Nang, Ho Chi Minh City
+node scripts/crawl-drinks.mjs --all
+
+# Or crawl a single city in fast mode:
+node scripts/crawl-drinks.mjs --city=da-nang --fast
 ```
 
-The servers bind to `127.0.0.1` only. Once dependencies are installed, the app loads its assets locally; external links open only when you click them.
+### 2. Export batch files for Shopee Affiliate
+Pre-generated at [`data/Batch Custom Links_Drink.xlsx`](data/Batch%20Custom%20Links_Drink.xlsx).  
+Upload this file to **Shopee Affiliate Portal > Custom Link > Batch**, then download the converted `AffiliateBatchCustomLinks...` file into `data/`.
 
-## Your data
+### 3. Sync affiliate links to Supabase
+```bash
+python3 scripts/merge-affiliate-results.py
+```
 
-Preferences, meal lists, and spin counts are saved automatically in cookies in your current browser. Clearing cookies resets this data; it does not sync across devices. The displayed spin count belongs to this browser only.
+---
 
-If cookies are blocked or a meal list is too large, the app will let you know it could not save.
+## 🔒 Privacy & Data
 
-## Find food on ShopeeFood
-
-Click a dish in your menu or spin to open its dialog and search on ShopeeFood. See [ShopeeFood setup](docs/SHOPEEFOOD-SETUP.md) to configure an officially issued affiliate link for verified dishes. Regular search works without affiliate configuration.
-
-## GitHub Pages and the official website
-
-GitHub Pages only redirects to https://truanayangi.com/. This keeps functionality consistent: visitors always use the same production frontend, API, and same-origin login cookie instead of a second static app that can drift or lose authentication on refresh. Publish only `pages-redirect/` to `gh-pages`; do not deploy the local build there. Shared static UI and reel-motion fixes should be updated in both this repository and the private production frontend.
-
-## Contributing
-
-Everyone is welcome to [report bugs, suggest ideas](https://github.com/truanayangi-com/truanayangi/issues/new), or fork the repo and [submit a PR to `main`](https://github.com/truanayangi-com/truanayangi/compare). Use Vietnamese or English, and feel free to open a draft PR for discussion. No approved issue or organization membership is required.
-
-Describe your change and how you checked it. For code changes, run tests and a build when possible; maintainers can help and will review before merging. Keep secrets out of the repo and credit the sources you use.
-
-## Credits
-
-This repository was transferred from `nagisanzenin/truanayangi`, preserving its Git history and community contributions. See [author and asset attribution](ATTRIBUTION.md).
-
-[GitHub Pages](https://truanayangi-com.github.io/truanayangi/) redirects to the official website. Only `pages-redirect/` is published to `gh-pages`; the application source in this repo is for local use.
+- **Location Data:** GPS coordinates are solely used in the client browser to calculate distances via PostGIS RPC functions. **No location logs or personal identities are stored**.
+- **User Preferences:** Spin counts and custom dish preferences are stored locally in the user's browser cookies.

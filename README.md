@@ -1,58 +1,170 @@
-# Trưa Nay Ăn Gì 🍜
+# FoodTour — Hôm Nay Ăn Gì & Đồ Uống Chuẩn Gu 🍜🥤
 
 **Tiếng Việt** · [English](README.en.md)
 
-**Website chính thức: [truanayangi.com](https://truanayangi.com/)**
+Ứng dụng web giải cứu câu hỏi kinh điển *"Hôm nay ăn gì / uống gì?"* bằng cơ chế **mở hòm & quay món** phong cách CS2 đầy bất ngờ, kết hợp tìm kiếm quán ngon gần nhất trong bán kính 3km (PostGIS) và đặt món 1 chạm trực tiếp qua ứng dụng ShopeeFood.
 
-Chưa biết ăn gì trưa nay? Mở hòm, quay món và để bữa trưa có chút bất ngờ.
+---
 
-Đây là phiên bản cộng đồng chạy trên máy của bạn, không cần đăng nhập hay backend. Bạn có thể lọc món, thêm danh sách món riêng và lưu sở thích ngay trong trình duyệt.
+## 🌟 Tính Năng Nổi Bật
 
-## Chạy trên máy
+### 1. 🎰 Vòng Quay Mở Hòm Giải Cứu Cơn Đói
+- **4 Danh mục phong phú:**
+  - **Ăn trưa (Lunch):** Cơm, phở, bún, mì, bánh cuốn, món chay... kèm bộ lọc ngân sách và chế độ thuần chay.
+  - **Đồ uống (Drinks):** Cà phê muối, trà sữa, trà đào cam sả, nước ép, sinh tố...
+  - **Ăn vặt (Snacks):** Bánh tráng nướng, nem chua rán, chè, kem bơ...
+  - **Đi nhậu (Pubs):** Lẩu, nướng, mồi nhậu tụ tập bạn bè.
+- **Hiệu ứng chân thực:** Trải nghiệm âm thanh click mở hòm CS2 sống động, ánh sáng spotlight dừng đúng món chiến thắng.
 
-Cần **Node.js 22.12+** và phiên bản **pnpm** ghi trong [package.json](package.json).
+### 2. 📍 Tìm Quán Ngon Gần 3km Qua Supabase PostGIS
+- Tự động định vị GPS của người dùng (chỉ khi được cho phép).
+- Truy vấn trực tiếp hàm PostGIS RPC `get_nearby_restaurants` trên cơ sở dữ liệu Supabase để tìm các quán đang mở cửa gần nhất trong bán kính 3,000m.
+- Bộ lọc thông minh (`dish-relevance`): Ngăn chặn triệt để quán sai lệch (ví dụ: quay "Bún chả Hà Nội" sẽ không trả về quán bún chả cá; món mặn không lẫn vào quán chay).
+- Tự động sắp xếp ưu tiên theo: Lượt đánh giá (Rating Count) ➔ Điểm đánh giá (Rating ⭐) ➔ Khoảng cách gần nhất.
 
-```sh
-git clone https://github.com/truanayangi-com/truanayangi.git
-cd truanayangi
-pnpm install --frozen-lockfile
-pnpm start
+### 3. 🥤 Trải Nghiệm Đồ Uống Chuyên Biệt
+- **Thanh Cuộn Ngang Thương Hiệu (Brand Carousel):**
+  - Trưng bày các chuỗi F&B hàng đầu: *Highlands Coffee, Phúc Long, Phê La, Katinat, The Coffee House, Starbucks, Mixue, ToCoToCo, Cộng Cà Phê, Gong Cha, KOI Thé*.
+  - Logo chuẩn nhận diện thương hiệu, thiết kế card bo góc tinh gọn, vuốt ngang 1 chạm trên mobile.
+- **Checklist Quán Ngon Theo Quận (District Spots Checklist):**
+  - Tự động nhận diện quận huyện (Đà Nẵng: *Liên Chiểu, Hải Châu, Thanh Khê, Sơn Trà, Ngũ Hành Sơn, Cẩm Lệ...*).
+  - Danh sách top quán nước uy tín nhất quận kết nối động từ database Supabase, tích hợp thanh tiến độ check-in trải nghiệm.
+
+### 4. ⚡ Deep Link Mở Thẳng App ShopeeFood
+- Công nghệ điều hướng Universal Deep Link (`shopee-deeplink.ts`): Bấm nút **"Đặt"** hoặc **"Mở quán"** trên iOS Safari / Android sẽ mở trực tiếp ứng dụng Shopee/ShopeeFood, **không bị kẹt ở trang web trung gian**.
+- Tự động gắn tham số tracking Shopee Affiliate chính thức (`mmp_pid`, `utm_source`, `utm_medium`, `utm_campaign`, `sub_id`).
+
+### 5. 🕷️ Bộ Công Cụ Crawler & Quản Lý Dữ Liệu Tự Động
+- **ShopeeFood Crawler (`scripts/crawl-drinks.mjs`):** Tự động cào quán ăn & quán nước đa tỉnh thành (*Đà Nẵng, Hà Nội, TP.HCM*), tự động mở rộng theo từng quận.
+- **Shopee Batch Link Export (`scripts/export-batch-custom-links.py`):** Xuất hàng nghìn liên kết sang định dạng Excel chuẩn để tải lên Shopee Affiliate Portal lấy link rút gọn.
+- **Database Synchronizer (`scripts/merge-affiliate-results.py`):** Đọc file kết quả từ Shopee và tự động cập nhật hàng loạt link affiliate lên Supabase Database với đa luồng song song.
+
+---
+
+## 🛠️ Công Nghệ Sử Dụng (Tech Stack)
+
+| Thành phần | Công nghệ |
+|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) + [Vite 8](https://vite.dev/) |
+| **Ngôn ngữ** | [TypeScript 5.8](https://www.typescriptlang.org/) |
+| **Styling & Icons** | Vanilla CSS Modules + CSS Custom Properties, [Lucide React](https://lucide.dev/) |
+| **Database & Spatial** | [Supabase](https://supabase.com/) (PostgreSQL 15 + PostGIS extension) |
+| **Crawler & Automation** | [Playwright](https://playwright.dev/) (Chromium Stealth), Python 3 (openpyxl) |
+| **Unit Testing** | Node.js Test Runner (`node --test`) + [esbuild](https://esbuild.github.io/) |
+
+---
+
+## 🚀 Cài Đặt & Chạy Trên Máy (Local Development)
+
+### Yêu cầu môi trường
+- **Node.js**: `22.12+`
+- **pnpm**: `9.x+` (hoặc npm tương đương)
+- **Python**: `3.9+` (kèm thư viện `openpyxl` nếu dùng tính năng xử lý Excel)
+
+### Các bước khởi chạy
+
+1. **Clone repository và cài đặt thư viện:**
+   ```bash
+   git clone https://github.com/qvuongg/foodtour.git
+   cd foodtour
+   pnpm install
+   ```
+
+2. **Cấu hình biến môi trường:**
+   Tạo file `.env.local` từ mẫu `.env.example`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Cập nhật các thông tin Supabase của bạn:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Dùng khi chạy crawler / merge scripts
+   ```
+
+3. **Khởi chạy Development Server:**
+   ```bash
+   pnpm dev
+   ```
+   Mở trình duyệt tại [http://127.0.0.1:5173](http://127.0.0.1:5173).
+
+---
+
+## 🧪 Kiểm Thử & Đóng Gói (Testing & Build)
+
+```bash
+# Chạy toàn bộ 60 bài kiểm thử tự động
+pnpm test
+
+# Kiểm tra cú pháp và kiểu dữ liệu TypeScript
+pnpm typecheck
+
+# Đóng gói phiên bản sản xuất (Production Build)
+pnpm build
+
+# Xem thử bản build production tại local
+pnpm preview
 ```
 
-Mở [127.0.0.1:5173](http://127.0.0.1:5173). Không cần tạo `.env` hay cấu hình dịch vụ bên ngoài. Nếu cổng đang bận, chạy `pnpm start --port 5188`.
+---
 
-Các lệnh phát triển:
+## 📊 Hướng Dẫn Cào & Đồng Bộ Dữ Liệu Quán
 
-```sh
-pnpm test       # Chạy kiểm tra
-pnpm build      # Tạo bản build
-pnpm preview    # Xem bản build tại http://127.0.0.1:4173
+### 1. Cào dữ liệu quán nước
+```bash
+# Cào toàn bộ 3 thành phố lớn: Hà Nội, Đà Nẵng, TP.HCM
+node scripts/crawl-drinks.mjs --all
+
+# Hoặc cào riêng 1 thành phố với chế độ quét nhanh:
+node scripts/crawl-drinks.mjs --city=da-nang --fast
 ```
 
-Máy chủ chỉ lắng nghe trên `127.0.0.1`. Sau khi cài dependencies, ứng dụng tải tài nguyên từ máy; các liên kết bên ngoài chỉ mở khi bạn bấm vào.
+### 2. Xuất file nộp Shopee Affiliate để lấy link rút gọn
+Dữ liệu cào sẽ được tạo sẵn tại file [`data/Batch Custom Links_Drink.xlsx`](data/Batch%20Custom%20Links_Drink.xlsx).  
+Bạn tải tệp này lên **Shopee Affiliate Portal > Custom Link > Batch** và tải file kết quả `AffiliateBatchCustomLinks...` về thư mục `data/`.
 
-## Dữ liệu của bạn
+### 3. Đồng bộ link rút gọn lên Database Supabase
+```bash
+python3 scripts/merge-affiliate-results.py
+```
+Tập lệnh sẽ tự động nạp link affiliate và cập nhật trường `affiliate_url` của tất cả các quán trên Supabase Database.
 
-Sở thích, danh sách món và lượt quay tự lưu bằng cookie trong trình duyệt hiện tại. Xóa cookie sẽ đặt lại dữ liệu; dữ liệu không đồng bộ giữa các thiết bị. Lượt quay hiển thị là của riêng trình duyệt này.
+---
 
-Nếu cookie bị chặn hoặc danh sách món quá lớn, ứng dụng sẽ báo chưa lưu.
+## 📁 Cấu Trúc Thư Mục Dự Án
 
-## Tìm món trên ShopeeFood
+```text
+foodtour/
+├── data/                       # Dữ liệu CSV/Excel cào được và link đối soát Shopee
+├── public/
+│   ├── brand/                  # Logo và biểu tượng ứng dụng chính
+│   ├── brands/                 # Logo vector các thương hiệu đồ uống (Highlands, Phúc Long...)
+│   └── *.webp                  # Sprite atlas hình ảnh món ăn
+├── scripts/
+│   ├── crawl-drinks.mjs        # Crawler đồ uống đa thành phố
+│   ├── crawl-shopeefood-batch.mjs # Crawler món ăn trưa
+│   ├── export-batch-custom-links.py # Công cụ tạo file Excel nộp Shopee
+│   └── merge-affiliate-results.py   # Công cụ đồng bộ link affiliate lên Supabase
+├── src/
+│   ├── app/                    # Layout chính và trang Home (page.tsx)
+│   ├── components/             # React UI components
+│   │   ├── brand-carousel.tsx  # Thanh cuộn ngang thương hiệu nổi bật
+│   │   ├── district-spots-checklist.tsx # Checklist quán ngon theo quận
+│   │   ├── food-ordering.tsx   # Modal hiển thị quán gần bạn 3km qua PostGIS
+│   │   ├── food-spotlight.tsx  # Hiệu ứng vòng quay hòm CS2
+│   │   └── spin-controls.tsx   # Bộ nút quay và lọc món
+│   └── lib/                    # Logic nghiệp vụ, dịch vụ dữ liệu & helper
+│       ├── brand-catalog.ts    # Danh mục 11 chuỗi thương hiệu đồ uống
+│       ├── district-spots.ts   # Dữ liệu quận và quán nước tuyển chọn
+│       ├── shopee-deeplink.ts  # Cơ chế mở thẳng App Shopee không qua web trung gian
+│       ├── supabase-client.ts  # Client PostGIS RPC truy vấn quán gần 3km
+│       └── dish-relevance.ts   # Thuật toán lọc quán chính xác theo tên món
+└── tests/                      # Bộ 60 unit tests kiểm thử toàn diện
+```
 
-Bấm vào món trong “Thực đơn của bạn” hoặc quay để mở popup và tìm món trên ShopeeFood. Xem [cấu hình liên kết ShopeeFood](docs/SHOPEEFOOD-SETUP.md) để gắn link affiliate đã được cấp cho các món phù hợp. Tìm kiếm thông thường không cần cấu hình affiliate.
+---
 
-## GitHub Pages và website chính
+## 🔒 Quyền Riêng Tư & Bảo Mật
 
-GitHub Pages chỉ chuyển hướng đến https://truanayangi.com/. Đây là cách giữ chức năng đồng nhất: người truy cập luôn dùng cùng frontend production, API và cookie đăng nhập cùng origin, thay vì một ứng dụng tĩnh thứ hai dễ lệch tính năng hoặc mất đăng nhập khi tải lại. Chỉ xuất bản `pages-redirect/` lên `gh-pages`; không đưa bản build local lên đó. Các sửa đổi UI tĩnh và chuyển động vòng quay dùng chung cần được cập nhật đồng thời ở repo này và frontend production riêng tư.
-
-## Đóng góp
-
-Chào đón mọi người [báo lỗi, đề xuất ý tưởng](https://github.com/truanayangi-com/truanayangi/issues/new) hoặc fork repo và [gửi PR vào `main`](https://github.com/truanayangi-com/truanayangi/compare). Bạn có thể dùng tiếng Việt hoặc tiếng Anh, mở draft PR để trao đổi, không cần được duyệt issue trước hay tham gia tổ chức.
-
-Chỉ cần mô tả rõ thay đổi và cách đã kiểm tra. Với thay đổi code, hãy chạy test và build khi có thể; maintainer sẽ hỗ trợ và review trước khi merge. Giữ thông tin bí mật ngoài repo và ghi công nguồn sử dụng.
-
-## Nguồn gốc
-
-Repo được chuyển từ `nagisanzenin/truanayangi`, giữ nguyên lịch sử Git và đóng góp cộng đồng. Xem [ghi công tác giả và tài nguyên](ATTRIBUTION.md).
-
-[GitHub Pages](https://truanayangi-com.github.io/truanayangi/) chuyển hướng đến website chính thức. Chỉ thư mục `pages-redirect/` được xuất bản lên `gh-pages`; mã ứng dụng trong repo dành cho việc chạy trên máy.
+- **Vị trí địa lý:** Tọa độ GPS chỉ được sử dụng trực tiếp trên trình duyệt để gọi hàm tính toán khoảng cách PostGIS, **hoàn toàn không lưu trữ nhật ký vị trí** của người dùng.
+- **Cookie cá nhân:** Lượt quay và cài đặt thực đơn cá nhân được lưu hoàn toàn trong cookie nội bộ thiết bị của bạn.
