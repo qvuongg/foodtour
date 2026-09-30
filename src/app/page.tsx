@@ -4,6 +4,7 @@ import { SpinControls } from "@/components/spin-controls";
 import { FoodImage } from "@/components/food-image";
 import { FoodResultDialog } from "@/components/food-result-dialog";
 import { DistrictSpotsChecklist } from "@/components/district-spots-checklist";
+import { BrandCarousel } from "@/components/brand-carousel";
 import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import { createSpinProfile } from "@/lib/case-mechanics";
@@ -346,7 +347,10 @@ export default function Home() {
         />
 
         {mealKind === "drink" && (
-          <DistrictSpotsChecklist language={language} />
+          <>
+            <BrandCarousel language={language} />
+            <DistrictSpotsChecklist language={language} />
+          </>
         )}
 
         <section className="inventory" id="menu" aria-labelledby="menu-title">

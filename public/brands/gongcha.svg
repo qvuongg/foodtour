@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="58" fill="#9B1B30"/>
+  <rect x="42" y="24" width="36" height="42" rx="4" fill="#FFFFFF"/>
+  <text x="60" y="54" font-family="serif" font-size="28" font-weight="bold" fill="#9B1B30" text-anchor="middle">貢</text>
+  <text x="60" y="88" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12.5" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">Gong cha</text>
+</svg>

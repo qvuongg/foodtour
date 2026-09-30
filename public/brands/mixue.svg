@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="58" fill="#E60012"/>
+  <path d="M52 24 L56 32 L60 24 L64 32 L68 24 L68 36 L52 36 Z" fill="#FFD700"/>
+  <circle cx="60" cy="50" r="18" fill="#FFFFFF"/>
+  <circle cx="54" cy="48" r="2.5" fill="#1C1917"/>
+  <circle cx="66" cy="48" r="2.5" fill="#1C1917"/>
+  <polygon points="60,52 68,54 60,56" fill="#FF7A00"/>
+  <path d="M54 58 Q60 64 66 58" fill="none" stroke="#E60012" stroke-width="2" stroke-linecap="round"/>
+  <path d="M54 68 L66 68 L60 84 Z" fill="#F4A261"/>
+  <text x="60" y="104" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">MIXUE</text>
+</svg>

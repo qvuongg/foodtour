@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="58" fill="#D49B18"/>
+  <circle cx="60" cy="60" r="52" fill="#2B1810"/>
+  <circle cx="48" cy="48" r="5" fill="#D49B18"/>
+  <circle cx="72" cy="48" r="5" fill="#D49B18"/>
+  <path d="M44 62 Q60 78 76 62" fill="none" stroke="#D49B18" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="60" cy="32" r="3" fill="#D49B18"/>
+  <text x="60" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">TOCOTOCO</text>
+</svg>

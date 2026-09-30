@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <circle cx="60" cy="60" r="58" fill="#006241"/>
+  <circle cx="60" cy="60" r="53" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+  <path d="M60 26 L63 35 L72 35 L65 41 L68 50 L60 44 L52 50 L55 41 L48 35 L57 35 Z" fill="#FFFFFF"/>
+  <circle cx="60" cy="56" r="14" fill="#FFFFFF"/>
+  <circle cx="60" cy="58" r="11" fill="#006241"/>
+  <path d="M55 58 C55 64 65 64 65 58" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M34 68 C34 50 44 40 50 38 C46 48 48 60 44 74" fill="#FFFFFF"/>
+  <path d="M86 68 C86 50 76 40 70 38 C74 48 72 60 76 74" fill="#FFFFFF"/>
+  <text x="60" y="104" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="8.5" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">STARBUCKS</text>
+</svg>

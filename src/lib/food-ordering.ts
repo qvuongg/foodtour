@@ -12,7 +12,7 @@ export type ShopeeFoodLink = {
   affiliate: boolean;
 };
 
-const SHOPEEFOOD_HOME = "https://shopeefood.vn/";
+export const SHOPEEFOOD_HOME = "https://shopeefood.vn/";
 const ALLOWED_HOSTS = ["shopeefood.vn", "shopee.vn", "spf.shopee.vn", "shope.ee"];
 
 // These city routes have been verified using ShopeeFood's public router and search UI.
@@ -26,7 +26,7 @@ export const ORDERING_CITIES = [
 
 export const DEFAULT_ORDERING_CITY = "da-nang";
 
-function isSupportedCity(city: string): boolean {
+export function isSupportedCity(city: string): boolean {
   return ORDERING_CITIES.some(({ value }) => value === city);
 }
 
