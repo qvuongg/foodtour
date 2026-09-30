@@ -93,27 +93,23 @@ export function SpinControls({
             </span>
             <ChevronDown size={15} />
           </button>
-          <button
-            className="veg"
-            type="button"
-            role="switch"
-            aria-checked={vegetarianEnabled}
-            aria-label={vi ? "Chỉ chọn món ăn chay" : "Vegetarian dishes only"}
-            aria-describedby={!lunch ? "veg-scope" : undefined}
-            disabled={spinning || !ready || !lunch}
-            onClick={() => setVeg((current) => !current)}
-          >
-            <Sprout size={21} aria-hidden="true" />
-            <span>
-              {t.vegetarian}
-              {!lunch && (
-                <small id="veg-scope">{vi ? "Chỉ ăn trưa" : "Lunch only"}</small>
-              )}
-            </span>
-            <span className="veg-toggle" aria-hidden="true">
-              <span />
-            </span>
-          </button>
+          {lunch && (
+            <button
+              className="veg"
+              type="button"
+              role="switch"
+              aria-checked={vegetarianEnabled}
+              aria-label={vi ? "Chỉ chọn món ăn chay" : "Vegetarian dishes only"}
+              disabled={spinning || !ready}
+              onClick={() => setVeg((current) => !current)}
+            >
+              <Sprout size={21} aria-hidden="true" />
+              <span>{t.vegetarian}</span>
+              <span className="veg-toggle" aria-hidden="true">
+                <span />
+              </span>
+            </button>
+          )}
         </div>
         <button
           className="open-button"

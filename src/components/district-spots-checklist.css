@@ -1,70 +1,26 @@
 /* ==========================================================================
-   Food Tour District Spots Checklist Stylesheet
-   Thiết kế chuyên biệt cho trải nghiệm Food Tour & Đồ Uống theo Quận
+   Food Tour District Spots Checklist (Mobile-First Minimalist Style)
+   Gọn gàng, không rối mắt, tập trung trải nghiệm 1 tay trên mobile
    ========================================================================== */
 
 .district-spots-section {
   width: 100%;
-  max-width: 1080px;
-  margin: 28px auto 36px;
-  padding: 0 16px;
-}
-
-/* Header & Eyebrow */
-.district-checklist-header {
-  margin-bottom: 20px;
-}
-
-.checklist-heading-meta {
-  margin-bottom: 16px;
-}
-
-.checklist-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #c43c23;
-  margin-bottom: 6px;
-}
-
-.eyebrow-icon {
-  color: #c43c23;
-}
-
-.checklist-title {
-  font-size: 24px;
-  font-weight: 850;
-  line-height: 1.25;
-  color: #1c1917;
-  margin: 0 0 6px;
-  letter-spacing: -0.02em;
-}
-
-.district-highlight {
-  color: #c43c23;
-  position: relative;
-  display: inline-block;
-}
-
-.checklist-desc {
-  font-size: 13.5px;
-  line-height: 1.45;
-  color: #78716c;
-  margin: 0;
   max-width: 680px;
+  margin: 18px auto 26px;
+  padding: 0 14px;
 }
 
-/* District Pill Tabs */
+/* District Pills Navigation (Horizontal swipeable) */
+.district-tabs-wrapper {
+  margin-bottom: 12px;
+}
+
 .district-tabs {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding: 4px 2px 8px;
+  padding: 2px 0 6px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -72,386 +28,266 @@
   display: none;
 }
 
-.district-tab-btn {
+.district-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
-  min-height: 38px;
-  padding: 8px 16px;
+  min-height: 32px;
+  padding: 5px 13px;
   border-radius: 9999px;
-  background: #f1ebd7;
-  border: 1px solid #dfd6c5;
+  background: #f0e9dc;
+  border: 1px solid #ded5c5;
   color: #57534e;
-  font-size: 13px;
-  font-weight: 650;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
   user-select: none;
   touch-action: manipulation;
 }
 
-.district-tab-btn:hover {
-  background: #ebe3cb;
-  color: #1c1917;
+.district-pill:hover {
+  background: #eae2d3;
 }
 
-.district-tab-btn.is-active {
-  background: #ffffff;
+.district-pill.is-active {
+  background: #c43c23;
   border-color: #c43c23;
-  color: #c43c23;
-  box-shadow: 0 2px 8px rgba(196, 60, 35, 0.14);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(196, 60, 35, 0.2);
+}
+
+.district-pill.is-active .gps-pill-icon {
+  color: #ffffff;
 }
 
 .gps-pill-icon {
   color: #c43c23;
 }
 
-.active-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #c43c23;
+/* Minimalist Progress Row */
+.checklist-progress-bar-wrap {
+  margin-bottom: 12px;
+  padding: 2px 2px;
 }
 
-/* Gamification Progress Card */
-.checklist-progress-card {
-  padding: 14px 18px;
-  margin-bottom: 22px;
-  background: #ffffff;
-  border: 1px solid #ebd9cc;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.progress-top-row {
+.checklist-progress-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.progress-counter {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #1c1917;
-}
-
-.trophy-icon {
-  color: #d97706;
-}
-
-.progress-badge {
-  font-size: 13px;
-  font-weight: 800;
-  color: #c43c23;
-  background: #fdf2f0;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  border: 1px solid #fadcd7;
-}
-
-.progress-track {
-  width: 100%;
-  height: 9px;
-  background: #efe8de;
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #f97316, #c43c23);
-  border-radius: 9999px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.progress-quote {
   font-size: 12px;
-  line-height: 1.4;
-  color: #6a645d;
-  margin: 0;
-  font-style: normal;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* District Spots Grid */
-.district-spots-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 16px;
-}
-
-/* Spot Card */
-.spot-card {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  background: #ffffff;
-  border: 1px solid #ebd9cc;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-  position: relative;
-}
-
-.spot-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  border-color: #dfc5b2;
-}
-
-.spot-card.spot-visited {
-  background: #fafaf7;
-  border-color: #c2e2a3;
-}
-
-/* Card Header: Rank & Badges */
-.spot-header-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.spot-rank-badge {
-  font-size: 11px;
-  font-weight: 850;
-  color: #78716c;
-  background: #f2eee8;
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-
-.spot-highlight-badge {
-  font-size: 11px;
   font-weight: 700;
-  color: #b4341b;
-  background: #fdf2f0;
-  padding: 2px 8px;
-  border-radius: 6px;
-  border: 1px solid #f9deda;
+  color: #44403c;
+  margin-bottom: 6px;
 }
 
-.spot-status-pill {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #15803d;
-  background: #f0fdf4;
-  padding: 2px 7px;
-  border-radius: 6px;
-  border: 1px solid #bbf7d0;
-}
-
-/* Spot Name */
-.spot-name {
-  font-size: 15.5px;
-  font-weight: 800;
-  line-height: 1.35;
-  color: #1c1917;
-  margin: 0 0 6px;
-}
-
-/* Meta: Rating & GPS Distance */
-.spot-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  color: #57534e;
-  margin-bottom: 8px;
-}
-
-.spot-meta-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #1c1917;
-}
-
-.star-icon {
-  color: #f59e0b;
-}
-
-.spot-rating-count {
+.checklist-progress-count {
   font-weight: 500;
   color: #78716c;
+  margin-left: 5px;
 }
 
-.spot-meta-dot {
-  color: #d6d3d1;
+.checklist-progress-percent {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #c43c23;
 }
 
-.spot-meta-distance {
-  display: inline-flex;
+.checklist-progress-line {
+  width: 100%;
+  height: 4px;
+  background: #e7dfd3;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.checklist-progress-fill {
+  height: 100%;
+  background: #c43c23;
+  border-radius: 9999px;
+  transition: width 0.35s ease;
+}
+
+/* Compact Spot List */
+.district-spots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spot-row {
+  display: flex;
   align-items: center;
-  gap: 3px;
-  font-weight: 650;
-  color: #0284c7;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #ebd9cc;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.pin-icon {
-  color: #0284c7;
+.spot-row:hover {
+  border-color: #dfc7b5;
 }
 
-/* Address */
-.spot-address {
-  font-size: 12px;
-  line-height: 1.4;
+.spot-row.is-visited {
+  background: #fbfbf9;
+  border-color: #d2e4be;
+}
+
+/* Checkbox Circle */
+.spot-check-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #a8a29e;
+  background: #ffffff;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.spot-check-circle:hover {
+  border-color: #16a34a;
+}
+
+.spot-row.is-visited .spot-check-circle {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+/* Spot Info Body */
+.spot-row-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.spot-row-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.spot-rank {
+  font-size: 11px;
+  font-weight: 750;
   color: #78716c;
-  margin: 0 0 10px;
+}
+
+.spot-name {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: #1c1917;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Specialties */
-.spot-specialties {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
-.specialty-pill {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6e432a;
-  background: #f5ece2;
-  padding: 3px 9px;
-  border-radius: 9999px;
-}
-
-/* Actions Row: Checkbox Button & ShopeeFood CTA */
-.spot-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid #f2ece4;
-}
-
-.spot-check-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 40px;
-  padding: 6px 12px;
-  background: #fbf7f2;
-  border: 1px solid #dfd6c8;
-  border-radius: 10px;
-  font-size: 12.5px;
-  font-weight: 650;
+.spot-row.is-visited .spot-name {
   color: #57534e;
-  cursor: pointer;
-  transition: all 0.16s ease;
-  user-select: none;
-  touch-action: manipulation;
-  flex-shrink: 0;
 }
 
-.spot-check-btn:hover {
-  background: #f5ede1;
+.spot-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #78716c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spot-rating {
+  font-weight: 650;
   color: #1c1917;
 }
 
-.checkbox-box {
-  width: 18px;
-  height: 18px;
-  border-radius: 5px;
-  border: 1.5px solid #a8a29e;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  transition: all 0.16s ease;
+.spot-dot {
+  color: #a8a29e;
 }
 
-.spot-check-btn.checked {
-  background: #f0fdf4;
-  border-color: #86efac;
-  color: #15803d;
+.spot-dist {
+  color: #0284c7;
+  font-weight: 600;
 }
 
-.spot-check-btn.checked .checkbox-box {
-  background: #16a34a;
-  border-color: #16a34a;
-  color: #ffffff;
+.spot-spec {
+  color: #6a5749;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ShopeeFood CTA */
+/* Direct Order CTA (Compact Pill) */
 .spot-order-cta {
-  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 6px 14px;
+  gap: 3px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 11px;
   background: #c43c23;
-  border: 1px solid #b3341c;
-  border-radius: 10px;
   color: #ffffff;
-  font-size: 13px;
+  border: 1px solid #b3341c;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(196, 60, 35, 0.2);
-  transition: all 0.16s ease;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.1s ease;
   touch-action: manipulation;
-  white-space: nowrap;
 }
 
 .spot-order-cta:hover {
   background: #ad311a;
-  box-shadow: 0 4px 12px rgba(196, 60, 35, 0.28);
 }
 
 .spot-order-cta:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
+/* Mobile fine-tuning */
+@media (max-width: 480px) {
   .district-spots-section {
-    padding: 0 12px;
-    margin: 20px auto 28px;
+    padding: 0 10px;
+    margin: 14px auto 22px;
   }
 
-  .checklist-title {
-    font-size: 20px;
+  .spot-row {
+    padding: 9px 10px;
+    gap: 8px;
   }
 
-  .district-spots-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .spot-card {
-    padding: 14px;
+  .spot-check-circle {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
   }
 
   .spot-name {
-    font-size: 15px;
-  }
-
-  .spot-check-btn {
-    min-height: 44px;
-    padding: 8px 12px;
+    font-size: 13px;
   }
 
   .spot-order-cta {
-    min-height: 44px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11.5px;
   }
 }

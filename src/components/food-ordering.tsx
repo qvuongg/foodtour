@@ -12,10 +12,6 @@ import {
   resolveSmartHubAffiliate,
 } from "@/lib/food-ordering";
 import {
-  hasLocalRestaurants,
-  getNearbyRestaurantsForDish,
-} from "@/lib/nearby-food-service";
-import {
   fetchNearbyRestaurantsFromDb,
   isSupabaseConfigured,
   type DbRestaurant,
@@ -132,7 +128,7 @@ export function FoodOrdering({
 
         let spots: DbRestaurant[] = [];
 
-        // 1. Thử gọi Supabase PostGIS query trong bán kính 3000m
+        // Gọi Supabase PostGIS query trong bán kính 3000m
         if (isSupabaseConfigured()) {
           try {
             spots = await fetchNearbyRestaurantsFromDb(
@@ -143,44 +139,6 @@ export function FoodOrdering({
               15,
             );
           } catch {}
-        }
-
-        // 2. Fallback sang local Haversine nếu Supabase rỗng
-        if (spots.length === 0 && hasLocalRestaurants(dish)) {
-          const localRes = getNearbyRestaurantsForDish(
-            dish,
-            latitude,
-            longitude,
-            3.0,
-          );
-          if (localRes.primary) {
-            spots = [
-              {
-                id: localRes.primary.restaurant.id,
-                name: localRes.primary.restaurant.name,
-                address: localRes.primary.restaurant.address,
-                district: localRes.primary.restaurant.district,
-                city: localRes.primary.restaurant.city,
-                rating: localRes.primary.restaurant.rating,
-                rating_count: localRes.primary.restaurant.ratingCount,
-                affiliate_url: localRes.primary.restaurant.affiliateUrl,
-                original_url: localRes.primary.restaurant.originalUrl,
-                distance_meters: localRes.primary.distanceKm * 1000,
-              },
-              ...localRes.alternatives.map((alt) => ({
-                id: alt.restaurant.id,
-                name: alt.restaurant.name,
-                address: alt.restaurant.address,
-                district: alt.restaurant.district,
-                city: alt.restaurant.city,
-                rating: alt.restaurant.rating,
-                rating_count: alt.restaurant.ratingCount,
-                affiliate_url: alt.restaurant.affiliateUrl,
-                original_url: alt.restaurant.originalUrl,
-                distance_meters: alt.distanceKm * 1000,
-              })),
-            ];
-          }
         }
 
         if (spots.length > 0) {

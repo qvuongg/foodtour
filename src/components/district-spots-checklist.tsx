@@ -1,21 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-  Check,
-  Compass,
-  MapPin,
-  ShoppingBag,
-  Sparkles,
-  Star,
-  Trophy,
-} from "lucide-react";
+import { Check, MapPin, ArrowUpRight } from "lucide-react";
 import {
   DA_NANG_DISTRICTS,
   detectClosestDistrict,
   getSpotsForDistrict,
-  formatRatingCount,
   resolveDistrictSpotLink,
+  convertDbRestaurantToDistrictSpot,
   type DistrictSpot,
 } from "@/lib/district-spots";
+import { fetchDistrictDrinkSpotsFromDb } from "@/lib/supabase-client";
 import { haversineDistanceKm, formatDistance } from "@/lib/geo-distance";
 import { handleShopeeFoodClick } from "@/lib/shopee-deeplink";
 import type { Language } from "@/lib/i18n";
@@ -60,14 +53,11 @@ export function DistrictSpotsChecklist({
         const lng = pos.coords.longitude;
         setUserCoords({ lat, lng });
 
-        // Tự động nhận diện quận gần nhất nếu toạ độ hợp lệ
         const nearest = detectClosestDistrict(lat, lng);
         setDetectedDistrict(nearest);
         setSelectedDistrict(nearest);
       },
-      () => {
-        // Nếu không cho phép định vị hoặc lỗi: giữ nguyên mặc định Liên Chiểu
-      },
+      () => {},
       { timeout: 7000, maximumAge: 300000, enableHighAccuracy: false },
     );
   }, []);
@@ -94,10 +84,40 @@ export function DistrictSpotsChecklist({
     DA_NANG_DISTRICTS.find((d) => d.id === selectedDistrict) ||
     DA_NANG_DISTRICTS[0];
 
-  const spots = useMemo(
-    () => getSpotsForDistrict(selectedDistrict),
-    [selectedDistrict],
-  );
+  const [dbSpots, setDbSpots] = useState<DistrictSpot[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const info = DA_NANG_DISTRICTS.find((d) => d.id === selectedDistrict);
+    if (!info) return;
+
+    fetchDistrictDrinkSpotsFromDb(info.name, "da-nang", 12)
+      .then((data) => {
+        if (cancelled) return;
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((r) =>
+            convertDbRestaurantToDistrictSpot(r, info.id, info.name),
+          );
+          setDbSpots(mapped);
+        } else {
+          setDbSpots(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDbSpots(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDistrict]);
+
+  const spots = useMemo(() => {
+    if (dbSpots && dbSpots.length > 0) {
+      return dbSpots;
+    }
+    return getSpotsForDistrict(selectedDistrict);
+  }, [dbSpots, selectedDistrict]);
 
   const spotsWithDistance = useMemo(() => {
     return spots.map((spot) => {
@@ -132,40 +152,14 @@ export function DistrictSpotsChecklist({
   return (
     <section
       className="district-spots-section"
-      aria-labelledby="district-checklist-title"
+      aria-label={vi ? "Checklist quán nước ngon" : "Drink spots checklist"}
     >
-      {/* Header section */}
-      <div className="district-checklist-header">
-        <div className="checklist-heading-meta">
-          <span className="checklist-eyebrow">
-            <Compass size={13} className="eyebrow-icon" />
-            {vi ? "FOOD TOUR CHECKLIST" : "FOOD TOUR CHECKLIST"}
-          </span>
-          <h2 id="district-checklist-title" className="checklist-title">
-            {vi ? (
-              <>
-                Checklist Quán Ngon Nhất{" "}
-                <span className="district-highlight">{districtInfo.name}</span>
-              </>
-            ) : (
-              <>
-                Best Drink Spots in{" "}
-                <span className="district-highlight">{districtInfo.name}</span>
-              </>
-            )}
-          </h2>
-          <p className="checklist-desc">
-            {vi
-              ? "Tuyển chọn các quán cà phê, trà sữa & nước uống chuẩn gu giới trẻ. Tích điểm hành trình food tour của bạn!"
-              : "Curated top coffee, boba & chill drink spots. Check off places you’ve experienced!"}
-          </p>
-        </div>
-
-        {/* District selector pills */}
+      {/* District Pill Tabs (Horizontal swipe) */}
+      <div className="district-tabs-wrapper">
         <div
           className="district-tabs"
           role="tablist"
-          aria-label={vi ? "Chọn quận tại Đà Nẵng" : "Select Da Nang District"}
+          aria-label={vi ? "Chọn quận tại Đà Nẵng" : "Select District"}
         >
           {DA_NANG_DISTRICTS.map((d) => {
             const isSelected = d.id === selectedDistrict;
@@ -176,177 +170,107 @@ export function DistrictSpotsChecklist({
                 role="tab"
                 type="button"
                 aria-selected={isSelected}
-                className={`district-tab-btn ${isSelected ? "is-active" : ""}`}
+                className={`district-pill ${isSelected ? "is-active" : ""}`}
                 onClick={() => setSelectedDistrict(d.id)}
               >
-                {isDetected && <MapPin size={12} className="gps-pill-icon" />}
+                {isDetected && <MapPin size={11} className="gps-pill-icon" />}
                 <span>{d.name}</span>
-                {isSelected && (
-                  <span className="active-dot" aria-hidden="true" />
-                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Gamification Progress Bar */}
-      <div className="checklist-progress-card">
-        <div className="progress-top-row">
-          <div className="progress-counter">
-            <Trophy size={16} className="trophy-icon" />
-            <span>
-              {vi
-                ? `Đã khám phá ${visitedInDistrict}/${totalInDistrict} quán`
-                : `Explored ${visitedInDistrict}/${totalInDistrict} spots`}
+      {/* Minimalist Progress Row */}
+      <div className="checklist-progress-bar-wrap">
+        <div className="checklist-progress-meta">
+          <span className="checklist-progress-title">
+            {vi
+              ? `Checklist ${districtInfo.name}`
+              : `Top ${districtInfo.name}`}
+            <span className="checklist-progress-count">
+              ({visitedInDistrict}/{totalInDistrict})
             </span>
-          </div>
-          <span className="progress-badge">{percentage}%</span>
+          </span>
+          <span className="checklist-progress-percent">{percentage}%</span>
         </div>
-
         <div
-          className="progress-track"
+          className="checklist-progress-line"
           role="progressbar"
           aria-valuenow={percentage}
           aria-valuemin={0}
           aria-valuemax={100}
         >
           <div
-            className="progress-fill"
+            className="checklist-progress-fill"
             style={{ width: `${percentage}%` }}
           />
         </div>
-
-        <p className="progress-quote">
-          {percentage === 100 ? (
-            <>
-              🎉{" "}
-              {vi
-                ? `Đỉnh chóp! Bạn đã là "Thổ địa đồ uống" của ${districtInfo.name}!`
-                : `Awesome! You are a certified drink connoisseur of ${districtInfo.name}!`}
-            </>
-          ) : percentage >= 50 ? (
-            <>
-              ⚡{" "}
-              {vi
-                ? `Tuyệt vời! Bạn đã hoàn thành hơn nửa danh sách, chỉ còn ${totalInDistrict - visitedInDistrict} quán nữa!`
-                : `Great job! More than halfway there, only ${totalInDistrict - visitedInDistrict} spots left!`}
-            </>
-          ) : percentage > 0 ? (
-            <>
-              ✨{" "}
-              {vi
-                ? "Khởi đầu tuyệt vời! Thử thêm quán tiếp theo để lên cấp nhé."
-                : "Great start! Try the next spot to level up your food tour."}
-            </>
-          ) : (
-            <>
-              📌{" "}
-              {vi
-                ? `Chưa thử quán nào tại ${districtInfo.name}. Bắt đầu check-in ngay thôi!`
-                : `Haven’t tried any yet in ${districtInfo.name}. Check your first spot!`}
-            </>
-          )}
-        </p>
       </div>
 
-      {/* Spots Grid */}
-      <div className="district-spots-grid">
+      {/* Compact Mobile-Friendly Spots List */}
+      <div className="district-spots-list">
         {spotsWithDistance.map((spot, index) => {
           const isVisited = visitedSpots.includes(spot.id);
           const orderLink = resolveDistrictSpotLink(spot, spot.name);
-          const formattedCount = formatRatingCount(spot.ratingCount);
+          const specialty = spot.specialties?.[0] || "";
 
           return (
-            <article
+            <div
               key={spot.id}
-              className={`spot-card ${isVisited ? "spot-visited" : ""}`}
+              className={`spot-row ${isVisited ? "is-visited" : ""}`}
             >
-              {/* Badge & Rank */}
-              <div className="spot-header-row">
-                <div className="spot-rank-badge">#{index + 1}</div>
-                {spot.badge && (
-                  <span className="spot-highlight-badge">
-                    {spot.badge}
-                  </span>
-                )}
-                {isVisited && (
-                  <span className="spot-status-pill">
-                    <Check size={11} /> {vi ? "Đã thử" : "Visited"}
-                  </span>
-                )}
-              </div>
+              {/* Checkbox circle */}
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={isVisited}
+                aria-label={`${isVisited ? "Bỏ chọn" : "Đánh dấu đã thử"}: ${spot.name}`}
+                className="spot-check-circle"
+                onClick={() => toggleVisited(spot.id)}
+              >
+                {isVisited && <Check size={12} strokeWidth={3} />}
+              </button>
 
-              {/* Spot Name */}
-              <h3 className="spot-name">{spot.name}</h3>
-
-              {/* Rating & Distance */}
-              <div className="spot-meta-row">
-                <div className="spot-meta-rating">
-                  <Star size={13} className="star-icon" fill="currentColor" />
-                  <strong>{spot.rating.toFixed(1)}</strong>
-                  {formattedCount && (
-                    <span className="spot-rating-count">
-                      ({formattedCount} {vi ? "đánh giá" : "reviews"})
-                    </span>
+              {/* Spot Info */}
+              <div
+                className="spot-row-info"
+                onClick={() => toggleVisited(spot.id)}
+              >
+                <div className="spot-row-title">
+                  <span className="spot-rank">#{index + 1}</span>
+                  <span className="spot-name">{spot.name}</span>
+                </div>
+                <div className="spot-row-meta">
+                  <span className="spot-rating">⭐ {spot.rating.toFixed(1)}</span>
+                  {spot.distanceFormatted && (
+                    <>
+                      <span className="spot-dot">·</span>
+                      <span className="spot-dist">{spot.distanceFormatted}</span>
+                    </>
+                  )}
+                  {specialty && (
+                    <>
+                      <span className="spot-dot">·</span>
+                      <span className="spot-spec">{specialty}</span>
+                    </>
                   )}
                 </div>
-
-                {spot.distanceFormatted && (
-                  <>
-                    <span className="spot-meta-dot">•</span>
-                    <div className="spot-meta-distance">
-                      <MapPin size={12} className="pin-icon" />
-                      <span>{spot.distanceFormatted}</span>
-                    </div>
-                  </>
-                )}
               </div>
 
-              {/* Address */}
-              <p className="spot-address" title={spot.address}>
-                {spot.address}
-              </p>
-
-              {/* Specialties / Tag Pills */}
-              {spot.specialties && spot.specialties.length > 0 && (
-                <div className="spot-specialties">
-                  {spot.specialties.map((spec) => (
-                    <span key={spec} className="specialty-pill">
-                      {spec}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Actions: Checklist Checkbox + ShopeeFood Order CTA */}
-              <div className="spot-card-actions">
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={isVisited}
-                  className={`spot-check-btn ${isVisited ? "checked" : ""}`}
-                  onClick={() => toggleVisited(spot.id)}
-                >
-                  <span className="checkbox-box">
-                    {isVisited && <Check size={14} />}
-                  </span>
-                  <span>{isVisited ? (vi ? "Đã thử" : "Tried") : (vi ? "Chưa thử" : "Not yet")}</span>
-                </button>
-
-                <a
-                  href={orderLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="spot-order-cta"
-                  onClick={(e) => handleShopeeFoodClick(orderLink, e)}
-                  title={`${vi ? "Mở quán trên ShopeeFood" : "Open in ShopeeFood"}: ${spot.name}`}
-                >
-                  <ShoppingBag size={14} />
-                  <span>{vi ? "Đặt ShopeeFood" : "Order"}</span>
-                </a>
-              </div>
-            </article>
+              {/* Direct Order CTA */}
+              <a
+                href={orderLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="spot-order-cta"
+                onClick={(e) => handleShopeeFoodClick(orderLink, e)}
+                title={`${vi ? "Mở ShopeeFood" : "Order on ShopeeFood"}: ${spot.name}`}
+              >
+                <span>{vi ? "Đặt" : "Order"}</span>
+                <ArrowUpRight size={13} />
+              </a>
+            </div>
           );
         })}
       </div>

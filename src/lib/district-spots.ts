@@ -168,8 +168,40 @@ export const CURATED_DRINK_SPOTS: DistrictSpot[] = [
     affiliateUrl: "https://shope.ee/80D2PLlUvS",
     originalUrl: "https://shopeefood.vn/da-nang/milano-coffee-pham-nhu-xuong",
   },
+  {
+    id: "lc_tuc_tac_tea",
+    name: "Túc Tắc Tea - Phạm Như Xương",
+    districtId: "lien-chieu",
+    districtName: "Liên Chiểu",
+    city: "da-nang",
+    address: "68 Phạm Như Xương, P. Hoà Khánh Nam, Quận Liên Chiểu, Đà Nẵng",
+    lat: 16.0642,
+    lng: 108.1501,
+    rating: 4.8,
+    ratingCount: 1120,
+    specialties: ["Trà sữa nướng", "Trà lài kem cheese"],
+    badge: "⭐ Trà Sữa Sinh Viên Hot",
+    affiliateUrl: "https://shope.ee/AUuNNwbude",
+    originalUrl: "https://shopeefood.vn/da-nang/tuc-tac-tea-pham-nhu-xuong",
+  },
 
   // === QUẬN HẢI CHÂU (Trung tâm TP Đà Nẵng, Bạch Đằng, Nguyễn Văn Linh) ===
+  {
+    id: "hc_katinat",
+    name: "KATINAT Saigon Kafe - Bạch Đằng",
+    districtId: "hai-chau",
+    districtName: "Hải Châu",
+    city: "da-nang",
+    address: "240 Bạch Đằng, P. Phước Ninh, Quận Hải Châu, Đà Nẵng",
+    lat: 16.0652,
+    lng: 108.2238,
+    rating: 4.9,
+    ratingCount: 2800,
+    specialties: ["Trà sữa chôm chôm", "Bơ già dừa non"],
+    badge: "🔥 Hot Trend Sông Hàn",
+    affiliateUrl: "https://shope.ee/3qNTRh1I9z",
+    originalUrl: "https://shopeefood.vn/da-nang/katinat-da-nang-2",
+  },
   {
     id: "hc_phe_la",
     name: "Phê La - Ô Long Đặc Sản - Nguyễn Văn Linh",
@@ -300,6 +332,22 @@ export const CURATED_DRINK_SPOTS: DistrictSpot[] = [
     affiliateUrl: "https://shope.ee/3qNTRh1I9z",
     originalUrl: "https://shopeefood.vn/da-nang/nia-cafe-da-nang",
   },
+  {
+    id: "tk_highlands_dien_bien_phu",
+    name: "Highlands Coffee - Điện Biên Phủ",
+    districtId: "thanh-khe",
+    districtName: "Thanh Khê",
+    city: "da-nang",
+    address: "239 Điện Biên Phủ, P. Chính Gián, Quận Thanh Khê, Đà Nẵng",
+    lat: 16.0658,
+    lng: 108.1912,
+    rating: 4.7,
+    ratingCount: 1950,
+    specialties: ["Phin sữa đá", "Trà thạch đào"],
+    badge: "☕ Đậm Vị Cà Phê Việt",
+    affiliateUrl: "https://shope.ee/80D2PLlUvS",
+    originalUrl: "https://shopeefood.vn/da-nang/highlands-coffee-tra-ca-phe-banh-dien-bien-phu",
+  },
 
   // === QUẬN SƠN TRÀ (Phạm Văn Đồng, Nguyễn Văn Thoại, Ven Biển) ===
   {
@@ -416,8 +464,40 @@ export const CURATED_DRINK_SPOTS: DistrictSpot[] = [
     affiliateUrl: "https://shope.ee/AUuNNwbude",
     originalUrl: "https://shopeefood.vn/da-nang/dat-ca-phe-le-dai-hanh",
   },
+  {
+    id: "cl_tra_sua_tab",
+    name: "Trà Sữa TAB - 52 Ông Ích Đường",
+    districtId: "cam-le",
+    districtName: "Cẩm Lệ",
+    city: "da-nang",
+    address: "52 Ông Ích Đường, P. Hoà Thọ Đông, Quận Cẩm Lệ, Đà Nẵng",
+    lat: 16.0182,
+    lng: 108.1965,
+    rating: 4.8,
+    ratingCount: 1050,
+    specialties: ["Trà sữa trân châu hoàng kim", "Trà đào sả"],
+    badge: "🥤 Top Trà Sữa Cẩm Lệ",
+    affiliateUrl: "https://shope.ee/AUuNNwbude",
+    originalUrl: "https://shopeefood.vn/da-nang/tra-sua-tab-52-ong-ich-duong",
+  },
 
   // === QUẬN NGŨ HÀNH SƠN (An Thượng, Châu Thị Vĩnh Tế, Phố Tây) ===
+  {
+    id: "nhs_bong_food_drink",
+    name: "Bông Food & Drink - Trần Đại Nghĩa",
+    districtId: "ngu-hanh-son",
+    districtName: "Ngũ Hành Sơn",
+    city: "da-nang",
+    address: "188 Trần Đại Nghĩa, P. Hoà Hải, Quận Ngũ Hành Sơn, Đà Nẵng",
+    lat: 16.0125,
+    lng: 108.2485,
+    rating: 4.8,
+    ratingCount: 1600,
+    specialties: ["Trà sữa nướng", "Trà dâu tươi"],
+    badge: "⭐ Quán Ruột Làng Đại Học",
+    affiliateUrl: "https://shope.ee/80D2PLlUvS",
+    originalUrl: "https://shopeefood.vn/da-nang/bong-food-drink-tran-dai-nghia",
+  },
   {
     id: "nhs_bread_salt_cafe",
     name: "Bread & Salt Cafe - An Thượng",
@@ -558,3 +638,44 @@ export function resolveDistrictSpotLink(
     return "#";
   }
 }
+
+/**
+ * Chuyển đổi dữ liệu DbRestaurant từ Supabase sang DistrictSpot cho checklist
+ */
+export function convertDbRestaurantToDistrictSpot(
+  db: {
+    id: string;
+    name: string;
+    address: string;
+    district: string;
+    city: string;
+    lat?: number;
+    lng?: number;
+    rating: number;
+    rating_count: number;
+    affiliate_url?: string | null;
+    original_url: string;
+  },
+  districtId: string,
+  districtName: string,
+): DistrictSpot {
+  const ratingNum = Number(db.rating) || 4.5;
+  const ratingCountNum = Number(db.rating_count) || 100;
+  return {
+    id: db.id,
+    name: db.name,
+    districtId,
+    districtName,
+    city: db.city || "da-nang",
+    address: db.address || "",
+    lat: Number(db.lat) || 0,
+    lng: Number(db.lng) || 0,
+    rating: ratingNum,
+    ratingCount: ratingCountNum,
+    specialties: [],
+    badge: ratingNum >= 4.8 ? "⭐ Quán Đỉnh Nhất Quận" : undefined,
+    affiliateUrl: db.affiliate_url || undefined,
+    originalUrl: db.original_url,
+  };
+}
+

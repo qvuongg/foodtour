@@ -9,6 +9,8 @@ export interface DbRestaurant {
   address: string;
   district: string;
   city: string;
+  lat?: number;
+  lng?: number;
   rating: number;
   rating_count: number;
   affiliate_url?: string | null;
@@ -146,3 +148,37 @@ export async function fetchTopRestaurantsFromDb(
     return [];
   }
 }
+
+/**
+ * Gọi Supabase REST: Lấy top quán nước ngon nhất theo quận (Đà Nẵng, Hà Nội, TP.HCM)
+ * Sắp xếp theo rating giảm dần và rating_count giảm dần.
+ */
+export async function fetchDistrictDrinkSpotsFromDb(
+  districtName: string,
+  city = "da-nang",
+  limit = 12,
+): Promise<DbRestaurant[]> {
+  if (!isSupabaseConfigured() || !districtName) return [];
+
+  const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 12), 30);
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/restaurants?select=id,name,address,district,city,lat,lng,rating,rating_count,affiliate_url,original_url&city=eq.${encodeURIComponent(city)}&district=ilike.*${encodeURIComponent(districtName)}*&order=rating.desc,rating_count.desc&limit=${safeLimit}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+

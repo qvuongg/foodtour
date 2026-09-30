@@ -960,6 +960,9 @@ footer a {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 6px;
   }
+  .filters:has(> :only-child) {
+    grid-template-columns: 1fr;
+  }
   .budget-trigger,
   .veg {
     min-height: 40px;
