@@ -1,0 +1,56 @@
+/* A companion anchored to the carousel's empty headroom, never to the viewport. */
+.foodie-pet-widget { --pet-accent:#aa4a23; --pet-wash:#faeee0; position:relative; border:0; color:var(--foreground); cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.foodie-pet-widget.tier-red { --pet-accent:#ad402b; --pet-wash:#fbece5; }
+.foodie-pet-widget.tier-blue { --pet-accent:#236d78; --pet-wash:#e5f3f2; }
+.foodie-pet-widget.tier-purple { --pet-accent:#79529b; --pet-wash:#f0e9f7; }
+.foodie-pet-widget[data-placement="floating"] { display:flex; flex-direction:column; align-items:center; justify-content:center; width:102px; min-height:104px; padding:0 4px 5px; background:transparent; border-radius:24px; }
+.foodie-pet-widget[data-placement="floating"] .foodie-pet-wrapper { width:92px; height:95px; }
+.foodie-pet-score { display:inline-flex; align-items:center; justify-content:center; gap:4px; min-height:28px; padding:4px 9px; color:var(--pet-accent); background:var(--surface,#fffdf5); border:1px solid color-mix(in srgb,var(--pet-accent) 20%,transparent); border-radius:100px; box-shadow:0 3px 9px #6c49300c; white-space:nowrap; font-size:12px; line-height:1.15; transition:background .16s ease,border-color .16s ease; }
+.foodie-pet-widget[data-placement="floating"] .foodie-pet-score { position:relative; margin-top:-9px; }
+.foodie-pet-score strong { font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
+.foodie-pet-score-unit { font-size:10px; font-weight:550; }
+.foodie-pet-score svg { flex-shrink:0; }
+.foodie-pet-score > svg:first-child { fill:color-mix(in srgb,var(--pet-accent) 12%,transparent); }
+.foodie-pet-chevron { opacity:.7; }
+.foodie-pet-widget:hover:not(:disabled) .foodie-pet-score { background:var(--pet-wash); border-color:var(--pet-accent); }
+.foodie-pet-widget:focus-visible { outline:3px solid var(--primary); outline-offset:4px; }
+.foodie-pet-widget:disabled { cursor:default; opacity:.65; }
+.foodie-pet-gain { position:absolute; top:0; left:4px; padding:3px 6px; font-size:12px; font-weight:750; color:var(--pet-accent); background:var(--surface); border:1px solid var(--border); border-radius:8px; pointer-events:none; animation:foodie-point-gain 1.1s ease-out both; }
+.header-actions .foodie-pet-widget[data-placement="header"] { display:inline-flex; align-items:center; gap:0; padding:0 8px 0 2px; min-height:44px; background:var(--surface); }
+.foodie-pet-widget[data-placement="header"] .foodie-pet-score { background:none; border:0; padding-left:0; box-shadow:none; }
+.foodie-companion-slot { display:none; }
+@keyframes foodie-point-gain { 0% { opacity:0; transform:translateY(6px); } 20%,65% { opacity:1; } 100% { opacity:0; transform:translateY(-12px); } }
+@media(max-width:767px) {
+  .header-actions .foodie-pet-widget[data-placement="header"] { display:none; }
+  .case-panel.has-foodie-companion { position:relative; isolation:isolate; }
+  .has-foodie-companion > .food-spotlight { position:relative; z-index:0; padding-top:32px; }
+  .foodie-companion-slot { display:block; position:absolute; top:0; right:-3px; z-index:2; }
+}
+/* Short phones reserve headroom without moving the spin dock offscreen. */
+@container (max-height:560px) {
+  .foodie-companion-slot { top:2px; }
+  .foodie-companion-slot .foodie-pet-widget[data-placement="floating"] { width:90px; min-height:84px; padding-bottom:0; }
+  .foodie-companion-slot .foodie-pet-widget[data-placement="floating"] .foodie-pet-wrapper { width:72px; height:74px; }
+  .foodie-companion-slot .foodie-pet-score { min-height:26px; margin-top:-9px; padding:3px 7px; }
+  .foodie-companion-slot .foodie-pet-score-unit { display:none; }
+}
+@media(max-width:767px) {
+  @container (max-height:560px) {
+    .has-foodie-companion > .food-spotlight { padding-top:104px; }
+  }
+  @container (max-height:360px) {
+    .has-foodie-companion > .food-spotlight { padding-top:88px; --hall-width:clamp(108px,calc(100cqh - 196px),142px); }
+    .foodie-companion-slot { top:0; }
+    .foodie-companion-slot .foodie-pet-widget[data-placement="floating"] { min-height:74px; }
+    .foodie-companion-slot .foodie-pet-widget[data-placement="floating"] .foodie-pet-wrapper { width:56px; height:58px; }
+    .foodie-companion-slot .foodie-pet-score { min-height:24px; margin-top:-8px; }
+  }
+}
+@media(max-width:767px) and (max-height:500px) {
+  .foodie-companion-slot { display:none; }
+  .header-actions .foodie-pet-widget[data-placement="header"] { display:inline-flex; padding-right:4px; }
+  .foodie-pet-widget[data-placement="header"] .foodie-pet-wrapper { width:32px; height:34px; }
+  .foodie-pet-widget[data-placement="header"] .foodie-pet-score-unit, .foodie-pet-widget[data-placement="header"] .foodie-pet-chevron { display:none; }
+  .has-foodie-companion > .food-spotlight { padding-top:0; }
+}
+@media(prefers-reduced-motion:reduce) { .foodie-pet-widget *, .foodie-pet-gain { animation:none !important; transition:none !important; } }

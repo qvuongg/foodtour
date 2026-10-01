@@ -2,9 +2,9 @@ import { useRef, useState } from "react";
 import {
   ArrowRight,
   AudioLines,
+  Check,
   ChevronDown,
   Sparkles,
-  Sprout,
   Wallet,
 } from "lucide-react";
 import {
@@ -16,10 +16,16 @@ import {
 import { copy, priceLabel, type Language } from "@/lib/i18n";
 import type { useMealSettings } from "@/hooks/use-meal-settings";
 import { budgetValidationMessage, servingUnit } from "@/lib/meal-settings";
+import {
+  TASTE_CATEGORIES,
+  type DishTasteCategory,
+} from "@/lib/dish-taxonomy";
 
 export function SpinControls({
   settings,
   language,
+  tasteCategory = "all",
+  onSelectTasteCategory,
   spinning,
   hasResult,
   empty,
@@ -29,6 +35,8 @@ export function SpinControls({
 }: {
   settings: ReturnType<typeof useMealSettings>;
   language: Language;
+  tasteCategory?: DishTasteCategory;
+  onSelectTasteCategory?: (cat: DishTasteCategory) => void;
   spinning: boolean;
   hasResult: boolean;
   empty: boolean;
@@ -41,24 +49,56 @@ export function SpinControls({
     mealConfig,
     budget,
     custom,
-    vegetarianEnabled,
-    setVeg,
     applyBudget,
     ready,
   } = settings;
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(budget);
+
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [tasteOpen, setTasteOpen] = useState(false);
+  const [draftBudget, setDraftBudget] = useState(budget);
+  const [draftTaste, setDraftTaste] = useState<DishTasteCategory>(tasteCategory);
   const [amount, setAmount] = useState(custom);
   const [error, setError] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
+
+  const budgetTrigger = useRef<HTMLButtonElement>(null);
+  const tasteTrigger = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLInputElement>(null);
-  const vi = language === "vi",
-    t = copy[language],
-    lunch = mealKind === "lunch";
-  const toggle = (next: boolean) => {
-    setOpen(next);
+
+  const vi = language === "vi";
+  const t = copy[language];
+
+  const currentTasteConfig =
+    TASTE_CATEGORIES.find((c) => c.id === tasteCategory) || TASTE_CATEGORIES[0];
+
+  const toggleBudget = (next: boolean) => {
+    setBudgetOpen(next);
     onOpenChange(next);
   };
+
+  const toggleTaste = (next: boolean) => {
+    if (next) {
+      setDraftTaste(tasteCategory);
+    }
+    setTasteOpen(next);
+    onOpenChange(next);
+  };
+
+  const lunch = mealKind === "lunch";
+
+  const spinButtonLabel = spinning
+    ? t.opening
+    : vi
+      ? mealKind === "drink"
+        ? "Quay đồ uống ngay thôi"
+        : mealKind === "snack"
+          ? "Quay ăn vặt ngay thôi"
+          : mealKind === "nhau"
+            ? "Quay mồi nhậu ngay thôi"
+            : "Quay cơm ngay thôi"
+      : hasResult
+        ? t.openAgain
+        : t.open;
+
   return (
     <div
       className="spin-controls"
@@ -67,17 +107,19 @@ export function SpinControls({
       {categoryTabs && <div className="mobile-tabs-slot">{categoryTabs}</div>}
       <div className="controls-row">
         <div className="filters">
+          {/* Bộ lọc Mức chi - Nằm bên trái theo đúng giao diện */}
           <button
-            ref={trigger}
+            ref={budgetTrigger}
+            type="button"
             className="budget-trigger"
             disabled={spinning || !ready}
             aria-haspopup="dialog"
             aria-label={`${vi ? "Mức chi dự kiến" : "Expected budget"}: ${priceLabel(budget === "custom" ? custom : budget, language, true)}`}
             onClick={() => {
-              setDraft(budget);
+              setDraftBudget(budget);
               setAmount(custom);
               setError(false);
-              toggle(true);
+              toggleBudget(true);
             }}
           >
             <Wallet size={18} aria-hidden="true" />
@@ -93,24 +135,33 @@ export function SpinControls({
             </span>
             <ChevronDown size={15} />
           </button>
-          {lunch && (
+
+          {/* Bộ lọc Gu món - Nằm bên phải thay thế cho Món chay */}
+          {lunch && onSelectTasteCategory && (
             <button
-              className="veg"
+              ref={tasteTrigger}
               type="button"
-              role="switch"
-              aria-checked={vegetarianEnabled}
-              aria-label={vi ? "Chỉ chọn món ăn chay" : "Vegetarian dishes only"}
+              className="taste-trigger"
               disabled={spinning || !ready}
-              onClick={() => setVeg((current) => !current)}
+              aria-haspopup="dialog"
+              aria-label={`${vi ? "Gu món" : "Taste"}: ${vi ? currentTasteConfig.labelVi : currentTasteConfig.labelEn}`}
+              onClick={() => toggleTaste(true)}
             >
-              <Sprout size={21} aria-hidden="true" />
-              <span>{t.vegetarian}</span>
-              <span className="veg-toggle" aria-hidden="true">
-                <span />
+              <span className="taste-icon" aria-hidden="true">
+                {currentTasteConfig.icon}
               </span>
+              <span>
+                <small>{vi ? "Gu món" : "Taste"}</small>
+                <strong>
+                  {vi ? currentTasteConfig.labelVi : currentTasteConfig.labelEn}
+                </strong>
+              </span>
+              <ChevronDown size={15} />
             </button>
           )}
         </div>
+
+        {/* Nút Quay chính */}
         <button
           className="open-button"
           disabled={spinning || empty || !ready}
@@ -122,14 +173,85 @@ export function SpinControls({
           ) : (
             <Sparkles size={21} aria-hidden="true" />
           )}
-          <span>{spinning ? t.opening : hasResult ? t.openAgain : t.open}</span>
+          <span>{spinButtonLabel}</span>
           <ArrowRight size={19} aria-hidden="true" />
         </button>
       </div>
-      <Dialog open={open} onOpenChange={toggle}>
+
+      {/* Dialog Chọn Gu Món */}
+      <Dialog open={tasteOpen} onOpenChange={toggleTaste}>
+        <DialogContent
+          className="taste-dialog"
+          finalFocus={tasteTrigger}
+          closeLabel={vi ? "Đóng" : "Close"}
+        >
+          <DialogTitle>
+            {vi ? "Hôm nay ăn theo gu nào?" : "Pick your taste"}
+          </DialogTitle>
+          <DialogDescription>
+            {vi
+              ? "Chọn kiểu món bạn muốn ăn lúc này. Hệ thống sẽ ưu tiên quay đúng gu của bạn."
+              : "Choose what you're craving right now. We'll pick the best dish for your mood."}
+          </DialogDescription>
+          <div
+            className="taste-options"
+            role="radiogroup"
+            aria-label={vi ? "Chọn gu món" : "Select taste category"}
+          >
+            {TASTE_CATEGORIES.map((cat) => {
+              const isSelected = draftTaste === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  className={`taste-option-card ${isSelected ? "selected" : ""}`}
+                  onClick={() => setDraftTaste(cat.id)}
+                >
+                  <span className="taste-card-icon-wrap" aria-hidden="true">
+                    <span className="taste-icon">{cat.icon}</span>
+                  </span>
+                  <div className="taste-card-content">
+                    <div className="taste-card-header">
+                      <span className="taste-card-title">
+                        {vi ? cat.labelVi : cat.labelEn}
+                      </span>
+                      {cat.id === "all" && (
+                        <span className="taste-badge">
+                          {vi ? "Mặc định" : "Default"}
+                        </span>
+                      )}
+                    </div>
+                    <span className="taste-card-desc">
+                      {vi ? cat.descriptionVi : cat.labelEn}
+                    </span>
+                  </div>
+                  <div className="taste-check-circle" aria-hidden="true">
+                    {isSelected && <Check size={14} strokeWidth={3} />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            className="apply-button taste-apply-btn"
+            type="button"
+            onClick={() => {
+              onSelectTasteCategory?.(draftTaste);
+              toggleTaste(false);
+            }}
+          >
+            {vi ? "Áp dụng gu món" : "Apply taste"}
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Chọn Mức Chi */}
+      <Dialog open={budgetOpen} onOpenChange={toggleBudget}>
         <DialogContent
           className="budget-dialog"
-          finalFocus={trigger}
+          finalFocus={budgetTrigger}
           closeLabel={vi ? "Đóng" : "Close"}
         >
           <DialogTitle>
@@ -144,7 +266,7 @@ export function SpinControls({
             noValidate
             onSubmit={(event) => {
               event.preventDefault();
-              if (applyBudget(draft, amount)) toggle(false);
+              if (applyBudget(draftBudget, amount)) toggleBudget(false);
               else {
                 setError(true);
                 input.current?.focus();
@@ -159,9 +281,9 @@ export function SpinControls({
                     type="radio"
                     name="budget"
                     value={value}
-                    checked={draft === value}
+                    checked={draftBudget === value}
                     onChange={() => {
-                      setDraft(value);
+                      setDraftBudget(value);
                       setError(false);
                     }}
                   />
@@ -173,7 +295,7 @@ export function SpinControls({
                 </label>
               ))}
             </fieldset>
-            {draft === "custom" && (
+            {draftBudget === "custom" && (
               <div className="custom-budget">
                 <label htmlFor="budget-amount">
                   {vi ? "Nhập mức chi" : "Enter your budget"} (1.000đ /{" "}

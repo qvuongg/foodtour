@@ -11,6 +11,7 @@ export class CaseAudio {
  private sources = new Set<AudioBufferSourceNode>();
  private legacyRoute?: HTMLAudioElement;
  private muted = false;
+ private volume = 0.35;
  private disposed = false;
  private activated = false;
  private generation = 0;
@@ -25,7 +26,7 @@ export class CaseAudio {
   const Constructor = window.AudioContext || (window as Window & {webkitAudioContext?: typeof AudioContext}).webkitAudioContext;
   if (!Constructor) return;
   this.context = new Constructor();
-  this.gain = this.context.createGain(); this.gain.gain.value = .65; this.gain.connect(this.context.destination);
+  this.gain = this.context.createGain(); this.gain.gain.value = this.muted ? 0 : this.volume; this.gain.connect(this.context.destination);
  }
  recover() { if (this.activated && this.context && !this.muted) this.unlock(); }
  private fetchSound(name: CaseSound) {
@@ -88,9 +89,23 @@ export class CaseAudio {
   source.onended = () => { source.disconnect(); this.sources.delete(source); };
   source.start();
  }
+ setVolume(percent: number) {
+  const clamped = Math.max(0, Math.min(100, percent));
+  if (clamped === 0) {
+   this.setMuted(true);
+   return;
+  }
+  this.volume = (clamped / 100) * 0.65;
+  this.muted = false;
+  if (this.gain) this.gain.gain.value = this.volume;
+  this.unlock();
+ }
+ getVolume(): number {
+  return this.muted ? 0 : Math.round((this.volume / 0.65) * 100);
+ }
  setMuted(muted: boolean) {
   this.muted = muted;
-  if (this.gain) this.gain.gain.value = muted ? 0 : .65;
+  if (this.gain) this.gain.gain.value = muted ? 0 : this.volume;
   if (muted) this.pause(); else this.unlock();
  }
  pause() {

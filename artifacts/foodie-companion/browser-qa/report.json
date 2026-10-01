@@ -1,0 +1,174 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "fixtureNotice": "All progress in screenshots is seeded QA data. External network blocked; no affiliate/share actions tested.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "mobile layout 320x568",
+      "passed": true,
+      "durationMs": 1713
+    },
+    {
+      "engine": "chromium",
+      "name": "mobile layout 360x640",
+      "passed": true,
+      "durationMs": 991
+    },
+    {
+      "engine": "chromium",
+      "name": "mobile layout 375x667",
+      "passed": true,
+      "durationMs": 996
+    },
+    {
+      "engine": "chromium",
+      "name": "mobile layout 390x844",
+      "passed": true,
+      "durationMs": 1083
+    },
+    {
+      "engine": "chromium",
+      "name": "mobile layout 430x932",
+      "passed": true,
+      "durationMs": 928
+    },
+    {
+      "engine": "chromium",
+      "name": "mobile layout 390x740",
+      "passed": true,
+      "durationMs": 902
+    },
+    {
+      "engine": "chromium",
+      "name": "sheet keyboard persistence and rewards",
+      "passed": true,
+      "durationMs": 2182
+    },
+    {
+      "engine": "chromium",
+      "name": "pointer-open restores companion focus",
+      "passed": true,
+      "durationMs": 1023
+    },
+    {
+      "engine": "chromium",
+      "name": "English sheet and reduced motion",
+      "passed": true,
+      "durationMs": 999
+    },
+    {
+      "engine": "chromium",
+      "name": "normal motion pauses behind sheet",
+      "passed": true,
+      "durationMs": 1197
+    },
+    {
+      "engine": "chromium",
+      "name": "completed spin 99 to 100",
+      "passed": true,
+      "durationMs": 5302
+    },
+    {
+      "engine": "chromium",
+      "name": "completed spin 199 to 200",
+      "passed": true,
+      "durationMs": 5990
+    },
+    {
+      "engine": "chromium",
+      "name": "header fallback 1280x900",
+      "passed": true,
+      "durationMs": 1116
+    },
+    {
+      "engine": "chromium",
+      "name": "header fallback 740x390",
+      "passed": true,
+      "durationMs": 957
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 320x568",
+      "passed": true,
+      "durationMs": 2260
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 360x640",
+      "passed": true,
+      "durationMs": 1588
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 375x667",
+      "passed": true,
+      "durationMs": 1129
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 390x844",
+      "passed": true,
+      "durationMs": 1329
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 430x932",
+      "passed": true,
+      "durationMs": 1405
+    },
+    {
+      "engine": "webkit",
+      "name": "mobile layout 390x740",
+      "passed": true,
+      "durationMs": 1239
+    },
+    {
+      "engine": "webkit",
+      "name": "sheet keyboard persistence and rewards",
+      "passed": true,
+      "durationMs": 2946
+    },
+    {
+      "engine": "webkit",
+      "name": "pointer-open restores companion focus",
+      "passed": true,
+      "durationMs": 1701
+    },
+    {
+      "engine": "webkit",
+      "name": "English sheet and reduced motion",
+      "passed": true,
+      "durationMs": 1321
+    },
+    {
+      "engine": "webkit",
+      "name": "normal motion pauses behind sheet",
+      "passed": true,
+      "durationMs": 1429
+    },
+    {
+      "engine": "webkit",
+      "name": "completed spin 99 to 100",
+      "passed": true,
+      "durationMs": 5991
+    },
+    {
+      "engine": "webkit",
+      "name": "completed spin 199 to 200",
+      "passed": true,
+      "durationMs": 5716
+    },
+    {
+      "engine": "webkit",
+      "name": "header fallback 1280x900",
+      "passed": true,
+      "durationMs": 1259
+    },
+    {
+      "engine": "webkit",
+      "name": "header fallback 740x390",
+      "passed": true,
+      "durationMs": 1117
+    }
+  ]
+}

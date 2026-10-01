@@ -6,6 +6,9 @@ import { FoodResultDialog } from "@/components/food-result-dialog";
 import { DistrictSpotsChecklist } from "@/components/district-spots-checklist";
 import { BrandCarousel } from "@/components/brand-carousel";
 import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
+import { MainMenuDrawer } from "@/components/main-menu-drawer";
+import { CityChecklistModal } from "@/components/city-checklist-modal";
+import { FoodiePetWidget } from "@/components/foodie-pet-widget";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import { createSpinProfile } from "@/lib/case-mechanics";
 import type { Food } from "@/lib/foods";
@@ -20,8 +23,21 @@ import { CaseAudio } from "@/lib/case-audio";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { type MealKind, getMealFoods } from "@/lib/food-categories";
+import {
+  detectCurrentMealSession,
+  getFoodsForSessionAndTaste,
+  MEAL_SESSIONS,
+  type DishTasteCategory,
+  type MealSession,
+} from "@/lib/dish-taxonomy";
+import {
+  loadStreakState,
+  addSpinStreak,
+  type FoodieStreakState,
+} from "@/lib/foodie-streak";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 const Card = memo(function Card({
   food,
   language,
@@ -63,6 +79,34 @@ export default function Home() {
   const settings = useMealSettings(language);
   const { mealKind, mealConfig, budget, custom, vegetarianEnabled, sound } =
     settings;
+
+  // Audio volume state (default 35% gentle volume, draggable 0 - 100)
+  const [volume, setVolume] = useState<number>(() => {
+    try {
+      const saved = readCookie<number>("foodtour_volume");
+      if (typeof saved === "number" && saved >= 0 && saved <= 100) {
+        return saved;
+      }
+    } catch {}
+    return 35;
+  });
+
+  // Tự động nhận diện buổi ăn theo khung giờ thực tế
+  const [session, setSession] = useState<MealSession>(() =>
+    detectCurrentMealSession(),
+  );
+
+  // Bộ lọc Gu món (setting tương tự Mức chi: Món nước, Món khô, Món chay, Đồ uống...)
+  const [tasteCategory, setTasteCategory] = useState<DishTasteCategory>("all");
+
+  // TikTok-style Foodie Pet & Flame Streak state
+  const [streak, setStreak] = useState<FoodieStreakState>(() =>
+    loadStreakState(),
+  );
+
+  const [mainMenuOpen, setMainMenuOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Food | null>(null);
   const [revealed, setRevealed] = useState(false);
@@ -72,15 +116,18 @@ export default function Home() {
   const busy = useRef(false);
   const dialogTrigger = useRef<HTMLButtonElement | null>(null);
   const popupFood = previewFood ?? result;
+
   const selectFood = useCallback((food: Food, trigger: HTMLButtonElement) => {
     if (busy.current) return;
     dialogTrigger.current = trigger;
     setPreviewFood(food);
   }, []);
+
   function closeFoodDialog() {
     setPreviewFood(null);
     setRevealed(false);
   }
+
   useEffect(() => {
     let selected: Language = "vi";
     try {
@@ -92,6 +139,7 @@ export default function Home() {
     document.title =
       selected === "en" ? "What should I eat for lunch?" : "Trưa nay ăn gì?";
   }, []);
+
   const changeLanguage = (next: Language) => {
     setLanguage(next);
     document.documentElement.lang = next;
@@ -108,15 +156,22 @@ export default function Home() {
     setRevealed(false);
     settings.selectMealKind(kind);
   };
+
+  const handleSelectTasteCategory = (cat: DishTasteCategory) => {
+    setTasteCategory(cat);
+  };
+
   const target = budget === "custom" ? Number(custom) : Number(budget);
   const validTarget =
     Number.isInteger(target) &&
     target >= mealConfig.minPrice &&
     target <= mealConfig.maxPrice;
+
   const population = useMemo(
     () => getMealFoods(mealKind, preferences.profile),
     [mealKind, preferences.profile],
   );
+
   useEffect(() => {
     const last = readCookie<{ name?: unknown; price?: unknown; veg?: unknown }>(
       "last-choice",
@@ -132,10 +187,13 @@ export default function Home() {
         : null;
     setResult(match ?? null);
   }, [population]);
-  const eligible = useMemo(
-    () => population.filter((f) => !vegetarianEnabled || f.veg),
-    [population, vegetarianEnabled],
-  );
+
+  // Lọc món ăn: nếu là nhóm bữa chính (lunch) thì áp dụng Buổi ăn thực tế và Gu món
+  const eligible = useMemo(() => {
+    if (mealKind !== "lunch") return population;
+    return getFoodsForSessionAndTaste(session, tasteCategory, population);
+  }, [mealKind, session, tasteCategory, population]);
+
   const lunchSelector = useMemo(
     () =>
       personalSelector(
@@ -144,12 +202,16 @@ export default function Home() {
       ),
     [eligible, target, validTarget, mealConfig.defaultBudget],
   );
+
   const filteredMean = lunchSelector?.expectedPrice ?? 0;
   const audio = useRef<CaseAudio | null>(null);
+
   useEffect(() => {
     const engine = new CaseAudio(basePath);
     audio.current = engine;
     engine.preload();
+    engine.setVolume(volume);
+
     const hide = () => {
       if (document.hidden) engine.pause();
       else engine.recover();
@@ -161,11 +223,30 @@ export default function Home() {
       audio.current = null;
     };
   }, []);
+
+  const handleVolumeChange = (nextVol: number) => {
+    setVolume(nextVol);
+    audio.current?.setVolume(nextVol);
+    settings.setSound(nextVol > 0);
+    try {
+      writeCookie("foodtour_volume", nextVol);
+    } catch {}
+  };
+
   useEffect(() => {
-    audio.current?.setMuted(!sound);
-  }, [sound]);
+    if (!sound) {
+      audio.current?.setMuted(true);
+    } else {
+      audio.current?.setVolume(volume);
+    }
+  }, [sound, volume]);
+
   const t = copy[language],
     vi = language === "vi";
+
+  const currentSessionConfig =
+    MEAL_SESSIONS.find((s) => s.id === session) || MEAL_SESSIONS[1];
+
   const inventoryCards = useMemo(
     () =>
       [...eligible]
@@ -189,6 +270,7 @@ export default function Home() {
         )),
     [eligible, language, spinning, selectFood],
   );
+
   function open() {
     if (busy.current || !validTarget || !eligible.length || !lunchSelector)
       return;
@@ -218,12 +300,23 @@ export default function Home() {
       } catch {}
     }
   }
+
   function finishSpin(winner: Food) {
     recordSpin(winner);
+    setStreak((prev) => {
+      const { nextState } = addSpinStreak(prev);
+      return nextState;
+    });
     busy.current = false;
+    setSpin(null);
     setSpinning(false);
     setResult(winner);
     setRevealed(true);
+    writeCookie("last-choice", {
+      name: winner.name,
+      price: winner.price,
+      veg: winner.veg,
+    });
     audio.current?.play(
       (
         [
@@ -252,15 +345,39 @@ export default function Home() {
           </button>
         </div>
       )}
+
+      {/* Header: [Logo] | [ 🐱 🔥 42 ] [ 🇻🇳 VN ] [ ☰ Menu ] */}
       <AppHeader
-        preferences={preferences}
         language={language}
-        sound={sound}
         disabled={spinning}
-        onLanguage={changeLanguage}
-        onSound={settings.setSound}
-        onOpenChange={setPanelOpen}
+        onOpenMenu={() => setMainMenuOpen(true)}
+        streak={streak}
+        onOpenPet={() => setChecklistOpen(true)}
+        petOpen={checklistOpen}
+        petPaused={mainMenuOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
       />
+
+      {/* Main Menu Drawer: Âm lượng dạng kéo slider, Lối tắt Checklist ẩm thực */}
+      <MainMenuDrawer
+        open={mainMenuOpen}
+        onClose={() => setMainMenuOpen(false)}
+        volume={volume}
+        onVolumeChange={handleVolumeChange}
+        language={language}
+        onLanguageChange={changeLanguage}
+        onOpenPreferences={() => setPreferencesOpen(true)}
+        onOpenChecklist={() => setChecklistOpen(true)}
+      />
+
+      {/* Dedicated City Food Checklist Modal with TikTok-style Pet & Flame Streak */}
+      <CityChecklistModal
+        open={checklistOpen}
+        onClose={() => setChecklistOpen(false)}
+        language={language}
+        streak={streak}
+        onStreakChange={setStreak}
+      />
+
       <main>
         <section
           className="pick-screen"
@@ -284,6 +401,7 @@ export default function Home() {
                 : "Choose a category and your budget. We’ll pick the dish."}
             </p>
           </div>
+
           <div className="desktop-tabs-wrapper">
             <MealKindTabs
               value={mealKind}
@@ -291,14 +409,26 @@ export default function Home() {
               disabled={spinning || !settings.ready}
               onChange={handleSelectMealKind}
               idPrefix="desktop"
+              sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
             />
           </div>
+
           <section
-            className="case-panel"
+            className="case-panel has-foodie-companion"
             id="meal-panel"
             role="tabpanel"
-            aria-labelledby={`desktop-meal-tab-${mealKind}`}
+            aria-label={vi ? "Vòng quay món ăn" : "Food roulette"}
           >
+            <div className="foodie-companion-slot">
+              <FoodiePetWidget
+                streak={streak}
+                language={language}
+                disabled={spinning}
+                paused={checklistOpen || mainMenuOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
+                expanded={checklistOpen}
+                onClick={() => setChecklistOpen(true)}
+              />
+            </div>
             <FoodSpotlight
               foods={eligible}
               language={language}
@@ -306,16 +436,20 @@ export default function Home() {
               spin={spin}
               spinning={spinning}
               won={revealed}
-              suspended={panelOpen || previewFood !== null}
+              suspended={panelOpen || previewFood !== null || checklistOpen || mainMenuOpen || preferencesOpen}
               onFinish={finishSpin}
               onTick={() => audio.current?.play("csgo_ui_crate_item_scroll")}
               onBrowse={() => setRevealed(false)}
-              onClearFilter={() => settings.setVeg(false)}
+              onClearFilter={() => setTasteCategory("all")}
             />
           </section>
+
+          {/* Spin controls với Bộ lọc Gu Món và Nút Quay 'Quay cơm ngay thôi' */}
           <SpinControls
             settings={settings}
             language={language}
+            tasteCategory={tasteCategory}
+            onSelectTasteCategory={handleSelectTasteCategory}
             spinning={spinning}
             hasResult={!!result}
             empty={!eligible.length}
@@ -328,14 +462,17 @@ export default function Home() {
                 disabled={spinning || !settings.ready}
                 onChange={handleSelectMealKind}
                 idPrefix="dock"
+                sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
               />
             }
           />
+
           <a className="explore-link" href="#menu">
             {vi ? "Hoặc tự chọn món bên dưới" : "Or choose from the menu"}
             <ArrowDown size={14} />
           </a>
         </section>
+
         <FoodResultDialog
           food={popupFood}
           language={language}
@@ -370,6 +507,8 @@ export default function Home() {
                 language={language}
                 disabled={spinning}
                 variant="inventory"
+                open={preferencesOpen}
+                onControlledOpenChange={setPreferencesOpen}
                 onOpenChange={setPanelOpen}
               />
             )}
@@ -413,8 +552,8 @@ export default function Home() {
                   ? "Chưa có món phù hợp với bộ lọc."
                   : "No dishes match this filter."}
               </p>
-              <button onClick={() => settings.setVeg(false)}>
-                {vi ? "Xem tất cả món ăn trưa" : "Show all lunch dishes"}
+              <button onClick={() => setTasteCategory("all")}>
+                {vi ? "Xem tất cả món" : "Show all dishes"}
               </button>
             </div>
           )}

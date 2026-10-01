@@ -26,12 +26,16 @@ export function PreferencesPanel({
   disabled,
   variant = "header",
   onOpenChange,
+  open: controlledOpen,
+  onControlledOpenChange,
 }: {
   preferences: Preferences;
   language: Language;
   disabled: boolean;
   variant?: "header" | "inventory";
   onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+  onControlledOpenChange?: (open: boolean) => void;
 }) {
   const vi = language === "vi";
   const id = useId();
@@ -39,7 +43,8 @@ export function PreferencesPanel({
   const nameInput = useRef<HTMLInputElement>(null);
   const priceInput = useRef<HTMLInputElement>(null);
   const tabButtons = useRef<(HTMLButtonElement | null)[]>([]);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const [draft, setDraft] = useState<PoolProfile>(emptyProfile);
   const [saveFailed, setSaveFailed] = useState(false);
   const [search, setSearch] = useState("");
@@ -58,7 +63,10 @@ export function PreferencesPanel({
   }, [a.profile, saveFailed]);
 
   function changeOpen(next: boolean) {
-    setOpen(next);
+    if (controlledOpen === undefined) {
+      setInternalOpen(next);
+    }
+    onControlledOpenChange?.(next);
     onOpenChange?.(next);
   }
 

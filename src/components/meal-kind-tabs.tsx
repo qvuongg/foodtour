@@ -10,6 +10,7 @@ export function MealKindTabs({
   onChange,
   idPrefix = "main",
   className,
+  sessionLabel,
 }: {
   value: MealKind;
   language: Language;
@@ -17,6 +18,7 @@ export function MealKindTabs({
   onChange: (kind: MealKind) => void;
   idPrefix?: string;
   className?: string;
+  sessionLabel?: string;
 }) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   const icons = { lunch: Utensils, drink: Coffee, snack: Cookie, nhau: Beer };
@@ -32,6 +34,12 @@ export function MealKindTabs({
       >
         {MEAL_KINDS.map((item, index) => {
           const Icon = icons[item.id];
+          const label =
+            item.id === "lunch" && sessionLabel
+              ? sessionLabel
+              : language === "vi"
+                ? item.labelVi
+                : item.labelEn;
           return (
             <button
               key={item.id}
@@ -65,7 +73,7 @@ export function MealKindTabs({
               }}
             >
               <Icon size={18} aria-hidden="true" />
-              <span>{language === "vi" ? item.labelVi : item.labelEn}</span>
+              <span>{label}</span>
             </button>
           );
         })}
