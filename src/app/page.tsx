@@ -3,14 +3,19 @@ import { MealKindTabs } from "@/components/meal-kind-tabs";
 import { SpinControls } from "@/components/spin-controls";
 import { FoodImage } from "@/components/food-image";
 import { FoodResultDialog } from "@/components/food-result-dialog";
+import { RestaurantResultDialog } from "@/components/restaurant-result-dialog";
+import { SpinModeSwitcher, type SpinMode } from "@/components/spin-mode-switcher";
 import { BrandCarousel } from "@/components/brand-carousel";
-import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
+import { FoodSpotlight, type SpotlightSpin, type RestaurantSpotlightSpin } from "@/components/food-spotlight";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { MainMenuDrawer } from "@/components/main-menu-drawer";
 import { FoodiePetWidget } from "@/components/foodie-pet-widget";
 import { FoodiePetModal } from "@/components/foodie-pet-modal";
 import { useFoodieProgress } from "@/hooks/use-foodie-progress";
 import { useCompanionNavigation } from "@/hooks/use-companion-navigation";
+import { useUserLocation } from "@/hooks/use-user-location";
+import { getEligibleRestaurants, type RestaurantRouletteItem } from "@/lib/restaurant-roulette";
+import { haversineDistanceKm } from "@/lib/geo-distance";
 import { hasRestaurantRewardToday } from "@/lib/foodie-streak";
 import { SHOPEE_RESTAURANT_OPEN_EVENT } from "@/lib/shopee-reward";
 import { readCookie, writeCookie } from "@/lib/cookies";
@@ -123,6 +128,11 @@ export default function Home() {
   const [result, setResult] = useState<Food | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [spin, setSpin] = useState<SpotlightSpin | null>(null);
+  const [spinMode, setSpinMode] = useState<SpinMode>("dish");
+  const { coords: userCoords, city: activeCity, requestLocation } = useUserLocation();
+  const [restaurantResult, setRestaurantResult] = useState<RestaurantRouletteItem | null>(null);
+  const [restaurantRevealed, setRestaurantRevealed] = useState(false);
+  const [restaurantSpin, setRestaurantSpin] = useState<RestaurantSpotlightSpin | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [previewFood, setPreviewFood] = useState<Food | null>(null);
   const [lastPickedFood, setLastPickedFood] = useState<Food | null>(null);
@@ -205,9 +215,23 @@ export default function Home() {
   const handleSelectMealKind = (kind: MealKind) => {
     if (busy.current || kind === mealKind) return;
     setSpin(null);
+    setRestaurantSpin(null);
     setRevealed(false);
+    setRestaurantRevealed(false);
     setSelectedTastes([]);
     settings.selectMealKind(kind);
+  };
+
+  const handleSpinModeChange = (nextMode: SpinMode) => {
+    if (busy.current || nextMode === spinMode) return;
+    setSpin(null);
+    setRestaurantSpin(null);
+    setRevealed(false);
+    setRestaurantRevealed(false);
+    setSpinMode(nextMode);
+    if (nextMode === "restaurant") {
+      requestLocation();
+    }
   };
 
   const target = budget === "custom" ? Number(custom) : Number(budget);
@@ -244,6 +268,28 @@ export default function Home() {
     }
     return filterFoodsByTastes(population, selectedTastes, mealKind);
   }, [mealKind, session, selectedTastes, population]);
+
+  // Quán ăn đủ điều kiện theo thành phố, danh mục, và bán kính GPS 3km (chất lượng >= 100 đánh giá)
+  const eligibleRestaurants = useMemo(
+    () =>
+      getEligibleRestaurants({
+        city: activeCity,
+        category: mealKind,
+        userCoords,
+        maxRadiusKm: 3.0,
+      }),
+    [activeCity, mealKind, userCoords],
+  );
+
+  const restaurantDistanceKm = useMemo(() => {
+    if (!restaurantResult || !userCoords) return null;
+    return haversineDistanceKm(
+      userCoords.lat,
+      userCoords.lng,
+      restaurantResult.lat,
+      restaurantResult.lng,
+    );
+  }, [restaurantResult, userCoords]);
 
   const lunchSelector = useMemo(
     () =>
@@ -298,6 +344,13 @@ export default function Home() {
   const currentSessionConfig =
     MEAL_SESSIONS.find((s) => s.id === session) || MEAL_SESSIONS[1];
 
+  const currentSessionHeading = useMemo(() => {
+    if (mealKind === "lunch") {
+      return vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn;
+    }
+    return vi ? mealConfig.labelVi : mealConfig.labelEn;
+  }, [mealKind, vi, currentSessionConfig, mealConfig]);
+
   const inventoryCards = useMemo(
     () =>
       [...eligible]
@@ -323,7 +376,44 @@ export default function Home() {
   );
 
   function open() {
-    if (busy.current || !validTarget || !eligible.length || !lunchSelector)
+    if (busy.current) return;
+
+    if (spinMode === "restaurant") {
+      if (!eligibleRestaurants.length) return;
+      busy.current = true;
+      activeSpinId.current = crypto.randomUUID();
+      dialogTrigger.current =
+        document.activeElement instanceof HTMLButtonElement
+          ? document.activeElement
+          : null;
+      audio.current?.unlock();
+      const winner =
+        eligibleRestaurants[
+          Math.floor(Math.random() * eligibleRestaurants.length)
+        ];
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const profile = createSpinProfile(Math.random, reducedMotion);
+      const fillers = Array.from({ length: profile.tiles + 5 }, () =>
+        eligibleRestaurants[
+          Math.floor(Math.random() * eligibleRestaurants.length)
+        ],
+      );
+      setSpinning(true);
+      setRestaurantRevealed(false);
+      setRestaurantResult(null);
+      setRestaurantSpin({ winner, fillers, profile, reducedMotion });
+      audio.current?.play("csgo_ui_crate_open");
+      if (sound && typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try {
+          navigator.vibrate(15);
+        } catch {}
+      }
+      return;
+    }
+
+    if (!validTarget || !eligible.length || !lunchSelector)
       return;
     busy.current = true;
     activeSpinId.current = crypto.randomUUID();
@@ -388,6 +478,24 @@ export default function Home() {
     }
   }
 
+  function finishRestaurantSpin(winner: RestaurantRouletteItem) {
+    const spinId = activeSpinId.current;
+    if (!spinId) return;
+    activeSpinId.current = null;
+    void foodie.completeSpin(spinId);
+    busy.current = false;
+    setRestaurantSpin(null);
+    setSpinning(false);
+    setRestaurantResult(winner);
+    setRestaurantRevealed(true);
+    audio.current?.play("item_reveal5_legendary");
+    if (sound && typeof navigator !== "undefined" && "vibrate" in navigator) {
+      try {
+        navigator.vibrate([30, 40, 50]);
+      } catch {}
+    }
+  }
+
   return (
     <div className={`site-frame${mainMenuOpen ? " menu-is-open" : ""}`}>
     <div className="site-shell">
@@ -420,7 +528,15 @@ export default function Home() {
         streak={streak}
         onOpenPet={() => openCompanion("pet")}
         petOpen={petOpen}
-        petPaused={mainMenuOpen || settingsOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
+        petPaused={
+          mainMenuOpen ||
+          settingsOpen ||
+          preferencesOpen ||
+          panelOpen ||
+          revealed ||
+          previewFood !== null ||
+          restaurantRevealed
+        }
       />
 
       <MainMenuDrawer
@@ -466,7 +582,13 @@ export default function Home() {
         storageError={foodie.storageError}
         onRetrySave={foodie.retrySave}
         finalFocus={companion.trigger}
-        spinDisabled={spinning || !validTarget || !eligible.length || !settings.ready}
+        spinDisabled={
+          spinning ||
+          (spinMode === "restaurant"
+            ? !eligibleRestaurants.length
+            : !validTarget || !eligible.length) ||
+          !settings.ready
+        }
       />
 
 
@@ -478,8 +600,18 @@ export default function Home() {
           <div className="intro">
             <h1>
               {vi ? (
+                spinMode === "restaurant" ? (
+                  <>
+                    Đói rồi. <span>Chọn quán thôi.</span>
+                  </>
+                ) : (
+                  <>
+                    Đói rồi. <span>Chốt món thôi.</span>
+                  </>
+                )
+              ) : spinMode === "restaurant" ? (
                 <>
-                  Đói rồi. <span>Chốt món thôi.</span>
+                  Hungry? <span>Pick a spot.</span>
                 </>
               ) : (
                 <>
@@ -494,59 +626,105 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="desktop-tabs-wrapper">
-            <MealKindTabs
-              value={mealKind}
+          <div className="pick-screen-nav">
+            <SpinModeSwitcher
+              mode={spinMode}
+              onChange={handleSpinModeChange}
               language={language}
-              disabled={spinning || !settings.ready}
-              onChange={handleSelectMealKind}
-              idPrefix="desktop"
-              sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
-              sessionTimeRange={currentSessionConfig.timeRangeVi}
+              disabled={spinning}
             />
+            <div className="desktop-tabs-wrapper">
+              <MealKindTabs
+                value={mealKind}
+                language={language}
+                disabled={spinning || !settings.ready}
+                onChange={handleSelectMealKind}
+                idPrefix="desktop"
+                sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
+                sessionTimeRange={currentSessionConfig.timeRangeVi}
+              />
+            </div>
           </div>
 
           <section
             className="case-panel has-foodie-companion"
             id="meal-panel"
             role="tabpanel"
-            aria-label={vi ? "Vòng quay món ăn" : "Food roulette"}
+            aria-label={
+              vi
+                ? spinMode === "restaurant"
+                  ? "Vòng quay quán ăn"
+                  : "Vòng quay món ăn"
+                : spinMode === "restaurant"
+                  ? "Restaurant roulette"
+                  : "Food roulette"
+            }
           >
             <div className="foodie-companion-slot">
               <FoodiePetWidget
                 streak={streak}
                 language={language}
                 disabled={spinning}
-                paused={petOpen || mainMenuOpen || settingsOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
+                paused={
+                  petOpen ||
+                  mainMenuOpen ||
+                  settingsOpen ||
+                  preferencesOpen ||
+                  panelOpen ||
+                  revealed ||
+                  previewFood !== null ||
+                  restaurantRevealed
+                }
                 expanded={petOpen}
                 onClick={() => openCompanion("pet")}
               />
             </div>
             <FoodSpotlight
               foods={eligible}
+              restaurants={eligibleRestaurants}
+              mode={spinMode}
               language={language}
               mealKind={mealKind}
               spin={spin}
+              restaurantSpin={restaurantSpin}
               spinning={spinning}
-              won={revealed}
-              suspended={panelOpen || previewFood !== null || petOpen || mainMenuOpen || settingsOpen || preferencesOpen}
+              won={spinMode === "restaurant" ? restaurantRevealed : revealed}
+              suspended={
+                panelOpen ||
+                previewFood !== null ||
+                petOpen ||
+                mainMenuOpen ||
+                settingsOpen ||
+                preferencesOpen ||
+                restaurantRevealed
+              }
               onFinish={finishSpin}
+              onFinishRestaurant={finishRestaurantSpin}
               onTick={() => audio.current?.play("csgo_ui_crate_item_scroll")}
-              onBrowse={() => setRevealed(false)}
+              onBrowse={() =>
+                spinMode === "restaurant"
+                  ? setRestaurantRevealed(false)
+                  : setRevealed(false)
+              }
               onClearFilter={() => setSelectedTastes([])}
             />
           </section>
 
           {/* Spin controls với Bộ lọc Gu Món đa chọn và Nút Quay */}
           <SpinControls
+            mode={spinMode}
             settings={settings}
             language={language}
             selectedTastes={selectedTastes}
             onSelectTastes={setSelectedTastes}
             session={session}
             spinning={spinning}
-            hasResult={!!result}
-            empty={!eligible.length}
+            hasResult={spinMode === "restaurant" ? !!restaurantResult : !!result}
+            empty={
+              spinMode === "restaurant"
+                ? !eligibleRestaurants.length
+                : !eligible.length
+            }
             onSpin={open}
             onOpenChange={setPanelOpen}
             categoryTabs={
@@ -580,6 +758,18 @@ export default function Home() {
           progressStorageError={foodie.storageError}
         />
 
+        <RestaurantResultDialog
+          open={restaurantRevealed && !spinning && !!restaurantResult}
+          onClose={() => setRestaurantRevealed(false)}
+          restaurant={restaurantResult}
+          language={language}
+          distanceKm={restaurantDistanceKm}
+          onSpinAgain={() => {
+            setRestaurantRevealed(false);
+            open();
+          }}
+        />
+
         {mealKind === "drink" && <BrandCarousel language={language} />}
 
         <section className="inventory" id="menu" aria-labelledby="menu-title">
@@ -589,7 +779,7 @@ export default function Home() {
                 {vi ? "HỢP GU, TỰ CHỌN" : "YOUR TASTE, YOUR PICK"}
               </span>
               <h2 id="menu-title">
-                {vi ? mealConfig.labelVi : mealConfig.labelEn}
+                {currentSessionHeading}
                 <span>{eligible.length}</span>
               </h2>
             </div>

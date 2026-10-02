@@ -1,0 +1,72 @@
+.spin-mode-switcher-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.spin-mode-switcher {
+  display: inline-flex;
+  align-items: center;
+  padding: 2.5px;
+  background: #ede6da;
+  border: 1px solid #dfd3c3;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 2px rgba(90, 50, 20, 0.05);
+}
+
+.spin-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  color: #6a5d51;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.16s cubic-bezier(0.2, 0, 0, 1);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.spin-mode-btn svg {
+  color: #8b7968;
+  transition: color 0.16s ease;
+}
+
+.spin-mode-btn.active {
+  background: #ffffff;
+  color: var(--pet-outline, #8f3417);
+  box-shadow: 0 1.5px 5px rgba(90, 40, 15, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  font-weight: 800;
+}
+
+.spin-mode-btn.active svg {
+  color: var(--pet-outline, #8f3417);
+}
+
+.spin-mode-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 767px) {
+  .spin-mode-btn {
+    min-height: 25px;
+    height: 25px;
+    padding: 0 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
+}

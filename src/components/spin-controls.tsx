@@ -32,6 +32,7 @@ export function SpinControls({
   onSpin,
   onOpenChange,
   categoryTabs,
+  mode = "dish",
 }: {
   settings: ReturnType<typeof useMealSettings>;
   language: Language;
@@ -44,6 +45,7 @@ export function SpinControls({
   onSpin: () => void;
   onOpenChange: (open: boolean) => void;
   categoryTabs?: React.ReactNode;
+  mode?: "dish" | "restaurant";
 }) {
   const {
     mealKind,
@@ -119,25 +121,31 @@ export function SpinControls({
 
   const spinButtonLabel = spinning
     ? t.opening
-    : vi
-      ? mealKind === "drink"
-        ? "Quay đồ uống ngay thôi"
-        : mealKind === "snack"
-          ? "Quay ăn vặt ngay thôi"
-          : mealKind === "nhau"
-            ? "Quay mồi nhậu ngay thôi"
-            : session === "breakfast"
-              ? "Quay món sáng ngay"
-              : session === "afternoon"
-                ? "Quay ăn xế ngay thôi"
-                : session === "dinner"
-                  ? "Quay bữa tối ngay"
-                  : session === "late"
-                    ? "Quay ăn đêm ngay"
-                    : "Quay cơm ngay thôi"
-      : hasResult
-        ? t.openAgain
-        : t.open;
+    : mode === "restaurant"
+      ? vi
+        ? "Quay quán ngay thôi"
+        : hasResult
+          ? "Spin for another spot"
+          : "Spin for a spot"
+      : vi
+        ? mealKind === "drink"
+          ? "Quay đồ uống ngay thôi"
+          : mealKind === "snack"
+            ? "Quay ăn vặt ngay thôi"
+            : mealKind === "nhau"
+              ? "Quay mồi nhậu ngay thôi"
+              : session === "breakfast"
+                ? "Quay món sáng ngay"
+                : session === "afternoon"
+                  ? "Quay ăn xế ngay thôi"
+                  : session === "dinner"
+                    ? "Quay bữa tối ngay"
+                    : session === "late"
+                      ? "Quay ăn đêm ngay"
+                      : "Quay cơm ngay thôi"
+        : hasResult
+          ? t.openAgain
+          : t.open;
 
   const tasteDialogTitle = vi
     ? mealKind === "drink"

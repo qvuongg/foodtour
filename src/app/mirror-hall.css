@@ -254,3 +254,83 @@
     --hall-width: clamp(128px, calc(100cqh - 144px), 200px);
   }
 }
+
+/* Restaurant Spotlight Card styling - Minimal & ultra-skimmable */
+.mirror-hall .spotlight-restaurant-card {
+  position: relative;
+  width: 100%;
+  height: var(--hall-height);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(150deg, #ffffff 0%, #fffbf5 50%, #faeee0 100%);
+  border: 1.5px solid #ebd9c8;
+  border-radius: 18px;
+  box-shadow: 0 1px 0 #fff, 0 8px 20px -8px rgba(90, 45, 15, 0.12);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mirror-hall .spotlight-restaurant-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border: 1px solid #fed7aa;
+  color: var(--pet-outline, #8f3417);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(143, 52, 23, 0.08);
+}
+
+.mirror-hall .spotlight-restaurant-name {
+  margin: 0 0 7px;
+  font-size: 13.5px;
+  font-weight: 850;
+  line-height: 1.3;
+  color: #272019;
+  letter-spacing: -0.2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.mirror-hall .spotlight-restaurant-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.mirror-hall .spotlight-specialty-chip {
+  display: inline-block;
+  padding: 2.5px 7.5px;
+  background: #f8ede0;
+  border: 1px solid #eed6bf;
+  border-radius: 999px;
+  color: var(--pet-outline, #8f3417);
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  max-width: 135px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mirror-hall .mirror-reflection.is-restaurant {
+  background: linear-gradient(to bottom, #faeee0, transparent);
+  border: 1px solid #ebd9c8;
+  opacity: 0.25;
+}
+

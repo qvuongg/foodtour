@@ -223,9 +223,17 @@ main {
   height: min(740px, calc(100svh - var(--header-height)));
   min-height: 500px;
   display: grid;
-  grid-template-rows: auto 52px minmax(0, 1fr) 76px 28px;
+  grid-template-rows: auto auto minmax(0, 1fr) 76px 28px;
   gap: 8px;
-  padding: 16px 0 8px;
+  padding: 12px 0 8px;
+}
+.pick-screen-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
 }
 .session-badge-container {
   display: flex;
@@ -1160,8 +1168,8 @@ footer a {
     min-height: 290px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 6px 0 2px;
+    gap: 3px;
+    padding: 4px 0 2px;
   }
   .case-panel {
     flex: 1;
@@ -1175,13 +1183,16 @@ footer a {
     flex-shrink: 0;
   }
   .intro h1 {
-    font-size: clamp(23px, 6.2vw, 30px);
+    font-size: clamp(19px, 5.2vw, 24px);
     line-height: 1.15;
     letter-spacing: -0.5px;
   }
   .intro p {
-    font-size: 12.5px;
-    margin-top: 2px;
+    display: none;
+  }
+  .pick-screen-nav {
+    gap: 3px;
+    flex-shrink: 0;
   }
   .spotlight-caption strong {
     font-size: 16px;
@@ -1359,7 +1370,7 @@ footer a {
     display: none;
   }
   .pick-screen {
-    grid-template-rows: 52px minmax(0, 1fr) 76px 28px;
+    grid-template-rows: auto minmax(0, 1fr) 76px 28px;
   }
 }
 @media (max-height: 599px) and (min-width: 600px) {

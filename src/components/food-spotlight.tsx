@@ -3,12 +3,14 @@ import {
   ArrowLeft,
   ArrowRight,
   Leaf,
+  Store,
   Utensils,
   Check,
   Pause,
   Play,
 } from "lucide-react";
 import type { Food } from "@/lib/foods";
+import type { RestaurantRouletteItem } from "@/lib/restaurant-roulette";
 import { foodName, priceLabel, type Language } from "@/lib/i18n";
 import { spotlightProgress } from "@/lib/spotlight-motion";
 import { FoodImage } from "./food-image";
@@ -21,31 +23,51 @@ export type SpotlightSpin = {
   profile: { durationMs: number; tiles: number; friction: number };
   reducedMotion: boolean;
 };
+
+export type RestaurantSpotlightSpin = {
+  winner: RestaurantRouletteItem;
+  fillers: RestaurantRouletteItem[];
+  profile: { durationMs: number; tiles: number; friction: number };
+  reducedMotion: boolean;
+};
+
 export function FoodSpotlight({
   foods,
+  restaurants = [],
+  mode = "dish",
   language,
   mealKind,
   spin,
+  restaurantSpin,
   spinning,
   won,
   suspended,
   onClearFilter,
   onFinish,
+  onFinishRestaurant,
   onTick,
   onBrowse,
 }: {
   foods: Food[];
+  restaurants?: RestaurantRouletteItem[];
+  mode?: "dish" | "restaurant";
   language: Language;
   mealKind: MealKind;
   spin: SpotlightSpin | null;
+  restaurantSpin?: RestaurantSpotlightSpin | null;
   spinning: boolean;
   won: boolean;
   suspended: boolean;
   onClearFilter: () => void;
   onFinish: (food: Food) => void;
+  onFinishRestaurant?: (restaurant: RestaurantRouletteItem) => void;
   onTick: () => void;
   onBrowse: () => void;
 }) {
+  const isRestaurant = mode === "restaurant";
+  const items: (Food | RestaurantRouletteItem)[] = isRestaurant ? restaurants : foods;
+  const currentSpin = isRestaurant ? restaurantSpin : spin;
+
   const [position, setPosition] = useState(0);
   const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -54,13 +76,13 @@ export function FoodSpotlight({
   const drag = useRef<{ id: number; x: number; at: number } | null>(null);
   const velocity = useRef(0);
   const [dragging, setDragging] = useState(false);
-  const sequence = useRef(new Map<number, Food>());
-  const callbacks = useRef({ onFinish, onTick, onBrowse });
-  callbacks.current = { onFinish, onTick, onBrowse };
+  const sequence = useRef(new Map<number, Food | RestaurantRouletteItem>());
+  const callbacks = useRef({ onFinish, onFinishRestaurant, onTick, onBrowse });
+  callbacks.current = { onFinish, onFinishRestaurant, onTick, onBrowse };
   const vi = language === "vi";
-  const at = (slot: number) =>
+  const at = (slot: number): Food | RestaurantRouletteItem =>
     sequence.current.get(slot) ??
-    foods[((slot % foods.length) + foods.length) % foods.length];
+    items[((slot % items.length) + items.length) % items.length];
   // A changed pool invalidates presentation cards, never the saved result.
   useEffect(() => {
     velocity.current = 0;
@@ -68,28 +90,28 @@ export function FoodSpotlight({
     callbacks.current.onBrowse();
     positionRef.current = 0;
     setPosition(0);
-  }, [foods]);
+  }, [items]);
   useEffect(() => {
-    if (!spin) return;
+    if (!currentSpin) return;
     velocity.current = 0;
     const start = positionRef.current,
       anchor = Math.round(start),
-      end = anchor + spin.profile.tiles;
-    const next = new Map<number, Food>();
+      end = anchor + currentSpin.profile.tiles;
+    const next = new Map<number, Food | RestaurantRouletteItem>();
     for (let slot = anchor - 4; slot <= anchor + 4; slot++)
       next.set(slot, at(slot));
     for (let slot = anchor + 5; slot <= end + 4; slot++)
-      next.set(slot, spin.fillers[slot - anchor] ?? spin.winner);
-    next.set(end, spin.winner);
+      next.set(slot, (currentSpin.fillers as (Food | RestaurantRouletteItem)[])[slot - anchor] ?? currentSpin.winner);
+    next.set(end, currentSpin.winner);
     sequence.current = next;
     let frame = 0,
       started: number | undefined,
       lastCell = start;
     const animate = (now: number) => {
       started ??= now;
-      const progress = Math.min(1, (now - started) / spin.profile.durationMs);
+      const progress = Math.min(1, (now - started) / currentSpin.profile.durationMs);
       // Reduced motion keeps the same anticipation time without sweeping cards.
-      const value = spin.reducedMotion
+      const value = currentSpin.reducedMotion
         ? progress < 1
           ? start
           : end
@@ -97,18 +119,24 @@ export function FoodSpotlight({
       positionRef.current = value;
       setPosition(value);
       const cell = Math.round(value);
-      if (cell !== lastCell && !spin.reducedMotion) {
+      if (cell !== lastCell && !currentSpin.reducedMotion) {
         callbacks.current.onTick();
         lastCell = cell;
       }
       if (progress < 1) frame = requestAnimationFrame(animate);
-      else callbacks.current.onFinish(spin.winner);
+      else {
+        if (isRestaurant && callbacks.current.onFinishRestaurant) {
+          callbacks.current.onFinishRestaurant(currentSpin.winner as RestaurantRouletteItem);
+        } else {
+          callbacks.current.onFinish(currentSpin.winner as Food);
+        }
+      }
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
     // The immutable spin request owns this animation; callback identity must not restart it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spin]);
+  }, [currentSpin]);
   // Decorative drift never selects a winner, plays audio or writes cookies.
   useEffect(() => {
     if (
@@ -118,7 +146,7 @@ export function FoodSpotlight({
       paused ||
       dragging ||
       focused ||
-      foods.length < 2
+      items.length < 2
     )
       return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -140,20 +168,34 @@ export function FoodSpotlight({
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, [spinning, won, suspended, paused, hovered, focused, dragging, foods]);
-  if (!foods.length)
+  }, [spinning, won, suspended, paused, hovered, focused, dragging, items]);
+  if (!items.length)
     return (
       <div className="spotlight-empty">
-        <Utensils size={36} />
-        <h2>{vi ? "Chưa có món phù hợp" : "No dishes to show"}</h2>
+        {isRestaurant ? <Store size={36} /> : <Utensils size={36} />}
+        <h2>
+          {isRestaurant
+            ? vi
+              ? "Chưa tìm thấy quán phù hợp"
+              : "No spots found"
+            : vi
+              ? "Chưa có món phù hợp"
+              : "No dishes to show"}
+        </h2>
         <p>
-          {vi
-            ? "Tắt bộ lọc chay hoặc thêm món trong “Món của tôi”."
-            : "Turn off the vegetarian filter or add a dish in “My dishes”."}
+          {isRestaurant
+            ? vi
+              ? "Thử đổi thành phố hoặc chọn nhóm món khác nhé."
+              : "Try switching city or another category."
+            : vi
+              ? "Tắt bộ lọc chay hoặc thêm món trong “Món của tôi”."
+              : "Turn off the vegetarian filter or add a dish in “My dishes”."}
         </p>
-        <button onClick={onClearFilter}>
-          {vi ? "Xem tất cả món ăn trưa" : "Show all lunch dishes"}
-        </button>
+        {!isRestaurant && (
+          <button onClick={onClearFilter}>
+            {vi ? "Xem tất cả món ăn trưa" : "Show all lunch dishes"}
+          </button>
+        )}
       </div>
     );
   const center = Math.round(position),
@@ -243,14 +285,17 @@ export function FoodSpotlight({
         <div className="mirror-floor" aria-hidden="true" />
         {Array.from({ length: 7 }, (_, i) => Math.floor(position) + i - 3).map(
           (slot) => {
-            const food = at(slot),
+            const item = at(slot),
               offset = slot - position,
               distance = Math.abs(offset),
               featured = slot === center;
+            const restaurant = isRestaurant ? (item as RestaurantRouletteItem) : null;
+            const food = !isRestaurant ? (item as Food) : null;
             return (
               <article
                 key={slot}
-                data-food-name={food.name}
+                data-food-name={food?.name}
+                data-restaurant-name={restaurant?.name}
                 className={`spotlight-card ${featured ? "featured" : ""}`}
                 style={
                   {
@@ -264,40 +309,69 @@ export function FoodSpotlight({
                 }
                 aria-hidden={spinning || !featured}
               >
-                <div className="spotlight-photo">
-                  <FoodImage food={food} language={language} />
-                  {featured && won && !spinning && (
-                    <span className="spotlight-sticker">
-                      {won ? (
-                        <>
+                {restaurant ? (
+                  <>
+                    <div className="spotlight-restaurant-card">
+                      <div className="spotlight-restaurant-icon-badge">
+                        <Store size={22} aria-hidden="true" />
+                      </div>
+                      <h2 className="spotlight-restaurant-name">
+                        {restaurant.name}
+                      </h2>
+                      <div className="spotlight-restaurant-chips">
+                        {(restaurant.specialties || []).slice(0, 2).map((s, idx) => (
+                          <span key={idx} className="spotlight-specialty-chip">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                      {featured && won && !spinning && (
+                        <span className="spotlight-sticker">
                           <Check size={12} />
-                          {vi ? "CHỐT MÓN NÀY" : "THE WINNER"}
-                        </>
-                      ) : (
-                        <>
-                          {vi ? "ĐÁNG THỬ" : "TRY THIS"}
-                          <span>↗</span>
-                        </>
+                          {vi ? "CHỐT QUÁN NÀY" : "THE WINNER"}
+                        </span>
                       )}
-                    </span>
-                  )}
-                </div>
-                <div className="spotlight-copy">
-                  <span className="dish-category">
-                    {food.veg && <Leaf size={12} />}{" "}
-                    {vi
-                      ? getMealConfig(mealKind).labelVi
-                      : getMealConfig(mealKind).labelEn}
-                  </span>
-                  <h2>{foodName(food, language)}</h2>
-                  <span className="spotlight-price">
-                    {priceLabel(food.price, language, true)}{" "}
-                    <small>/ {foodServingUnit(food, mealKind, language)}</small>
-                  </span>
-                </div>
-                <div className="mirror-reflection" aria-hidden="true">
-                  <FoodImage food={food} language={language} />
-                </div>
+                    </div>
+                    <div className="mirror-reflection is-restaurant" aria-hidden="true" />
+                  </>
+                ) : food ? (
+                  <>
+                    <div className="spotlight-photo">
+                      <FoodImage food={food} language={language} />
+                      {featured && won && !spinning && (
+                        <span className="spotlight-sticker">
+                          {won ? (
+                            <>
+                              <Check size={12} />
+                              {vi ? "CHỐT MÓN NÀY" : "THE WINNER"}
+                            </>
+                          ) : (
+                            <>
+                              {vi ? "ĐÁNG THỬ" : "TRY THIS"}
+                              <span>↗</span>
+                            </>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <div className="spotlight-copy">
+                      <span className="dish-category">
+                        {food.veg && <Leaf size={12} />}{" "}
+                        {vi
+                          ? getMealConfig(mealKind).labelVi
+                          : getMealConfig(mealKind).labelEn}
+                      </span>
+                      <h2>{foodName(food, language)}</h2>
+                      <span className="spotlight-price">
+                        {priceLabel(food.price, language, true)}{" "}
+                        <small>/ {foodServingUnit(food, mealKind, language)}</small>
+                      </span>
+                    </div>
+                    <div className="mirror-reflection" aria-hidden="true">
+                      <FoodImage food={food} language={language} />
+                    </div>
+                  </>
+                ) : null}
               </article>
             );
           },
@@ -306,8 +380,8 @@ export function FoodSpotlight({
       <div className="browse-controls">
         <button
           onClick={() => move(-1)}
-          disabled={spinning || foods.length < 2}
-          aria-label={vi ? "Xem món trước" : "Previous dish"}
+          disabled={spinning || items.length < 2}
+          aria-label={vi ? (isRestaurant ? "Xem quán trước" : "Xem món trước") : (isRestaurant ? "Previous spot" : "Previous dish")}
         >
           <ArrowLeft size={18} />
         </button>
@@ -318,34 +392,54 @@ export function FoodSpotlight({
           {spinning ? (
             <span className="spinning-caption">
               <span className="status-dot" />
-              {vi ? "Đang tìm món hợp gu…" : "Finding your next favorite…"}
+              {vi
+                ? isRestaurant
+                  ? "Đang tìm quán ngon…"
+                  : "Đang tìm món hợp gu…"
+                : isRestaurant
+                  ? "Finding top spots…"
+                  : "Finding your next favorite…"}
             </span>
           ) : won ? (
             <strong>
-              {vi ? "Chốt rồi. Ăn ngon nhé!" : "Picked. Enjoy your lunch!"}
+              {vi
+                ? isRestaurant
+                  ? "Chốt quán rồi. Ăn ngon nhé!"
+                  : "Chốt rồi. Ăn ngon nhé!"
+                : "Picked. Enjoy your meal!"}
             </strong>
           ) : (
             <>
               <strong>
                 {String(
-                  foods.findIndex(
-                    (f) =>
-                      (f.customId ?? f.image) ===
-                      (selected.customId ?? selected.image),
-                  ) + 1,
+                  (isRestaurant
+                    ? (restaurants ?? []).findIndex(
+                        (r) => r.id === (selected as RestaurantRouletteItem)?.id,
+                      )
+                    : foods.findIndex(
+                        (f) =>
+                          (f.customId ?? f.image) ===
+                          ((selected as Food)?.customId ?? (selected as Food)?.image),
+                      )) + 1,
                 ).padStart(2, "0")}
               </strong>
-              <span>/ {foods.length}</span>
+              <span>/ {items.length}</span>
               <span className="browse-hint">
-                {vi ? "Lướt xem món" : "Browse dishes"}
+                {vi
+                  ? isRestaurant
+                    ? "Lướt xem quán"
+                    : "Lướt xem món"
+                  : isRestaurant
+                    ? "Browse spots"
+                    : "Browse dishes"}
               </span>
             </>
           )}
         </span>
         <button
           onClick={() => move(1)}
-          disabled={spinning || foods.length < 2}
-          aria-label={vi ? "Xem món tiếp" : "Next dish"}
+          disabled={spinning || items.length < 2}
+          aria-label={vi ? (isRestaurant ? "Xem quán tiếp" : "Xem món tiếp") : (isRestaurant ? "Next spot" : "Next dish")}
         >
           <ArrowRight size={18} />
         </button>
@@ -374,7 +468,9 @@ export function FoodSpotlight({
         aria-atomic="true"
       >
         {!spinning
-          ? `${foodName(selected, language)}, ${priceLabel(selected.price, language, true)}`
+          ? isRestaurant
+            ? (selected as RestaurantRouletteItem)?.name
+            : `${foodName(selected as Food, language)}, ${priceLabel((selected as Food)?.price, language, true)}`
           : ""}
       </span>
     </div>

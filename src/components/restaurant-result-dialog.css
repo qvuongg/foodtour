@@ -1,0 +1,243 @@
+.restaurant-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(30, 25, 20, 0.45);
+  backdrop-filter: blur(6px);
+  animation: dialog-fade-in 0.16s ease-out;
+}
+
+.restaurant-dialog {
+  position: fixed;
+  z-index: 1001;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  outline: none;
+  animation: dialog-slide-up 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.15);
+}
+
+@media (min-width: 640px) {
+  .restaurant-dialog {
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    animation: dialog-pop-in 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.15);
+  }
+}
+
+.restaurant-dialog-card {
+  background: #ffffff;
+  border: 1px solid #ebd9c8;
+  border-radius: 28px 28px 0 0;
+  padding: 20px 22px max(24px, env(safe-area-inset-bottom, 20px));
+  box-shadow: 0 -10px 40px rgba(70, 35, 10, 0.14);
+}
+
+@media (min-width: 640px) {
+  .restaurant-dialog-card {
+    border-radius: 26px;
+    box-shadow: 0 16px 50px rgba(70, 35, 10, 0.18);
+  }
+}
+
+.restaurant-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.restaurant-celebrate-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #faede0;
+  border: 1px solid #eed6c0;
+  border-radius: 999px;
+  color: var(--pet-outline, #8f3417);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+}
+
+.restaurant-dialog-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #f4ecdf;
+  color: #6a5a4c;
+  cursor: pointer;
+  transition: background-color 0.14s ease;
+}
+
+.restaurant-dialog-close:hover {
+  background: #eadfcb;
+}
+
+.restaurant-dialog-body {
+  margin-bottom: 20px;
+}
+
+.restaurant-dialog-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1.3;
+  color: #261f18;
+  letter-spacing: -0.3px;
+}
+
+.restaurant-dialog-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.restaurant-dialog-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  color: #c2410c;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.restaurant-dialog-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  color: #635547;
+  margin-bottom: 8px;
+}
+
+.restaurant-dialog-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #d97706;
+}
+
+.restaurant-dialog-rating strong {
+  color: #2b221a;
+  font-weight: 800;
+}
+
+.restaurant-dialog-rating small {
+  color: #8c7c6d;
+}
+
+.restaurant-dialog-district {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #5c4e41;
+  font-weight: 650;
+}
+
+.pin-icon {
+  color: #bb381c;
+}
+
+.restaurant-dialog-address {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #877767;
+}
+
+.restaurant-dialog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.restaurant-dialog-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #d3421d 0%, #bb381c 100%);
+  color: #ffffff;
+  border: 0;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(187, 56, 28, 0.28);
+  transition: transform 0.12s ease, filter 0.14s ease;
+  touch-action: manipulation;
+}
+
+.restaurant-dialog-primary-btn:hover {
+  filter: brightness(1.04);
+}
+
+.restaurant-dialog-primary-btn:active {
+  transform: scale(0.985);
+}
+
+.restaurant-dialog-xp-chip {
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fffdf5;
+}
+
+.restaurant-dialog-secondary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: #f7efe4;
+  border: 1px solid #ebd9c8;
+  color: #5c4b3c;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.14s ease;
+  touch-action: manipulation;
+}
+
+.restaurant-dialog-secondary-btn:hover {
+  background: #ede1d0;
+}
+
+@keyframes dialog-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialog-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes dialog-pop-in {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
