@@ -1,1 +1,281 @@
-<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Thông tin · Trưa Nay Ăn Gì</title><h1>Trưa Nay Ăn Gì — bản cộng đồng</h1><p>Ứng dụng gợi ý món ăn để giải trí. Giá là tham khảo. Lượt mở là số cục bộ trên trình duyệt, không phải số người dùng hay tổng lượt toàn cầu.</p><p>Không có mua vật phẩm, tiền cược hoặc phần thưởng có giá trị tiền tệ.</p><p>Âm thanh tham khảo từ SourceSounds/csgo; tài sản của bên thứ ba giữ quyền của chủ sở hữu. Xem ATTRIBUTION.md trong repo.</p><a href="./">Quay lại</a></html>
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f3eb" />
+    <title>Điều khoản sử dụng · Quay cơm online.</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <style>
+      :root {
+        --bg: #f7f3eb;
+        --card-bg: #fffcf6;
+        --text: #20211f;
+        --muted: #66665d;
+        --border: #dfd7c9;
+        --primary: #bb381c;
+        --primary-red: #d82a1b;
+        --orange: #f4512c;
+        --accent: #eee8de;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.68;
+        padding: 24px 16px 64px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+      }
+      .top-nav {
+        margin-bottom: 20px;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #ede6da;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 13.5px;
+        font-weight: 650;
+        transition: all 0.16s ease;
+      }
+      .back-btn:hover {
+        background: #e4dcce;
+        color: var(--primary);
+      }
+      .doc-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 36px 32px;
+        box-shadow: 0 4px 20px rgba(70, 45, 20, 0.04);
+      }
+      .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .brand-symbol {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--orange);
+        display: grid;
+        place-items: center;
+        transform: rotate(-12deg);
+        color: #20211f;
+        flex-shrink: 0;
+      }
+      .brand-name {
+        font-size: 20px;
+        font-weight: 850;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+      }
+      .brand-title {
+        color: var(--primary-red);
+      }
+      .brand-sub {
+        font-size: 15px;
+        color: var(--text);
+        font-weight: 750;
+      }
+      .brand-dot {
+        color: var(--orange);
+        font-size: 20px;
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 850;
+        letter-spacing: -0.6px;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .effective-date {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+      .section-block {
+        margin-bottom: 28px;
+      }
+      h2 {
+        font-size: 17px;
+        font-weight: 750;
+        color: var(--text);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #f1ebd0;
+        color: #7a4812;
+        font-size: 12px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      p {
+        font-size: 14.5px;
+        color: #3b3a36;
+        margin-bottom: 12px;
+      }
+      ul {
+        margin: 8px 0 16px 22px;
+        font-size: 14px;
+        color: #3b3a36;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      .highlight-box {
+        background: #fdf8ee;
+        border-left: 4px solid var(--orange);
+        padding: 14px 18px;
+        border-radius: 0 12px 12px 0;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+      .doc-footer {
+        margin-top: 36px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: gap;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .doc-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .doc-footer a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 600px) {
+        .doc-card {
+          padding: 24px 18px;
+          border-radius: 18px;
+        }
+        h1 {
+          font-size: 23px;
+        }
+        .doc-footer {
+          flex-direction: column;
+          gap: 10px;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="./" class="back-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Quay lại ứng dụng
+        </a>
+      </nav>
+
+      <main class="doc-card">
+        <header class="brand-header">
+          <div class="brand-symbol">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+          </div>
+          <div class="brand-name">
+            <span class="brand-title">Quay cơm</span>
+            <span class="brand-sub">online<span class="brand-dot">.</span></span>
+          </div>
+        </header>
+
+        <h1>Điều khoản sử dụng</h1>
+        <p class="effective-date">Cập nhật lần cuối: Tháng 10/2026</p>
+
+        <section class="section-block">
+          <h2><span class="section-badge">1</span> Mục đích và Phạm vi dịch vụ</h2>
+          <p><strong>Quay cơm online.</strong> là nền tảng web tiện ích và giải trí miễn phí, được thiết kế nhằm giúp người dùng giải quyết nhanh câu hỏi <em>"Ăn gì, ở đâu hôm nay?"</em> thông qua hệ thống vòng quay ngẫu nhiên và danh mục món ăn, quán ăn tuyển chọn trên khắp Việt Nam (Hà Nội, Đà Nẵng, TP. Hồ Chí Minh).</p>
+          <p>Bằng việc truy cập hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ toàn bộ các điều khoản và điều kiện được nêu tại văn bản này.</p>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">2</span> Tính chất tham khảo của thông tin</h2>
+          <p>Toàn bộ nội dung hiển thị trên ứng dụng bao gồm nhưng không giới hạn ở:</p>
+          <ul>
+            <li>Tên món ăn, hình ảnh minh họa, danh mục hương vị và nhóm bữa ăn.</li>
+            <li>Thông tin quán ăn, địa chỉ, khoảng cách định vị địa lý (GPS) và số lượng đánh giá cộng đồng (rating count ≥ 100).</li>
+            <li>Khoảng giá dự kiến và mức chi tiêu đề xuất.</li>
+          </ul>
+          <div class="highlight-box">
+            <strong>Lưu ý quan trọng:</strong> Các thông tin trên được tổng hợp phục vụ mục đích tham khảo và gợi ý. Giá bán thực tế, thực đơn, giờ hoạt động và tình trạng phục vụ của từng quán ăn có thể thay đổi tùy thuộc vào chính sách kinh doanh của từng cơ sở hoặc nền tảng đối tác giao hàng.
+          </div>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">3</span> Không thu phí & Cơ chế Linh Thú (Gamification)</h2>
+          <p>Ứng dụng hoàn toàn <strong>miễn phí 100%</strong> cho toàn bộ cộng đồng người dùng:</p>
+          <ul>
+            <li>Không yêu cầu tạo tài khoản hay cung cấp mật khẩu.</li>
+            <li>Không có chức năng nạp tiền, mua bán tiền tệ ảo, rút tiền hoặc quy đổi thành tiền mặt.</li>
+            <li>Cơ chế Linh thú ẩm thực (Foodie Pet), điểm kinh nghiệm (XP) và chuỗi ngày đăng nhập (streak) được xây dựng thuần túy nhằm mang lại trải nghiệm tương tác thú vị, tích lũy cá nhân và tạo cảm hứng thưởng thức ẩm thực.</li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">4</span> Liên kết dịch vụ bên thứ ba (ShopeeFood / Bản đồ)</h2>
+          <p>Ứng dụng có thể cung cấp các đường dẫn trực tiếp tới dịch vụ đối tác (như ShopeeFood hoặc dịch vụ bản đồ chỉ đường) để bạn tiện đặt đồ ăn hoặc tìm đường đến quán:</p>
+          <ul>
+            <li>Các giao dịch mua hàng, đặt món, thanh toán và vận chuyển được thực hiện hoàn toàn trên hạ tầng của bên thứ ba theo điều khoản và chính sách riêng của họ.</li>
+            <li>Quay cơm online. không can thiệp, không thu phí dịch vụ đặt hàng và không chịu trách nhiệm đối với bất kỳ khiếu nại phát sinh trong quá trình bạn giao dịch với các đơn vị thứ ba này.</li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">5</span> Quyền sở hữu trí tuệ</h2>
+          <p>Toàn bộ mã nguồn, cấu trúc dữ liệu, thiết kế giao diện, hình vẽ vector linh thú và nhận diện thương hiệu của <strong>Quay cơm online.</strong> thuộc quyền sở hữu của đội ngũ phát triển sản phẩm.</p>
+          <p>Tên thương hiệu, biểu trưng và hình ảnh đại diện của các nhà hàng, quán ăn, thương hiệu ẩm thực hoặc dịch vụ giao hàng bên thứ ba thuộc quyền sở hữu của các chủ thể pháp lý tương ứng.</p>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">6</span> Giới hạn trách nhiệm</h2>
+          <p>Ứng dụng được cung cấp trên nguyên tắc <em>"nguyên trạng" (as is)</em>. Đội ngũ phát triển nỗ lực tối đa để đảm bảo tính ổn định, chính xác và an toàn của hệ thống, nhưng không chịu trách nhiệm đối với bất kỳ sự gián đoạn kết nối mạng, sai sót dữ liệu thời giá từ quán hoặc quyết định chi tiêu cá nhân của người dùng.</p>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">7</span> Điều chỉnh điều khoản</h2>
+          <p>Chúng tôi có thể cập nhật, sửa đổi nội dung của Điều khoản sử dụng này vào bất kỳ lúc nào để phản ánh đúng sự phát triển của sản phẩm và tuân thủ các quy định hiện hành. Nội dung sửa đổi có hiệu lực ngay khi được công bố công khai trên trang web.</p>
+        </section>
+
+        <footer class="doc-footer">
+          <span>© 2026 Quay cơm online. Tất cả quyền được bảo lưu.</span>
+          <span>Xem thêm <a href="./privacy.html">Chính sách quyền riêng tư</a></span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

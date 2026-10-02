@@ -39,15 +39,15 @@ export function AppHeader({
       <a
         href={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/`}
         className="brand"
-        aria-label="Trưa Nay Ăn Gì — Trang chủ"
+        aria-label="Quay cơm online. — Trang chủ"
       >
         <span className="brand-symbol">
           <Utensils size={22} aria-hidden="true" />
         </span>
         <span className="brand-wordmark">
-          trưa nay
-          <span>
-            ăn gì<span className="brand-dot">?</span>
+          <span className="brand-title">Quay cơm</span>
+          <span className="brand-sub">
+            online<span className="brand-dot">.</span>
           </span>
         </span>
       </a>

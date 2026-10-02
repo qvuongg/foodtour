@@ -150,8 +150,8 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
 
   const sharePet = async () => {
     const text = vi
-      ? `${state.petName} của tôi đạt cấp ${level.level} — ${levelName}, ${state.xp} XP trên Trưa Nay Ăn Gì! Cùng khám phá món ngon nhé.`
-      : `My foodie companion ${state.petName} reached level ${level.level} — ${levelName}, with ${state.xp} XP on Trưa Nay Ăn Gì! Let’s discover delicious food.`;
+      ? `${state.petName} của tôi đạt cấp ${level.level} — ${levelName}, ${state.xp} XP trên Quay cơm online.! Cùng khám phá món ngon nhé.`
+      : `My foodie companion ${state.petName} reached level ${level.level} — ${levelName}, with ${state.xp} XP on Quay com online.! Let’s discover delicious food.`;
     const data = { title: vi ? "Linh thú ẩm thực" : "Foodie companion", text, url: window.location.href };
     if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
       try {

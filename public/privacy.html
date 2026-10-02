@@ -1,1 +1,282 @@
-<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Quyền riêng tư · Trưa Nay Ăn Gì</title><h1>Quyền riêng tư</h1><p>Bản cộng đồng không có đăng nhập, backend ứng dụng hoặc công cụ theo dõi. Lựa chọn món, ngôn ngữ, bộ lọc và số lượt mở được lưu bằng cookie trên trình duyệt, tối đa một năm. Xóa cookie sẽ xóa dữ liệu này. Dữ liệu không đồng bộ giữa thiết bị.</p><p>Cookie được gửi tới máy chủ phục vụ website theo cơ chế trình duyệt; nhà cung cấp hosting có thể lưu nhật ký truy cập. Không nhập dữ liệu nhạy cảm vào tên món. Các liên kết Google Maps, GrabFood và GitHub chỉ mở khi bạn bấm và có chính sách riêng.</p><p>Không chia sẻ tài khoản hoặc dữ liệu với website truanayangi.com.</p><a href="./">Quay lại</a></html>
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f3eb" />
+    <title>Chính sách quyền riêng tư · Quay cơm online.</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <style>
+      :root {
+        --bg: #f7f3eb;
+        --card-bg: #fffcf6;
+        --text: #20211f;
+        --muted: #66665d;
+        --border: #dfd7c9;
+        --primary: #bb381c;
+        --primary-red: #d82a1b;
+        --orange: #f4512c;
+        --accent: #eee8de;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.68;
+        padding: 24px 16px 64px;
+        -webkit-font-smoothing: antialiased;
+      }
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+      }
+      .top-nav {
+        margin-bottom: 20px;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #ede6da;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 13.5px;
+        font-weight: 650;
+        transition: all 0.16s ease;
+      }
+      .back-btn:hover {
+        background: #e4dcce;
+        color: var(--primary);
+      }
+      .doc-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 36px 32px;
+        box-shadow: 0 4px 20px rgba(70, 45, 20, 0.04);
+      }
+      .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .brand-symbol {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--orange);
+        display: grid;
+        place-items: center;
+        transform: rotate(-12deg);
+        color: #20211f;
+        flex-shrink: 0;
+      }
+      .brand-name {
+        font-size: 20px;
+        font-weight: 850;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+      }
+      .brand-title {
+        color: var(--primary-red);
+      }
+      .brand-sub {
+        font-size: 15px;
+        color: var(--text);
+        font-weight: 750;
+      }
+      .brand-dot {
+        color: var(--orange);
+        font-size: 20px;
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 850;
+        letter-spacing: -0.6px;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .effective-date {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+      }
+      .section-block {
+        margin-bottom: 28px;
+      }
+      h2 {
+        font-size: 17px;
+        font-weight: 750;
+        color: var(--text);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #f1ebd0;
+        color: #7a4812;
+        font-size: 12px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      p {
+        font-size: 14.5px;
+        color: #3b3a36;
+        margin-bottom: 12px;
+      }
+      ul {
+        margin: 8px 0 16px 22px;
+        font-size: 14px;
+        color: #3b3a36;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      .highlight-box {
+        background: #fdf8ee;
+        border-left: 4px solid var(--orange);
+        padding: 14px 18px;
+        border-radius: 0 12px 12px 0;
+        margin: 16px 0;
+        font-size: 14px;
+      }
+      .doc-footer {
+        margin-top: 36px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .doc-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .doc-footer a:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 600px) {
+        .doc-card {
+          padding: 24px 18px;
+          border-radius: 18px;
+        }
+        h1 {
+          font-size: 23px;
+        }
+        .doc-footer {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="top-nav">
+        <a href="./" class="back-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Quay lại ứng dụng
+        </a>
+      </nav>
+
+      <main class="doc-card">
+        <header class="brand-header">
+          <div class="brand-symbol">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+          </div>
+          <div class="brand-name">
+            <span class="brand-title">Quay cơm</span>
+            <span class="brand-sub">online<span class="brand-dot">.</span></span>
+          </div>
+        </header>
+
+        <h1>Chính sách quyền riêng tư</h1>
+        <p class="effective-date">Cập nhật lần cuối: Tháng 10/2026</p>
+
+        <section class="section-block">
+          <h2><span class="section-badge">1</span> Cam kết bảo vệ quyền riêng tư</h2>
+          <p><strong>Quay cơm online.</strong> cam kết tôn trọng và bảo vệ tối đa quyền riêng tư của mọi người dùng. Triết lý thiết kế của chúng tôi là: <strong>Không yêu cầu đăng ký tài khoản, không thu thập danh tính cá nhân (PII), không lưu trữ thông tin nhạy cảm</strong>.</p>
+          <p>Bạn có thể sử dụng toàn bộ tính năng của ứng dụng hoàn toàn ẩn danh mà không cần cung cấp họ tên, số điện thoại hay địa chỉ email.</p>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">2</span> Dữ liệu lưu trữ cục bộ (Local Storage & Cookie)</h2>
+          <p>Để duy trì trải nghiệm liền mạch và ghi nhớ các sở thích ẩm thực cá nhân, ứng dụng sử dụng công nghệ lưu trữ cục bộ trên trình duyệt của bạn (Local Storage và Cookie trình duyệt):</p>
+          <ul>
+            <li><strong>Tiến trình Linh thú ẩm thực (Foodie Pet):</strong> Điểm kinh nghiệm (XP), cấp độ linh thú, chuỗi ngày tương tác (streak), tên riêng của linh thú do bạn tự đặt.</li>
+            <li><strong>Cấu hình trải nghiệm:</strong> Món ăn/quán ăn trúng gần nhất, mức ngân sách đã chọn, bộ lọc gu món, ngôn ngữ hiển thị (Tiếng Việt/English), âm lượng hiệu ứng âm thanh.</li>
+            <li><strong>Danh sách tùy chỉnh:</strong> Các món ăn do bạn thêm mới hoặc đánh dấu yêu thích trong phần Tùy chỉnh khẩu vị.</li>
+          </ul>
+          <div class="highlight-box">
+            <strong>Quyền kiểm soát của bạn:</strong> Toàn bộ dữ liệu nói trên được lưu giữ duy nhất trong trình duyệt trên thiết bị của bạn, không được gửi về máy chủ để đồng bộ tài khoản. Bạn có thể xóa toàn bộ dữ liệu này bất cứ lúc nào bằng cách xóa Cookie / Dữ liệu trang web trong phần Cài đặt của trình duyệt.
+          </div>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">3</span> Quyền truy cập vị trí (GPS Geolocation)</h2>
+          <p>Chúng tôi chỉ yêu cầu quyền truy cập vị trí địa lý trong trường hợp cụ thể và minh bạch sau:</p>
+          <ul>
+            <li><strong>Khi nào xin quyền:</strong> Ứng dụng chỉ xin quyền định vị khi bạn chủ động nhấn vào chế độ <strong>"Quay Quán"</strong>.</li>
+            <li><strong>Mục đích sử dụng:</strong> Nhằm nhận diện thành phố bạn đang ở (Hà Nội, Đà Nẵng hoặc TP. Hồ Chí Minh) và tính toán khoảng cách đường chim bay đến các quán ăn uy tín trong bán kính gần nhất (&le; 3.0 km).</li>
+            <li><strong>Không lưu vết hành trình:</strong> Tọa độ GPS được tính toán trực tiếp trong bộ nhớ máy (client-side), tuyệt đối không gửi về máy chủ để lập hồ sơ di chuyển hay theo dõi người dùng.</li>
+            <li><strong>Từ chối quyền vị trí:</strong> Nếu bạn chọn không cấp quyền vị trí, ứng dụng vẫn hoạt động bình thường và sử dụng danh sách quán ăn theo thành phố mặc định.</li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">4</span> Không theo dõi & Không chia sẻ cho bên thứ ba</h2>
+          <p>Quay cơm online. tuân thủ nghiêm ngặt các nguyên tắc:</p>
+          <ul>
+            <li>Không bán, không trao đổi và không chuyển giao dữ liệu người dùng cho bất kỳ bên thứ ba hay mạng lưới quảng cáo nào.</li>
+            <li>Không nhúng các công cụ theo dõi hành vi xuyên trang web (cross-site tracking scripts).</li>
+            <li>Các liên kết mở ShopeeFood hoặc Bản đồ chỉ kích hoạt khi bạn chủ động nhấn vào, và được điều chỉnh bởi chính sách quyền riêng tư riêng của các nền tảng đó.</li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">5</span> Quyền của người dùng đối với dữ liệu</h2>
+          <p>Bạn có toàn quyền kiểm soát tuyệt đối thông tin trải nghiệm của mình:</p>
+          <ul>
+            <li>Thay đổi tên linh thú hoặc đặt lại tiến trình bất cứ khi nào bạn muốn trong giao diện ứng dụng.</li>
+            <li>Bật/tắt âm thanh, điều chỉnh mức chi tiêu hoặc thay đổi bộ lọc khẩu vị tự do.</li>
+            <li>Xóa bỏ vĩnh viễn mọi dữ liệu cục bộ bằng công cụ xóa lịch sử và cookie của trình duyệt.</li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h2><span class="section-badge">6</span> Cập nhật chính sách</h2>
+          <p>Chính sách quyền riêng tư này có thể được điều chỉnh theo thời gian để phản ánh các cải tiến tính năng mới hoặc đáp ứng yêu cầu pháp lý. Mọi thay đổi sẽ được công bố công khai trên trang này kèm ngày hiệu lực cập nhật.</p>
+        </section>
+
+        <footer class="doc-footer">
+          <span>© 2026 Quay cơm online. Tất cả quyền được bảo lưu.</span>
+          <span>Xem thêm <a href="./terms.html">Điều khoản sử dụng</a></span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
