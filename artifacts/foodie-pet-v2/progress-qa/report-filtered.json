@@ -1,0 +1,57 @@
+{
+  "url": "http://127.0.0.1:5173",
+  "generatedAt": "2026-10-02T13:01:45.285Z",
+  "passed": 8,
+  "total": 8,
+  "results": [
+    {
+      "engine": "chromium",
+      "scenario": "legacy-migration-and-backup",
+      "pass": true,
+      "durationMs": 1912
+    },
+    {
+      "engine": "chromium",
+      "scenario": "fresh-user-and-no-passive-xp",
+      "pass": true,
+      "durationMs": 1413
+    },
+    {
+      "engine": "chromium",
+      "scenario": "failed-write-checkmark-and-rename-retry",
+      "pass": true,
+      "durationMs": 3466
+    },
+    {
+      "engine": "chromium",
+      "scenario": "two-tabs-concurrent-checkmarks",
+      "pass": true,
+      "durationMs": 3458
+    },
+    {
+      "engine": "webkit",
+      "scenario": "legacy-migration-and-backup",
+      "pass": true,
+      "durationMs": 1533
+    },
+    {
+      "engine": "webkit",
+      "scenario": "fresh-user-and-no-passive-xp",
+      "pass": true,
+      "durationMs": 1176
+    },
+    {
+      "engine": "webkit",
+      "scenario": "failed-write-checkmark-and-rename-retry",
+      "pass": true,
+      "durationMs": 2657
+    },
+    {
+      "engine": "webkit",
+      "scenario": "two-tabs-concurrent-checkmarks",
+      "pass": true,
+      "durationMs": 2991
+    }
+  ],
+  "filter": "legacy-migration|fresh-user|failed-write-checkmark|two-tabs-concurrent"
+}

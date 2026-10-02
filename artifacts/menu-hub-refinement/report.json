@@ -1,0 +1,176 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "notice": "Isolated test fixtures, all external traffic blocked; no affiliate link followed.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "push menu layout 320x568",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "push menu layout 360x640",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "push menu layout 390x844",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "push menu layout 430x932",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "push menu layout 1280x800",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "keyboard trap escape and reduced motion",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "visible page strip dismisses menu",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "scrolled page retains position and fixed dock",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "voucher collections 390x844",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "voucher collections 320x568",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "inline checklist filters details persistence 390x844",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "inline checklist filters details persistence 320x568",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "inline checklist storage failure and retry",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "pet home no longer exposes checklist navigation",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "separate settings language volume persistence and focus",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "settings my dishes accessible from drinks",
+      "passed": true
+    },
+    {
+      "engine": "chromium",
+      "name": "Happy Hour budget serving math alternatives and insufficient state",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "push menu layout 320x568",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "push menu layout 360x640",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "push menu layout 390x844",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "push menu layout 430x932",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "push menu layout 1280x800",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "keyboard trap escape and reduced motion",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "visible page strip dismisses menu",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "scrolled page retains position and fixed dock",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "voucher collections 390x844",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "voucher collections 320x568",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "inline checklist filters details persistence 390x844",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "inline checklist filters details persistence 320x568",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "inline checklist storage failure and retry",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "pet home no longer exposes checklist navigation",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "separate settings language volume persistence and focus",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "settings my dishes accessible from drinks",
+      "passed": true
+    },
+    {
+      "engine": "webkit",
+      "name": "Happy Hour budget serving math alternatives and insufficient state",
+      "passed": true
+    }
+  ]
+}

@@ -11,6 +11,7 @@ export function MealKindTabs({
   idPrefix = "main",
   className,
   sessionLabel,
+  sessionTimeRange,
 }: {
   value: MealKind;
   language: Language;
@@ -19,6 +20,7 @@ export function MealKindTabs({
   idPrefix?: string;
   className?: string;
   sessionLabel?: string;
+  sessionTimeRange?: string;
 }) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   const icons = { lunch: Utensils, drink: Coffee, snack: Cookie, nhau: Beer };
@@ -40,6 +42,7 @@ export function MealKindTabs({
               : language === "vi"
                 ? item.labelVi
                 : item.labelEn;
+          const isSessionTab = item.id === "lunch" && !!sessionTimeRange;
           return (
             <button
               key={item.id}
@@ -52,8 +55,13 @@ export function MealKindTabs({
               aria-controls="meal-panel"
               aria-selected={value === item.id}
               tabIndex={value === item.id ? 0 : -1}
-              className="meal-kind-tab"
+              className={`meal-kind-tab ${isSessionTab ? "has-timerange" : ""}`.trim()}
               disabled={disabled}
+              title={
+                isSessionTab
+                  ? `${label} (${sessionTimeRange})`
+                  : label
+              }
               onClick={() => onChange(item.id)}
               onKeyDown={(event) => {
                 const next =

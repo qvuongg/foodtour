@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linh thú FoodTour — xem cấp bằng mũi tên</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f7f3eb;color:#20211f;font:16px/1.6 system-ui,sans-serif}main{max-width:1140px;margin:auto;padding:32px 24px}h1{font-size:clamp(28px,4vw,44px);line-height:1.15;letter-spacing:-1px;margin:8px 0 16px}p{max-width:760px;color:#65594e}a{color:#a93b24}nav{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 28px}nav a{padding:10px 16px;border:1px solid #d7c8b8;border-radius:24px;text-decoration:none;background:#fffcf5}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}figure{margin:0}figure img{display:block;width:100%;border-radius:22px;border:1px solid #d8cdbc}figcaption{font-size:14px;margin:12px 0 24px;color:#65594e}small{display:block;font-size:13px;color:#65594e}@media(max-width:720px){.grid{grid-template-columns:1fr}figure{max-width:390px;margin:auto}}</style>
+<main><small>FOODTOUR · CẬP NHẬT LINH THÚ · 02/10/2026</small>
+<h1>Hai mũi tên. Một linh thú.</h1>
+<p>Xem lại từng cấp ngay trên nhân vật chính. Nút trái về cấp thấp hơn; nút phải đến cấp cao hơn đã mở. Tới giới hạn, nút chuyển xám. Cấp và XP thật luôn hiển thị riêng ở phần tiến độ.</p>
+<nav><a href="http://127.0.0.1:5173/">Mở ứng dụng local</a><a href="QA.md">Báo cáo kiểm thử</a></nav>
+<div class="grid">
+<figure><img src="arrow-qa/chromium-390x844-level5-current.png" alt="Linh thú cấp 5 hiện tại, nút phải chuyển xám"><figcaption><strong>Cấp hiện tại.</strong> Nút phải dừng, giữ bí mật tạo hình chưa mở.</figcaption></figure>
+<figure><img src="arrow-qa/chromium-390x844-from-level5-view4.png" alt="Xem lại linh thú cấp 4, tiến độ thật vẫn là cấp 5 và 125 XP"><figcaption><strong>Xem lại cấp thấp.</strong> Hai mũi tên nằm cạnh linh thú; tên cấp đổi theo hình.</figcaption></figure>
+<figure><img src="arrow-qa/chromium-390x844-from-level5-view1.png" alt="Xem linh thú cấp 1, nút trái đã dừng"><figcaption><strong>Về cấp đầu tiên.</strong> Nút trái dừng. Xem lại không đổi XP hay trang phục đang có.</figcaption></figure>
+</div>
+<p>28 kiểm tra tự động đạt trên Chromium/WebKit, gồm màn hình từ 320px, bàn phím và reduced motion. 98 unit test và production build đạt.</p>
+<small>Ảnh chụp ứng dụng local bằng dữ liệu QA cô lập: 125 XP/cấp 5. Không thay đổi tiến độ thật. Chưa kiểm tra iPhone/Android vật lý.</small>
+</main></html>

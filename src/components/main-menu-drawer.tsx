@@ -1,220 +1,74 @@
-import { useState, useEffect } from "react";
-import {
-  X,
-  Volume2,
-  Volume1,
-  VolumeX,
-  MapPin,
-  SlidersHorizontal,
-  Languages,
-  ChevronRight,
-  Compass,
-} from "lucide-react";
-import { loadCheckedSpots, CITY_CHECKLISTS } from "@/lib/city-checklist";
+import { lazy, Suspense, useEffect, useRef, useState, type RefObject } from "react";
+import { Dialog } from "@base-ui/react/dialog";
+import { ArrowLeft, BookOpen, ChevronRight, PartyPopper, Ticket, X } from "lucide-react";
+import { CITY_CHECKLISTS } from "@/lib/city-checklist";
+import type { FoodieStreakState } from "@/lib/foodie-streak";
 import type { Language } from "@/lib/i18n";
 import "./main-menu-drawer.css";
 
-export function MainMenuDrawer({
-  open,
-  onClose,
-  volume,
-  onVolumeChange,
-  language,
-  onLanguageChange,
-  onOpenPreferences,
-  onOpenChecklist,
-}: {
+const HappyHour = lazy(() => import("./happy-hour").then((module) => ({ default: module.HappyHour })));
+const VoucherCollections = lazy(() => import("./voucher-collections").then((module) => ({ default: module.VoucherCollections })));
+
+const LocalChecklist = lazy(() => import("./city-checklist-modal").then((module) => ({ default: module.LocalChecklist })));
+
+type MenuView = "home" | "voucher" | "happy-hour" | "checklist";
+
+export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, storageError, onRetrySave, finalFocus }: {
   open: boolean;
   onClose: () => void;
-  volume: number;
-  onVolumeChange: (vol: number) => void;
   language: Language;
-  onLanguageChange: (lang: Language) => void;
-  onOpenPreferences?: () => void;
-  onOpenChecklist?: () => void;
+  state: FoodieStreakState;
+  onSetChecked: (id: string, checked: boolean) => Promise<boolean>;
+  storageError?: string | null;
+  onRetrySave?: () => Promise<boolean>;
+  finalFocus?: RefObject<HTMLElement | null>;
 }) {
   const vi = language === "vi";
-  const [totalChecked, setTotalChecked] = useState(0);
-  const [lastVolumeBeforeMute, setLastVolumeBeforeMute] = useState(50);
-
-  useEffect(() => {
-    if (open) {
-      const checked = loadCheckedSpots();
-      setTotalChecked(checked.length);
-    }
-  }, [open]);
-
-  if (!open) return null;
-
-  const totalPossibleSpots = CITY_CHECKLISTS.reduce(
-    (acc, city) => acc + city.items.length,
-    0,
-  );
-
-  const toggleMute = () => {
-    if (volume > 0) {
-      setLastVolumeBeforeMute(volume);
-      onVolumeChange(0);
-    } else {
-      onVolumeChange(lastVolumeBeforeMute || 50);
-    }
-  };
-
-  return (
-    <>
-      <div className="main-menu-overlay" onClick={onClose} aria-hidden="true" />
-      <aside
-        className="compact-main-menu"
-        role="dialog"
-        aria-modal="true"
-        aria-label={vi ? "Cài đặt & Tiện ích" : "Settings & Menu"}
-      >
-        {/* Drag handle pill on mobile */}
-        <div className="compact-drag-handle" aria-hidden="true" />
-
-        {/* Header */}
-        <header className="compact-menu-header">
-          <div className="compact-header-title">
-            <Compass size={18} className="header-icon" />
-            <span>{vi ? "Tiện ích & Cài đặt" : "Tools & Settings"}</span>
-          </div>
-          <button
-            type="button"
-            className="compact-close-btn"
-            onClick={onClose}
-            aria-label={vi ? "Đóng" : "Close"}
-          >
-            <X size={18} />
-          </button>
+  const [view, setView] = useState<MenuView>("home");
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const backRef = useRef<HTMLButtonElement>(null);
+  const voucherRef = useRef<HTMLButtonElement>(null);
+  const happyRef = useRef<HTMLButtonElement>(null);
+  const checklistRef = useRef<HTMLButtonElement>(null);
+  const checkedCount = state.checkedSpotIds.length;
+  const total = CITY_CHECKLISTS.reduce((sum, city) => sum + city.items.length, 0);
+  useEffect(() => { if (open) { setView("home"); } }, [open]);
+  function show(next: MenuView) {
+    const previous = view;
+    // Keep focus on a stable node while the clicked view is removed.
+    closeRef.current?.focus({ preventScroll: true });
+    setView(next);
+    requestAnimationFrame(() => {
+      if (next === "home") (previous === "voucher" ? voucherRef : previous === "checklist" ? checklistRef : happyRef).current?.focus({ preventScroll: true });
+      else backRef.current?.focus({ preventScroll: true });
+    });
+  }
+  return <Dialog.Root open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
+    <Dialog.Portal>
+      <Dialog.Backdrop className="main-menu-overlay" />
+      <Dialog.Popup className="compact-main-menu" initialFocus={closeRef} finalFocus={finalFocus}>
+        <header className="menu-hub-header">
+          {view !== "home" && <button ref={backRef} type="button" className="menu-detail-back menu-round-button" aria-label={vi ? "Trở về menu" : "Back to menu"} onClick={() => show("home")}><ArrowLeft size={21} aria-hidden="true" /></button>}
+          <div><span className="menu-hub-eyebrow">{vi ? "TRƯA NAY ĂN GÌ" : "FOODTOUR"}</span><Dialog.Title>{view === "home" ? vi ? "Khám phá" : "Explore" : view === "voucher" ? "Voucher" : view === "checklist" ? vi ? "Món local" : "Local food" : "Happy Hour"}</Dialog.Title></div>
+          <Dialog.Close ref={closeRef} className="menu-close menu-round-button" aria-label={vi ? "Đóng menu" : "Close menu"}><X size={21} aria-hidden="true" /></Dialog.Close>
         </header>
-
-        {/* Menu Body */}
-        <div className="compact-menu-body">
-          {/* Row 1: Âm lượng thanh kéo (Interactive Draggable Slider) */}
-          <div className="compact-slider-card">
-            <div className="slider-card-top">
-              <span className="slider-label">
-                {vi ? "Âm lượng lúc quay" : "Spin sound"}
-              </span>
-              <span className={`slider-value-badge ${volume === 0 ? "muted" : ""}`}>
-                {volume === 0 ? (vi ? "Tắt tiếng" : "Muted") : `${volume}%`}
-              </span>
-            </div>
-            <div className="slider-controls-row">
-              <button
-                type="button"
-                className="slider-mute-btn"
-                onClick={toggleMute}
-                title={volume === 0 ? "Bật âm thanh" : "Tắt âm thanh"}
-              >
-                {volume === 0 ? (
-                  <VolumeX size={18} className="muted-icon" />
-                ) : volume < 50 ? (
-                  <Volume1 size={18} />
-                ) : (
-                  <Volume2 size={18} />
-                )}
-              </button>
-              <div className="slider-input-wrap">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={volume}
-                  onChange={(e) => onVolumeChange(Number(e.target.value))}
-                  className="compact-range-slider"
-                  style={{
-                    background: `linear-gradient(to right, var(--primary) 0%, var(--primary) ${volume}%, #e2d9cd ${volume}%, #e2d9cd 100%)`,
-                  }}
-                  aria-label={vi ? "Thanh trượt âm lượng" : "Volume slider"}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2: Ngôn ngữ (Language Segmented Switcher) */}
-          <div className="compact-row-container">
-            <div className="row-info-col">
-              <Languages size={17} className="row-lead-icon" />
-              <span className="row-text-title">{vi ? "Ngôn ngữ" : "Language"}</span>
-            </div>
-            <div className="lang-segmented-pills" role="group" aria-label="Language selection">
-              <button
-                type="button"
-                className={`lang-pill-btn ${language === "vi" ? "active" : ""}`}
-                onClick={() => onLanguageChange("vi")}
-              >
-                🇻🇳 VN
-              </button>
-              <button
-                type="button"
-                className={`lang-pill-btn ${language === "en" ? "active" : ""}`}
-                onClick={() => onLanguageChange("en")}
-              >
-                🇬🇧 EN
-              </button>
-            </div>
-          </div>
-
-          {/* Row 3: Món của tôi */}
-          {onOpenPreferences && (
-            <button
-              type="button"
-              className="compact-menu-action-row"
-              onClick={() => {
-                onClose();
-                onOpenPreferences();
-              }}
-            >
-              <div className="action-row-left">
-                <div className="action-icon-squircle">
-                  <SlidersHorizontal size={17} />
-                </div>
-                <div className="action-row-texts">
-                  <span className="action-row-title">
-                    {vi ? "Món của tôi" : "My dishes"}
-                  </span>
-                  <span className="action-row-desc">
-                    {vi ? "Thêm bớt món ruột" : "Personal dish pool"}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={17} className="action-chevron" />
-            </button>
-          )}
-
-          {/* Row 4: Checklist Đặc Sản 3 Miền */}
-          <button
-            type="button"
-            className="compact-menu-action-row checklist-accent-row"
-            onClick={() => {
-              onClose();
-              onOpenChecklist?.();
-            }}
-          >
-            <div className="action-row-left">
-              <div className="action-icon-squircle accent">
-                <MapPin size={17} />
-              </div>
-              <div className="action-row-texts">
-                <div className="checklist-title-line">
-                  <span className="action-row-title">
-                    {vi ? "Checklist Ẩm Thực 3 Miền" : "Foodie City Checklist"}
-                  </span>
-                  <span className="checklist-mini-tag">
-                    {totalChecked}/{totalPossibleSpots}
-                  </span>
-                </div>
-                <span className="action-row-desc">
-                  {vi ? "Hà Nội • Đà Nẵng • TP.HCM" : "Hanoi • Da Nang • HCM"}
-                </span>
-              </div>
-            </div>
-            <ChevronRight size={17} className="action-chevron" />
-          </button>
+        <Dialog.Description className="sr-only">{vi ? "Voucher ShopeeFood, checklist món địa phương và gợi ý thực đơn cho cả nhóm." : "ShopeeFood offers, a local food checklist and menus for your group."}</Dialog.Description>
+        <div className="menu-hub-body">
+          {view === "home" && <>
+            <p className="menu-hub-intro">{vi ? "Một chút cảm hứng cho cuộc hẹn tiếp theo." : "A little inspiration for your next get-together."}</p>
+            <nav className="menu-hub-nav" aria-label={vi ? "Tiện ích" : "Tools"}>
+              <button ref={voucherRef} className="menu-nav-button" data-destination="voucher" onClick={() => show("voucher")}><span className="menu-nav-icon is-voucher"><Ticket size={23} aria-hidden="true" /></span><span><strong>Voucher</strong><small>{vi ? "Khám phá ưu đãi ShopeeFood" : "Explore ShopeeFood offers"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+              <button ref={checklistRef} className="menu-nav-button" data-destination="checklist" onClick={() => show("checklist")}><span className="menu-nav-icon is-journal"><BookOpen size={22} aria-hidden="true" /></span><span><strong>{vi ? "Checklist món local" : "Local food checklist"}</strong><small>{vi ? `${checkedCount}/${total} món đã thử · 3 thành phố` : `${checkedCount}/${total} tried · 3 cities`}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+              <button ref={happyRef} className="menu-nav-button" data-destination="happy-hour" onClick={() => show("happy-hour")}><span className="menu-nav-icon is-happy"><PartyPopper size={23} aria-hidden="true" /></span><span><strong>Happy Hour</strong><small>{vi ? "Lên menu vừa túi tiền cả nhóm" : "Plan a menu for your group"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+            </nav>
+          </>}
+          <Suspense fallback={<p className="menu-hub-intro" role="status">{vi ? "Đang mở tiện ích…" : "Opening…"}</p>}>
+            {view === "voucher" && <VoucherCollections language={language} />}
+            {view === "happy-hour" && <HappyHour language={language} />}
+            {view === "checklist" && <LocalChecklist language={language} state={state} onSetChecked={onSetChecked} storageError={storageError} onRetrySave={onRetrySave} />}
+          </Suspense>
         </div>
-      </aside>
-    </>
-  );
+      </Dialog.Popup>
+    </Dialog.Portal>
+  </Dialog.Root>;
 }

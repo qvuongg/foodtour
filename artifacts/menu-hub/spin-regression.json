@@ -1,0 +1,31 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "filter": "pet spin",
+  "fixtureNotice": "Isolated seeded QA progress; external network blocked; no affiliate or share clicks.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "pet spin 99 to 100 reduce",
+      "passed": true,
+      "durationMs": 6959
+    },
+    {
+      "engine": "chromium",
+      "name": "pet spin 199 to 200 no-preference",
+      "passed": true,
+      "durationMs": 10658
+    },
+    {
+      "engine": "webkit",
+      "name": "pet spin 99 to 100 reduce",
+      "passed": true,
+      "durationMs": 6863
+    },
+    {
+      "engine": "webkit",
+      "name": "pet spin 199 to 200 no-preference",
+      "passed": true,
+      "durationMs": 10811
+    }
+  ]
+}

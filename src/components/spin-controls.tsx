@@ -1,6 +1,5 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
-  ArrowRight,
   AudioLines,
   Check,
   ChevronDown,
@@ -17,15 +16,16 @@ import { copy, priceLabel, type Language } from "@/lib/i18n";
 import type { useMealSettings } from "@/hooks/use-meal-settings";
 import { budgetValidationMessage, servingUnit } from "@/lib/meal-settings";
 import {
-  TASTE_CATEGORIES,
-  type DishTasteCategory,
+  getTasteCategoriesForMealKind,
+  type MealSession,
 } from "@/lib/dish-taxonomy";
 
 export function SpinControls({
   settings,
   language,
-  tasteCategory = "all",
-  onSelectTasteCategory,
+  selectedTastes = [],
+  onSelectTastes,
+  session,
   spinning,
   hasResult,
   empty,
@@ -35,8 +35,9 @@ export function SpinControls({
 }: {
   settings: ReturnType<typeof useMealSettings>;
   language: Language;
-  tasteCategory?: DishTasteCategory;
-  onSelectTasteCategory?: (cat: DishTasteCategory) => void;
+  selectedTastes?: string[];
+  onSelectTastes?: (tastes: string[]) => void;
+  session?: MealSession;
   spinning: boolean;
   hasResult: boolean;
   empty: boolean;
@@ -53,10 +54,15 @@ export function SpinControls({
     ready,
   } = settings;
 
+  const categories = useMemo(
+    () => getTasteCategoriesForMealKind(mealKind),
+    [mealKind],
+  );
+
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [tasteOpen, setTasteOpen] = useState(false);
   const [draftBudget, setDraftBudget] = useState(budget);
-  const [draftTaste, setDraftTaste] = useState<DishTasteCategory>(tasteCategory);
+  const [draftTastes, setDraftTastes] = useState<string[]>(selectedTastes);
   const [amount, setAmount] = useState(custom);
   const [error, setError] = useState(false);
 
@@ -67,9 +73,6 @@ export function SpinControls({
   const vi = language === "vi";
   const t = copy[language];
 
-  const currentTasteConfig =
-    TASTE_CATEGORIES.find((c) => c.id === tasteCategory) || TASTE_CATEGORIES[0];
-
   const toggleBudget = (next: boolean) => {
     setBudgetOpen(next);
     onOpenChange(next);
@@ -77,13 +80,42 @@ export function SpinControls({
 
   const toggleTaste = (next: boolean) => {
     if (next) {
-      setDraftTaste(tasteCategory);
+      setDraftTastes(selectedTastes);
     }
     setTasteOpen(next);
     onOpenChange(next);
   };
 
-  const lunch = mealKind === "lunch";
+  const toggleChip = (id: string) => {
+    if (id === "all") {
+      setDraftTastes([]);
+      return;
+    }
+    setDraftTastes((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const selectedCount = selectedTastes.length;
+  const isAll = selectedCount === 0;
+
+  const currentTasteLabel = useMemo(() => {
+    if (isAll) return vi ? "Tất cả món" : "All";
+    if (selectedCount === 1) {
+      const match = categories.find((c) => c.id === selectedTastes[0]);
+      return match ? (vi ? match.labelVi : match.labelEn) : (vi ? "1 gu" : "1 taste");
+    }
+    return vi ? `${selectedCount} gu` : `${selectedCount} tastes`;
+  }, [isAll, selectedCount, categories, selectedTastes, vi]);
+
+  const currentTasteIcon = useMemo(() => {
+    if (isAll) return "🥢";
+    if (selectedCount === 1) {
+      const match = categories.find((c) => c.id === selectedTastes[0]);
+      return match ? match.icon : "🥢";
+    }
+    return "✨";
+  }, [isAll, selectedCount, categories, selectedTastes]);
 
   const spinButtonLabel = spinning
     ? t.opening
@@ -94,10 +126,28 @@ export function SpinControls({
           ? "Quay ăn vặt ngay thôi"
           : mealKind === "nhau"
             ? "Quay mồi nhậu ngay thôi"
-            : "Quay cơm ngay thôi"
+            : session === "breakfast"
+              ? "Quay món sáng ngay"
+              : session === "afternoon"
+                ? "Quay ăn xế ngay thôi"
+                : session === "dinner"
+                  ? "Quay bữa tối ngay"
+                  : session === "late"
+                    ? "Quay ăn đêm ngay"
+                    : "Quay cơm ngay thôi"
       : hasResult
         ? t.openAgain
         : t.open;
+
+  const tasteDialogTitle = vi
+    ? mealKind === "drink"
+      ? "Gu đồ uống"
+      : mealKind === "snack"
+        ? "Gu ăn vặt"
+        : mealKind === "nhau"
+          ? "Gu món nhậu"
+          : "Gu bữa chính"
+    : "Pick your taste";
 
   return (
     <div
@@ -136,32 +186,30 @@ export function SpinControls({
             <ChevronDown size={15} />
           </button>
 
-          {/* Bộ lọc Gu món - Nằm bên phải thay thế cho Món chay */}
-          {lunch && onSelectTasteCategory && (
+          {/* Bộ lọc Gu món - Hiển thị cho TẤT CẢ các nhóm món (bữa chính, đồ uống, ăn vặt, nhậu) */}
+          {onSelectTastes && (
             <button
               ref={tasteTrigger}
               type="button"
               className="taste-trigger"
               disabled={spinning || !ready}
               aria-haspopup="dialog"
-              aria-label={`${vi ? "Gu món" : "Taste"}: ${vi ? currentTasteConfig.labelVi : currentTasteConfig.labelEn}`}
+              aria-label={`${vi ? "Gu món" : "Taste"}: ${currentTasteLabel}`}
               onClick={() => toggleTaste(true)}
             >
               <span className="taste-icon" aria-hidden="true">
-                {currentTasteConfig.icon}
+                {currentTasteIcon}
               </span>
               <span>
                 <small>{vi ? "Gu món" : "Taste"}</small>
-                <strong>
-                  {vi ? currentTasteConfig.labelVi : currentTasteConfig.labelEn}
-                </strong>
+                <strong>{currentTasteLabel}</strong>
               </span>
               <ChevronDown size={15} />
             </button>
           )}
         </div>
 
-        {/* Nút Quay chính */}
+        {/* XP reward is distinct from the companion’s daily streak. */}
         <button
           className="open-button"
           disabled={spinning || empty || !ready}
@@ -174,61 +222,63 @@ export function SpinControls({
             <Sparkles size={21} aria-hidden="true" />
           )}
           <span>{spinButtonLabel}</span>
-          <ArrowRight size={19} aria-hidden="true" />
+          <span className="spin-flame-badge" aria-hidden="true">
+            +1 XP
+          </span>
         </button>
       </div>
 
-      {/* Dialog Chọn Gu Món */}
+      {/* Dialog Chọn Gu Món - Tinh gọn, nhỏ gọn, hỗ trợ đa chọn (Multi-select) */}
       <Dialog open={tasteOpen} onOpenChange={toggleTaste}>
         <DialogContent
           className="taste-dialog"
           finalFocus={tasteTrigger}
           closeLabel={vi ? "Đóng" : "Close"}
         >
-          <DialogTitle>
-            {vi ? "Hôm nay ăn theo gu nào?" : "Pick your taste"}
-          </DialogTitle>
+          <DialogTitle>{tasteDialogTitle}</DialogTitle>
           <DialogDescription>
             {vi
-              ? "Chọn kiểu món bạn muốn ăn lúc này. Hệ thống sẽ ưu tiên quay đúng gu của bạn."
-              : "Choose what you're craving right now. We'll pick the best dish for your mood."}
+              ? "Chọn một hoặc nhiều gu bạn thích lúc này"
+              : "Select one or more tastes you crave"}
           </DialogDescription>
           <div
-            className="taste-options"
-            role="radiogroup"
-            aria-label={vi ? "Chọn gu món" : "Select taste category"}
+            className="taste-compact-grid"
+            role="group"
+            aria-label={vi ? "Danh sách gu món" : "Taste categories"}
           >
-            {TASTE_CATEGORIES.map((cat) => {
-              const isSelected = draftTaste === cat.id;
+            <button
+              type="button"
+              className={`taste-chip-btn ${draftTastes.length === 0 ? "active" : ""}`}
+              onClick={() => toggleChip("all")}
+            >
+              <span className="taste-chip-icon" aria-hidden="true">
+                🥢
+              </span>
+              <span className="taste-chip-label">
+                {vi ? "Tất cả món" : "All dishes"}
+              </span>
+              <div className="taste-chip-check" aria-hidden="true">
+                {draftTastes.length === 0 && <Check size={13} strokeWidth={3} />}
+              </div>
+            </button>
+            {categories.map((cat) => {
+              const isSelected = draftTastes.includes(cat.id);
               return (
                 <button
                   key={cat.id}
                   type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  className={`taste-option-card ${isSelected ? "selected" : ""}`}
-                  onClick={() => setDraftTaste(cat.id)}
+                  className={`taste-chip-btn ${isSelected ? "active" : ""}`}
+                  onClick={() => toggleChip(cat.id)}
+                  aria-pressed={isSelected}
                 >
-                  <span className="taste-card-icon-wrap" aria-hidden="true">
-                    <span className="taste-icon">{cat.icon}</span>
+                  <span className="taste-chip-icon" aria-hidden="true">
+                    {cat.icon}
                   </span>
-                  <div className="taste-card-content">
-                    <div className="taste-card-header">
-                      <span className="taste-card-title">
-                        {vi ? cat.labelVi : cat.labelEn}
-                      </span>
-                      {cat.id === "all" && (
-                        <span className="taste-badge">
-                          {vi ? "Mặc định" : "Default"}
-                        </span>
-                      )}
-                    </div>
-                    <span className="taste-card-desc">
-                      {vi ? cat.descriptionVi : cat.labelEn}
-                    </span>
-                  </div>
-                  <div className="taste-check-circle" aria-hidden="true">
-                    {isSelected && <Check size={14} strokeWidth={3} />}
+                  <span className="taste-chip-label">
+                    {vi ? cat.labelVi : cat.labelEn}
+                  </span>
+                  <div className="taste-chip-check" aria-hidden="true">
+                    {isSelected && <Check size={13} strokeWidth={3} />}
                   </div>
                 </button>
               );
@@ -238,11 +288,13 @@ export function SpinControls({
             className="apply-button taste-apply-btn"
             type="button"
             onClick={() => {
-              onSelectTasteCategory?.(draftTaste);
+              onSelectTastes?.(draftTastes);
               toggleTaste(false);
             }}
           >
-            {vi ? "Áp dụng gu món" : "Apply taste"}
+            {vi
+              ? `Áp dụng ${draftTastes.length ? `(${draftTastes.length} gu)` : "(Tất cả)"}`
+              : `Apply ${draftTastes.length ? `(${draftTastes.length})` : "(All)"}`}
           </button>
         </DialogContent>
       </Dialog>

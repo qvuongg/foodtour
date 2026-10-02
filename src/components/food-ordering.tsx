@@ -19,6 +19,7 @@ import {
 import { filterRelevantRestaurants } from "@/lib/dish-relevance";
 import { slugifySubId } from "@/lib/smart-category-hub";
 import type { Language } from "@/lib/i18n";
+import { shopeeRestaurantRewardTarget } from "@/lib/shopee-reward";
 
 function formatDistanceMeters(meters?: number): string {
   if (
@@ -91,10 +92,14 @@ export function FoodOrdering({
   dish,
   language,
   onClose,
+  restaurantRewardedToday = false,
+  progressStorageError,
 }: {
   dish: string;
   language: Language;
   onClose?: () => void;
+  restaurantRewardedToday?: boolean;
+  progressStorageError?: string | null;
 }) {
   const vi = language === "vi";
   const destination = resolveSmartHubAffiliate(
@@ -199,6 +204,7 @@ export function FoodOrdering({
   const primaryLink = primarySpot
     ? resolveSpotLink(primarySpot, dish)
     : destination.appHref;
+  const rewardable = Boolean(shopeeRestaurantRewardTarget(primaryLink, primarySpot?.original_url ?? undefined));
 
   return (
     <div className="food-ordering-action">
@@ -273,7 +279,7 @@ export function FoodOrdering({
                         key={alt.id}
                         className="nearby-alt-row"
                         href={altLink}
-                        onClick={(e) => handleShopeeFoodClick(altLink, e)}
+                        onClick={(e) => handleShopeeFoodClick(altLink, e, alt.original_url ?? undefined)}
                         target={isMobile ? undefined : "_blank"}
                         rel="sponsored noopener"
                       >
@@ -363,7 +369,7 @@ export function FoodOrdering({
       <a
         className="shopeefood-button"
         href={primaryLink}
-        onClick={(e) => handleShopeeFoodClick(primaryLink, e)}
+        onClick={(e) => handleShopeeFoodClick(primaryLink, e, primarySpot?.original_url ?? undefined)}
         target={isMobile ? undefined : "_blank"}
         rel="sponsored noopener"
       >
@@ -383,6 +389,14 @@ export function FoodOrdering({
         </span>
         <ArrowUpRight size={18} aria-hidden="true" />
       </a>
+
+      {rewardable && <p className="ordering-xp-note" role="status" aria-live="polite">
+        {restaurantRewardedToday
+          ? progressStorageError
+            ? vi ? "Đã nhận 2 XP trong phiên này · Chưa lưu được trên thiết bị" : "2 XP earned in this session · Not saved on this device yet"
+            : vi ? "Đã nhận 2 XP mở quán hôm nay" : "2 XP earned for opening a restaurant today"
+          : vi ? "+2 XP khi mở quán · Tối đa 1 lần/ngày" : "+2 XP for opening a restaurant · Once per day"}
+      </p>}
 
       {isSpecific && !primarySpot && (
         <p className="ordering-specific-restaurant">{destination.title}</p>

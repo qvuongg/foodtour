@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { Check, Leaf, Plus, SlidersHorizontal, Trash2, X } from "lucide-react";
 import {
   Dialog,
@@ -28,11 +28,15 @@ export function PreferencesPanel({
   onOpenChange,
   open: controlledOpen,
   onControlledOpenChange,
+  hideTrigger = false,
+  finalFocus,
 }: {
   preferences: Preferences;
   language: Language;
   disabled: boolean;
   variant?: "header" | "inventory";
+  hideTrigger?: boolean;
+  finalFocus?: RefObject<HTMLElement | null>;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
   onControlledOpenChange?: (open: boolean) => void;
@@ -173,6 +177,7 @@ export function PreferencesPanel({
     <>
       <button
         ref={trigger}
+        hidden={hideTrigger}
         type="button"
         className={
           variant === "inventory"
@@ -207,7 +212,7 @@ export function PreferencesPanel({
       <Dialog open={open} onOpenChange={changeOpen}>
         <DialogContent
           className="preferences-dialog"
-          finalFocus={trigger}
+          finalFocus={finalFocus?.current ? finalFocus : trigger}
           showCloseButton={false}
         >
           <DialogClose

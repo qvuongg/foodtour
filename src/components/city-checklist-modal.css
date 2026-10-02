@@ -7,6 +7,30 @@
   animation: checklist-fade-in 160ms ease-out;
 }
 
+.local-checklist {
+  --checklist-ink: #20211f;
+  --checklist-muted: #69685f;
+  --checklist-line: #ded8cc;
+  --checklist-primary: #b93c23;
+  min-width: 0;
+  color: var(--checklist-ink);
+}
+.local-checklist-intro { margin: 0 0 14px; color: var(--checklist-muted); font-size: 11px; line-height: 1.5; }
+.local-checklist .checklist-discovery { margin-top: 0; }
+.local-checklist .checklist-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; margin: 12px 0; }
+.local-checklist .checklist-kind-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.local-checklist .checklist-kind-tabs button { min-width: 0; padding-inline: 5px; }
+.local-checklist .checklist-status-field { width: 100%; }
+.local-checklist .checklist-status-display { justify-content: flex-start; padding-inline: 12px; }
+.local-checklist .checklist-status-display > svg:last-child { margin-left: auto; }
+.local-checklist .checklist-item-toggle:focus-visible { outline-offset: -3px; }
+.local-checklist .checklist-item-name { font-size: 12px; }
+.local-checklist .checklist-item-detail-content { padding: 0 11px 9px; }
+.local-checklist .checklist-item-actions { flex-wrap: wrap; }
+.local-checklist .checklist-order-link { margin-left: auto; }
+.local-checklist :is(button, a, select, summary):focus-visible { outline: 3px solid var(--checklist-primary); outline-offset: 2px; }
+.checklist-modal-container .local-checklist-intro { display: none; }
+
 .checklist-modal-container {
   --checklist-ink: #20211f;
   --checklist-muted: #69685f;
@@ -46,37 +70,21 @@
   background: #fffcf6;
 }
 .checklist-heading { min-width: 0; }
+.checklist-journal-only .checklist-heading { flex: 1; }
+.checklist-journal-only .checklist-discovery { margin-top: 0; }
+.checklist-journal-only .checklist-discovery-heading { display: none; }
+.checklist-back-btn { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border: 1px solid var(--checklist-line); border-radius: 50%; background: #fffcf6; color: var(--checklist-ink); }
+.checklist-save-error { padding: 12px; margin-bottom: 12px; border: 1px solid #d0a48e; border-radius: 12px; background: #fff0e5; color: #87331f; font-size: 12px; }
+.checklist-save-error p { margin: 0; line-height: 1.5; }
+.checklist-save-error button { min-height: 44px; margin-top: 6px; padding: 6px 12px; border: 1px solid currentColor; border-radius: 9px; background: #fffcf6; color: inherit; font-weight: 700; }
 .checklist-eyebrow { display: block; margin-bottom: 2px; color: var(--checklist-primary); font-size: 9px; font-weight: 750; letter-spacing: 1px; line-height: 1.4; text-transform: uppercase; }
 .checklist-modal-title { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.5px; line-height: 1.2; }
 .checklist-modal-description { margin: 3px 0 0; color: var(--checklist-muted); font-size: 11px; line-height: 1.4; }
 .checklist-close-btn { display: grid; flex-shrink: 0; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--checklist-line); border-radius: 50%; color: var(--checklist-ink); background: #f4f0e7; }
 .checklist-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 12px 14px max(20px, env(safe-area-inset-bottom, 0px)); }
 
-/* Give the companion its own space; keep the journal's rows lean. */
-.checklist-pet-hero { padding: 12px; border: 1px solid #e5d9c5; border-radius: 18px; background: #efe7d8; }
-.checklist-pet-intro { display: flex; align-items: center; gap: 10px; }
-.checklist-pet-avatar { display: grid; flex-shrink: 0; place-items: center; width: 84px; height: 86px; background: radial-gradient(ellipse at center, #fff9eaa6, transparent 70%); }
-.checklist-pet-avatar .foodie-pet-wrapper { width: 84px; height: 86px; }
-.checklist-pet-details { min-width: 0; flex: 1; }
-.checklist-tier-label { display: flex; align-items: center; gap: 5px; color: #585249; font-size: 10px; font-weight: 600; line-height: 1.4; }
-.checklist-tier-label > span { flex-shrink: 0; width: 5px; height: 5px; border-radius: 50%; background: var(--hero-tier-color); }
-.checklist-pet-details h3 { margin: 3px 0 0; overflow-wrap: anywhere; font-size: 19px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; }
-.checklist-pet-details p { margin: 4px 0 0; color: var(--checklist-muted); font-size: 11px; line-height: 1.4; }
-.checklist-share-btn { display: grid; flex-shrink: 0; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #d2c7b4; border-radius: 12px; color: var(--checklist-ink); background: #f8f3e9; }
-.checklist-pet-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 8px 0 0; padding: 7px 0; border-block: 1px solid #d9cfbe; }
-.checklist-pet-stats > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 6px; min-width: 0; }
-.checklist-pet-stats > div + div { border-left: 1px solid #d9cfbe; padding-left: 12px; }
-.checklist-pet-stats dt { display: flex; align-items: center; gap: 4px; color: #645e54; font-size: 10px; font-weight: 600; line-height: 1.4; }
-.checklist-pet-stats dt svg { color: var(--checklist-primary); flex-shrink: 0; width: 12px; height: 12px; }
-.checklist-pet-stats dd { margin: 0; font-size: 17px; font-weight: 800; line-height: 1.2; }
-.checklist-pet-stats dd span { margin-left: 3px; color: #645e54; font-size: 10px; font-weight: 500; }
-.checklist-level-progress { padding-top: 7px; }
-.checklist-progress-caption { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; color: #645e54; font-size: 10px; line-height: 1.4; }
-.checklist-progress-caption strong { color: var(--checklist-ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .checklist-progress-track { height: 4px; overflow: hidden; border-radius: 20px; background: #d8cebd; }
 .checklist-progress-track > span { display: block; height: 100%; border-radius: inherit; background: var(--checklist-primary); transition: width 220ms ease; }
-.checklist-pet-footer { margin-top: 6px; }
-.checklist-pet-footer p { margin: 0; color: #645e54; font-size: 10px; line-height: 1.5; }
 
 .checklist-discovery { margin-top: 16px; }
 .checklist-discovery-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
@@ -152,13 +160,10 @@
   .checklist-kind-tabs button { padding-inline: 5px; }
   .checklist-kind-tabs svg { display: none; }
   .checklist-city-tab > span { font-size: 11px; }
-  .checklist-pet-stats { gap: 8px; }
-  .checklist-pet-stats > div + div { padding-left: 8px; }
 }
 @media (max-height: 620px) {
   .checklist-modal-header { padding-block: 10px; }
   .checklist-modal-header .checklist-eyebrow { display: none; }
-  .checklist-pet-footer { display: none; }
   .checklist-discovery { margin-top: 12px; }
 }
 @media (min-width: 768px) {

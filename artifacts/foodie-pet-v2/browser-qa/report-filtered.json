@@ -1,0 +1,79 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "filter": "level gallery|unlimited same-day spins|focus trap pointer",
+  "fixtureNotice": "Isolated seeded QA progress; external network blocked; no affiliate or share clicks.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "focus trap pointer return and level progress",
+      "passed": true,
+      "durationMs": 1264
+    },
+    {
+      "engine": "chromium",
+      "name": "level gallery level1 hides locked identities",
+      "passed": true,
+      "durationMs": 1116
+    },
+    {
+      "engine": "chromium",
+      "name": "level gallery level5 review lower levels 360x640",
+      "passed": true,
+      "durationMs": 2126
+    },
+    {
+      "engine": "chromium",
+      "name": "level gallery level5 review lower levels 390x844",
+      "passed": true,
+      "durationMs": 2130
+    },
+    {
+      "engine": "chromium",
+      "name": "level gallery level6 all appearances selectable",
+      "passed": true,
+      "durationMs": 1305
+    },
+    {
+      "engine": "chromium",
+      "name": "unlimited same-day spins three completed rewards",
+      "passed": true,
+      "durationMs": 16531
+    },
+    {
+      "engine": "webkit",
+      "name": "focus trap pointer return and level progress",
+      "passed": true,
+      "durationMs": 2246
+    },
+    {
+      "engine": "webkit",
+      "name": "level gallery level1 hides locked identities",
+      "passed": true,
+      "durationMs": 1318
+    },
+    {
+      "engine": "webkit",
+      "name": "level gallery level5 review lower levels 360x640",
+      "passed": true,
+      "durationMs": 2572
+    },
+    {
+      "engine": "webkit",
+      "name": "level gallery level5 review lower levels 390x844",
+      "passed": true,
+      "durationMs": 2506
+    },
+    {
+      "engine": "webkit",
+      "name": "level gallery level6 all appearances selectable",
+      "passed": true,
+      "durationMs": 1973
+    },
+    {
+      "engine": "webkit",
+      "name": "unlimited same-day spins three completed rewards",
+      "passed": true,
+      "durationMs": 17014
+    }
+  ]
+}

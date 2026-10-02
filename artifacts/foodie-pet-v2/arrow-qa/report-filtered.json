@@ -1,0 +1,43 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "filter": "journal rewards|normal motion pauses|reset after actual",
+  "fixtureNotice": "Isolated seeded QA progress; external network blocked; no affiliate or share clicks.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "journal rewards menu navigation and persistence",
+      "passed": true,
+      "durationMs": 5126
+    },
+    {
+      "engine": "chromium",
+      "name": "normal motion pauses behind pet and journal",
+      "passed": true,
+      "durationMs": 2624
+    },
+    {
+      "engine": "chromium",
+      "name": "hero arrows reset after actual earned level changes",
+      "passed": true,
+      "durationMs": 3302
+    },
+    {
+      "engine": "webkit",
+      "name": "journal rewards menu navigation and persistence",
+      "passed": true,
+      "durationMs": 5337
+    },
+    {
+      "engine": "webkit",
+      "name": "normal motion pauses behind pet and journal",
+      "passed": true,
+      "durationMs": 3475
+    },
+    {
+      "engine": "webkit",
+      "name": "hero arrows reset after actual earned level changes",
+      "passed": true,
+      "durationMs": 3691
+    }
+  ]
+}

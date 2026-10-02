@@ -1,0 +1,18 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "fixtureNotice": "90 points / 7 days and three legacy coffees are isolated QA fixtures. All external traffic is blocked. No affiliate or sharing action is performed.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "English keyboard focus and reduced motion",
+      "passed": true,
+      "durationMs": 2267
+    },
+    {
+      "engine": "webkit",
+      "name": "English keyboard focus and reduced motion",
+      "passed": true,
+      "durationMs": 2676
+    }
+  ]
+}

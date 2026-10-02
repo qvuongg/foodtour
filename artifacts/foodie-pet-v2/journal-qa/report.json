@@ -1,0 +1,102 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "fixtureNotice": "90 points / 7 days and three legacy coffees are isolated QA fixtures. All external traffic is blocked. No affiliate or sharing action is performed.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "compact journal 320x568",
+      "passed": true,
+      "durationMs": 1778
+    },
+    {
+      "engine": "chromium",
+      "name": "compact journal 360x640",
+      "passed": true,
+      "durationMs": 1254
+    },
+    {
+      "engine": "chromium",
+      "name": "compact journal 390x844",
+      "passed": true,
+      "durationMs": 1240
+    },
+    {
+      "engine": "chromium",
+      "name": "compact journal 430x932",
+      "passed": true,
+      "durationMs": 1208
+    },
+    {
+      "engine": "chromium",
+      "name": "food drink and status filters across all cities",
+      "passed": true,
+      "durationMs": 1651
+    },
+    {
+      "engine": "chromium",
+      "name": "legacy saved drink rewards and reload persistence",
+      "passed": true,
+      "durationMs": 3828
+    },
+    {
+      "engine": "chromium",
+      "name": "details disclose information without rewards or navigation",
+      "passed": true,
+      "durationMs": 2118
+    },
+    {
+      "engine": "chromium",
+      "name": "English keyboard focus and reduced motion",
+      "passed": true,
+      "durationMs": 1570
+    },
+    {
+      "engine": "webkit",
+      "name": "compact journal 320x568",
+      "passed": true,
+      "durationMs": 2006
+    },
+    {
+      "engine": "webkit",
+      "name": "compact journal 360x640",
+      "passed": true,
+      "durationMs": 1458
+    },
+    {
+      "engine": "webkit",
+      "name": "compact journal 390x844",
+      "passed": true,
+      "durationMs": 1401
+    },
+    {
+      "engine": "webkit",
+      "name": "compact journal 430x932",
+      "passed": true,
+      "durationMs": 1384
+    },
+    {
+      "engine": "webkit",
+      "name": "food drink and status filters across all cities",
+      "passed": true,
+      "durationMs": 1687
+    },
+    {
+      "engine": "webkit",
+      "name": "legacy saved drink rewards and reload persistence",
+      "passed": true,
+      "durationMs": 3167
+    },
+    {
+      "engine": "webkit",
+      "name": "details disclose information without rewards or navigation",
+      "passed": true,
+      "durationMs": 1420
+    },
+    {
+      "engine": "webkit",
+      "name": "English keyboard focus and reduced motion",
+      "passed": true,
+      "durationMs": 1576
+    }
+  ]
+}

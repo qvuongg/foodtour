@@ -21,6 +21,8 @@ export function FoodResultDialog({
   isPreview,
   triggerRef,
   onClose,
+  restaurantRewardedToday = false,
+  progressStorageError,
 }: {
   food: Food | null;
   language: Language;
@@ -29,6 +31,8 @@ export function FoodResultDialog({
   isPreview: boolean;
   triggerRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
+  restaurantRewardedToday?: boolean;
+  progressStorageError?: string | null;
 }) {
   const vi = language === "vi";
   const t = copy[language];
@@ -76,6 +80,8 @@ export function FoodResultDialog({
               dish={food.name}
               language={language}
               onClose={onClose}
+              restaurantRewardedToday={restaurantRewardedToday}
+              progressStorageError={progressStorageError}
             />
           </div>
         )}

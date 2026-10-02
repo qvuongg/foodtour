@@ -1,0 +1,22 @@
+[
+  {
+    "engine": "chromium",
+    "passed": true,
+    "checks": [
+      "reduced visual viewport during rename",
+      "200% modal text",
+      "scroll access to actions",
+      "no horizontal overflow"
+    ]
+  },
+  {
+    "engine": "webkit",
+    "passed": true,
+    "checks": [
+      "reduced visual viewport during rename",
+      "200% modal text",
+      "scroll access to actions",
+      "no horizontal overflow"
+    ]
+  }
+]

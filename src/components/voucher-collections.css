@@ -1,0 +1,18 @@
+.voucher-collections { min-width: 0; }
+.voucher-source-heading { position: sticky; top: 0; z-index: 1; padding: 2px 0 8px; background: var(--background); border-bottom: 1px solid var(--border); }
+.voucher-source-heading p { margin: 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.5; }
+.voucher-source-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; color: var(--primary); font-size: 12px; line-height: 1.4; font-weight: 700; }
+.voucher-source-link svg { flex-shrink: 0; }
+.voucher-collections-intro { margin: 13px 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.55; }
+.voucher-collection-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); overflow: hidden; }
+.voucher-collection-list li + li { border-top: 1px solid #e8e0d4; }
+.voucher-collection-link { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 9px 12px; color: var(--foreground); font-size: 12px; line-height: 1.45; font-weight: 600; scroll-margin-top: 80px; scroll-margin-bottom: 12px; transition: background 150ms ease; }
+.voucher-collection-link > span:nth-child(2) { min-width: 0; flex: 1; }
+.voucher-collection-icon { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; color: #9f482f; background: #f5e8db; }
+.voucher-collection-icon.is-nearby, .voucher-collection-icon.is-groceries, .voucher-collection-icon.is-group { color: #596b33; background: #eaf0dc; }
+.voucher-collection-icon.is-drink, .voucher-collection-icon.is-party, .voucher-collection-icon.is-city { color: #806335; background: #f4ecda; }
+.voucher-collection-arrow { flex-shrink: 0; color: #8a7b69; }
+.voucher-collection-link:focus-visible { outline-offset: -3px; }
+.voucher-collections-note { margin: 13px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.6; }
+@media (hover: hover) { .voucher-collection-link:hover { background: #f5ede1; } .voucher-source-link:hover { text-decoration: underline; text-underline-offset: 3px; } }
+@media (prefers-reduced-motion: reduce) { .voucher-collection-link { transition: none; } }

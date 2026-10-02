@@ -20,15 +20,17 @@ const { CITY_CHECKLISTS, CHECKLIST_STORAGE_KEY } = createRequire(import.meta.url
 const baseURL = process.env.FOODTOUR_QA_URL || "http://127.0.0.1:5173";
 const origin = new URL(baseURL).origin;
 const engines = (process.env.FOODTOUR_QA_ENGINES || "chromium").split(",").map((s) => s.trim());
-const output = resolve("artifacts/city-journal/browser-qa");
+const output = resolve("artifacts/foodie-pet-v2/journal-qa");
 const petKey = "foodtour_foodie_streak_v1";
+const progressKey = "foodtour_foodie_progress_v2";
 const seededChecked = ["hn-3", "dn-5", "hcm-4"];
-const trigger = '.foodie-pet-widget[data-placement="floating"]';
-const sheet = ".checklist-modal-container";
+const trigger = '.main-menu-trigger';
+const sheet = ".local-checklist";
 const rows = ".checklist-item-card";
 const toggles = ".checklist-item-toggle";
 const details = ".checklist-item-details";
 const reports = [];
+const scenarioFilter = process.env.FOODTOUR_QA_FILTER ? new RegExp(process.env.FOODTOUR_QA_FILTER, "i") : null;
 await mkdir(output, { recursive: true });
 
 async function fixture(browser, { width = 390, height = 844, language = "vi" } = {}) {
@@ -60,19 +62,20 @@ async function fixture(browser, { width = 390, height = 844, language = "vi" } =
 }
 
 async function score(page) {
-  return page.evaluate((key) => JSON.parse(localStorage.getItem(key)).score, petKey);
+  return page.evaluate((key) => JSON.parse(localStorage.getItem(key)).xp, progressKey);
 }
 
 async function assertScore(page, expected) {
-  await page.waitForFunction(({ key, expected }) => JSON.parse(localStorage.getItem(key))?.score === expected,
-    { key: petKey, expected });
+  await page.waitForFunction(({ key, expected }) => JSON.parse(localStorage.getItem(key))?.xp === expected,
+    { key: progressKey, expected });
   assert.equal(await score(page), expected);
 }
 
 async function openJournal(page) {
   await page.locator(trigger).click();
+  await page.locator('[data-destination="checklist"]').click();
   await page.locator(sheet).waitFor({ state: "visible" });
-  await page.waitForFunction(() => document.activeElement?.classList.contains("checklist-close-btn"));
+  await page.waitForFunction(() => document.activeElement?.classList.contains("menu-detail-back"));
 }
 
 async function closeJournal(page) {
@@ -88,8 +91,8 @@ async function assertTouchTarget(locator, label) {
 
 async function assertNoHorizontalOverflow(page) {
   const measure = await page.evaluate(() => {
-    const popup = document.querySelector(".checklist-modal-container");
-    const body = document.querySelector(".checklist-body");
+    const popup = document.querySelector(".local-checklist");
+    const body = document.querySelector(".menu-hub-body");
     const rect = popup.getBoundingClientRect();
     return { viewport: innerWidth, root: document.documentElement.scrollWidth, bodyClient: body.clientWidth,
       bodyScroll: body.scrollWidth, popupClient: popup.clientWidth, popupScroll: popup.scrollWidth, left: rect.left, right: rect.right };
@@ -111,6 +114,7 @@ async function expectNames(page, expected) {
 }
 
 async function testCase(browser, engine, name, options, run) {
+  if (scenarioFilter && !scenarioFilter.test(name)) return;
   const start = Date.now();
   let data;
   try {
@@ -141,16 +145,13 @@ for (const engine of engines) {
         assert(cta && cta.y + cta.height <= height + 1, "Spin CTA stays in the initial mobile viewport");
         await openJournal(page);
         await assertNoHorizontalOverflow(page);
-        await assertTouchTarget(page.locator(".checklist-close-btn"), "Close button");
-        const header = await page.locator(".checklist-modal-header").boundingBox();
+        await assertTouchTarget(page.locator(".compact-main-menu .menu-close"), "Close button");
+        const header = await page.locator(".menu-hub-header").boundingBox();
         assert(header.y >= 0 && header.y + header.height <= height, "Sheet close/header stays fully visible");
         const first = await page.locator(rows).first().boundingBox();
         if (height >= 844) assert(first.y + first.height <= height - 12, "At least the first full journal row is visible on opening at 390x844+");
-        const pet = await page.locator(".checklist-pet-avatar .foodie-pet-wrapper").boundingBox();
-        const hero = await page.locator(".checklist-pet-hero").boundingBox();
-        assert(pet && pet.width >= 76 && pet.height >= 76, "The companion is large enough to recognize in the summary");
-        assert(pet.x >= hero.x && pet.x + pet.width <= hero.x + hero.width &&
-          pet.y >= hero.y && pet.y + pet.height <= hero.y + hero.height, "The larger pet stays inside its summary");
+        assert.equal(await page.locator(".checklist-pet-hero").count(), 0, "Journal dedicates space to the dish list");
+        assert.equal(await page.locator(".pet-home:visible").count(), 0, "Only one companion dialog is shown");
         for (const control of [".checklist-city-tab", ".checklist-kind-tabs button", ".checklist-status-select", toggles, `${details} summary`]) {
           for (const target of await page.locator(control).all()) await assertTouchTarget(target, control);
         }
@@ -202,7 +203,7 @@ for (const engine of engines) {
       assert.equal(await page.locator(".checklist-empty-state").count(), 1);
       await page.reload({ waitUntil: "networkidle" });
       await assertScore(page, 85);
-      assert.deepEqual(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), CHECKLIST_STORAGE_KEY), ["dn-5", "hcm-4"]);
+      assert.deepEqual(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).checkedSpotIds, progressKey), ["dn-5", "hcm-4"]);
       await openJournal(page);
       await chooseKind(page, "drink");
       const coffee = CITY_CHECKLISTS[0].items.find((item) => item.id === "hn-3");
@@ -215,8 +216,9 @@ for (const engine of engines) {
       await closeJournal(page);
       await page.reload({ waitUntil: "networkidle" });
       await assertScore(page, 90);
-      assert.deepEqual((await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), CHECKLIST_STORAGE_KEY)).sort(), [...seededChecked].sort());
-      const state = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), petKey);
+      assert.deepEqual((await page.evaluate((key) => JSON.parse(localStorage.getItem(key)).checkedSpotIds, progressKey)).sort(), [...seededChecked].sort());
+      const state = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), progressKey);
+      assert.deepEqual(await page.evaluate((key) => JSON.parse(localStorage.getItem(key)), CHECKLIST_STORAGE_KEY), seededChecked, "Legacy backup remains unchanged");
       assert.equal(state.dailyStreak, 7, "Marking a tried drink does not invent a daily streak");
       assert.equal(state.totalChecklistTested, 3, "Undo/recheck does not double count rewards");
     });
@@ -249,18 +251,18 @@ for (const engine of engines) {
       assert.equal(await disclosure.getAttribute("open"), null);
       await assertScore(page, 90);
       await chooseKind(page, "drink");
-      await page.locator(".checklist-body").evaluate((node) => { node.scrollTop = Math.max(0, node.scrollTop - 80); });
+      await page.locator(".menu-hub-body").evaluate((node) => { node.scrollTop = Math.max(0, node.scrollTop - 80); });
       await page.screenshot({ path: resolve(output, `${engine}-journal-drinks-fixture.png`), fullPage: false });
       await closeJournal(page);
     });
 
     await testCase(browser, engine, "English keyboard focus and reduced motion", { language: "en", width: 360, height: 640 }, async (page) => {
       await openJournal(page);
-      assert.equal(await page.locator("#checklist-discovery-title").innerText(), "Your food journal");
+      assert.equal(await page.locator(".menu-hub-header h2").innerText(), "Local food");
       await assertNoHorizontalOverflow(page);
       for (let i = 0; i < 50; i++) {
         await page.keyboard.press(i < 25 ? "Tab" : "Shift+Tab");
-        await page.waitForFunction(() => !!document.activeElement?.closest(".checklist-modal-container"), null, { timeout: 1500 });
+        await page.waitForFunction(() => !!document.activeElement?.closest(".compact-main-menu"), null, { timeout: 1500 });
       }
       await chooseKind(page, "drink");
       assert.match(await page.locator('.checklist-kind-tabs [data-kind="drink"]').innerText(), /Drinks/i);
@@ -279,7 +281,7 @@ for (const engine of engines) {
   }
 }
 
-await writeFile(resolve(output, "report.json"), JSON.stringify({ baseURL,
+await writeFile(resolve(output, scenarioFilter ? "report-filtered.json" : "report.json"), JSON.stringify({ baseURL,
   fixtureNotice: "90 points / 7 days and three legacy coffees are isolated QA fixtures. All external traffic is blocked. No affiliate or sharing action is performed.",
   results: reports }, null, 2));
 const failures = reports.filter((result) => !result.passed);

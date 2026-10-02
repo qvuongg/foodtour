@@ -1,0 +1,47 @@
+.happy-hour { min-width: 0; color: var(--foreground); }
+.happy-hour-intro { margin: 0 0 18px; color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
+.happy-hour-controls { padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.happy-hour-budget-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.happy-hour-budget-heading label, .happy-hour-people > span { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; }
+.happy-hour-budget-heading output { color: var(--primary); font-size: 20px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.happy-hour-range { display: block; width: 100%; height: 44px; margin: 4px 0 0; padding: 0; border: 0; border-radius: 8px; appearance: none; background: transparent; cursor: pointer; touch-action: pan-y; }
+.happy-hour-range::-webkit-slider-runnable-track { height: 5px; border-radius: 6px; background: linear-gradient(to right, var(--primary) var(--happy-budget-fill), #ddd6c9 var(--happy-budget-fill)); }
+.happy-hour-range::-moz-range-track { height: 5px; border-radius: 6px; background: linear-gradient(to right, var(--primary) var(--happy-budget-fill), #ddd6c9 var(--happy-budget-fill)); }
+.happy-hour-range::-webkit-slider-thumb { width: 26px; height: 26px; margin-top: -10.5px; border: 4px solid var(--surface); border-radius: 50%; appearance: none; background: var(--primary); box-shadow: 0 0 0 1px var(--primary), 0 2px 4px #44271320; }
+.happy-hour-range::-moz-range-thumb { width: 18px; height: 18px; border: 4px solid var(--surface); border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 1px var(--primary), 0 2px 4px #44271320; }
+.happy-hour-range-ends { display: flex; justify-content: space-between; margin-top: -2px; color: var(--muted-foreground); font-size: 10px; }
+.happy-hour-people { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; }
+.happy-hour-stepper { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.happy-hour-stepper button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 13px; background: transparent; color: var(--foreground); }
+.happy-hour-stepper button:hover:not(:disabled) { background: var(--muted); }
+.happy-hour-stepper output { min-width: 25px; text-align: center; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.happy-hour-budget-help { margin: 9px 0 0; color: var(--muted-foreground); font-size: 12px; text-align: right; }
+.happy-hour-budget-help strong { color: var(--foreground); font-weight: 600; }
+.happy-hour-menu { margin-top: 18px; }
+.happy-hour-menu-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.happy-hour-menu-heading h3 { margin: 0; font-size: 15px; font-weight: 750; }
+.happy-hour-menu-heading > span { padding: 3px 7px; border-radius: 6px; background: var(--accent); color: #404d1d; font-size: 11px; font-variant-numeric: tabular-nums; }
+.happy-hour-serving { margin: 6px 0 12px; color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+.happy-hour-lines { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
+.happy-hour-lines li { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.happy-hour-food-art { flex: 0 0 48px; width: 48px; height: 52px; overflow: hidden; border-radius: 10px; background: #211e19; }
+.happy-hour-food-art .food-image { width: 100%; height: 100%; }
+.happy-hour-food-detail { flex: 1; min-width: 0; padding-top: 1px; }
+.happy-hour-food-detail h4 { margin: 0; font-size: 12px; line-height: 1.4; font-weight: 700; overflow-wrap: anywhere; }
+.happy-hour-portion { margin: 2px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.4; }
+.happy-hour-calculation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 6px; margin: 5px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.4; font-variant-numeric: tabular-nums; }
+.happy-hour-calculation strong { color: var(--foreground); font-size: 11px; }
+.happy-hour-total { display: grid; gap: 7px; margin: 17px 0 12px; padding: 13px 0 0; border-top: 1px dashed var(--border); }
+.happy-hour-total > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; }
+.happy-hour-total dt { color: var(--muted-foreground); font-size: 11px; }
+.happy-hour-total dd { margin: 0; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.happy-hour-total > div:first-child dt { color: var(--foreground); font-size: 13px; font-weight: 700; }
+.happy-hour-total > div:first-child dd { color: var(--primary); font-size: 18px; font-weight: 750; }
+.happy-hour-alternative { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid #d8b9a9; border-radius: 12px; color: var(--primary); background: var(--surface); font-size: 12px; font-weight: 700; }
+.happy-hour-alternative:hover { background: #f8e9df; }
+.happy-hour-note { margin: 12px 0 0; color: var(--muted-foreground); font-size: 10px; line-height: 1.5; }
+.happy-hour-empty { margin-top: 18px; padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.happy-hour-empty strong { font-size: 13px; }
+.happy-hour-empty p { margin: 6px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+.happy-hour-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) { .happy-hour *, .happy-hour *::before, .happy-hour *::after { animation: none !important; transition: none !important; } }

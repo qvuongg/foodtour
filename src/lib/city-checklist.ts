@@ -1,3 +1,5 @@
+import { FOODIE_STORAGE_KEY, parseFoodieProgress } from "./foodie-streak";
+
 export interface CityMustTryItem {
   id: string;
   name: string;
@@ -610,21 +612,15 @@ export const CITY_CHECKLISTS: CityChecklistData[] = [
 
 export const CHECKLIST_STORAGE_KEY = "foodtour_must_try_checklist_v1";
 
+/** Read through the canonical atomic snapshot; v1 is retained as a migration backup. */
 export function loadCheckedSpots(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
-    if (!raw) return [];
-    const list = JSON.parse(raw);
-    return Array.isArray(list) ? list : [];
+    const current = parseFoodieProgress(localStorage.getItem(FOODIE_STORAGE_KEY));
+    if (current) return current.checkedSpotIds;
+    const list: unknown = JSON.parse(localStorage.getItem(CHECKLIST_STORAGE_KEY) || "[]");
+    return Array.isArray(list) ? [...new Set(list.filter((id): id is string => typeof id === "string"))] : [];
   } catch {
     return [];
   }
-}
-
-export function saveCheckedSpots(ids: string[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(ids));
-  } catch {}
 }

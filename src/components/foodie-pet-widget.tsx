@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Flame } from "lucide-react";
-import { getFlameTier, type FoodieStreakState } from "@/lib/foodie-streak";
+import { getPetLevel, type FoodieStreakState } from "@/lib/foodie-streak";
 import type { Language } from "@/lib/i18n";
 import { FoodiePet } from "./foodie-pet";
 import "./foodie-pet-widget.css";
@@ -17,21 +17,21 @@ export function FoodiePetWidget({
   paused?: boolean;
   expanded?: boolean;
 }) {
-  const tier = getFlameTier(streak.score);
+  const level = getPetLevel(streak.xp);
   const button = useRef<HTMLButtonElement>(null);
-  const previousScore = useRef(streak.score);
+  const previousScore = useRef(streak.xp);
   const [gain, setGain] = useState(0);
   const [visible, setVisible] = useState(true);
   const vi = language === "vi";
 
   useEffect(() => {
-    const delta = streak.score - previousScore.current;
-    previousScore.current = streak.score;
-    if (delta <= 0) { setGain(0); return; }
+    const delta = streak.xp - previousScore.current;
+    previousScore.current = streak.xp;
+    if (delta <= 0 || paused || disabled || !visible) { setGain(0); return; }
     setGain(delta);
     const timer = window.setTimeout(() => setGain(0), 1100);
     return () => window.clearTimeout(timer);
-  }, [streak.score]);
+  }, [streak.xp, paused, disabled, visible]);
 
   useEffect(() => {
     let inView = true;
@@ -47,7 +47,7 @@ export function FoodiePetWidget({
     <button
       ref={button}
       type="button"
-      className={`foodie-pet-widget tier-${tier.id}`}
+      className={`foodie-pet-widget level-${level.level}`}
       data-placement={placement}
       disabled={disabled}
       onClick={(event) => {
@@ -58,16 +58,16 @@ export function FoodiePetWidget({
       }}
       aria-haspopup="dialog"
       aria-expanded={expanded}
-      aria-label={vi ? `${streak.petName}: ${streak.score} điểm lửa. Mở linh thú và checklist ẩm thực` : `${streak.petName}: ${streak.score} fire points. Open foodie pet and checklist`}
+      aria-label={vi ? `${streak.petName}: cấp ${level.level}, ${streak.xp} XP. Mở linh thú của bạn` : `${streak.petName}: level ${level.level}, ${streak.xp} XP. Open your foodie pet`}
     >
-      <FoodiePet tier={tier} score={streak.score} size={placement === "header" ? "sm" : "md"} language={language} paused={paused || disabled || !visible} isEating={gain > 0} decorative />
+      <FoodiePet level={level} xp={streak.xp} size={placement === "header" ? "sm" : "md"} language={language} paused={paused || disabled || !visible} isEating={gain > 0} decorative />
       <span className="foodie-pet-score" aria-hidden="true">
         <Flame size={15} strokeWidth={2.1} />
-        <strong>{new Intl.NumberFormat(vi ? "vi" : "en", { notation:streak.score >= 10000 ? "compact" : "standard", maximumFractionDigits:1 }).format(streak.score)}</strong>
-        <span className="foodie-pet-score-unit">{vi ? "điểm" : "pts"}</span>
+        <strong>{new Intl.NumberFormat(vi ? "vi" : "en", { notation: streak.xp >= 10000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(streak.xp)}</strong>
+        <span className="foodie-pet-score-unit">XP</span>
         <ChevronRight className="foodie-pet-chevron" size={12} />
       </span>
-      {gain > 0 && <span key={streak.score} className="foodie-pet-gain" aria-hidden="true">+{gain}</span>}
+      {gain > 0 && <span key={streak.xp} className="foodie-pet-gain" aria-hidden="true">+{gain} XP</span>}
     </button>
   );
 }

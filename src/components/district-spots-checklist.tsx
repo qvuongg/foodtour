@@ -264,7 +264,7 @@ export function DistrictSpotsChecklist({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="spot-order-cta"
-                onClick={(e) => handleShopeeFoodClick(orderLink, e)}
+                onClick={(e) => handleShopeeFoodClick(orderLink, e, spot.originalUrl)}
                 title={`${vi ? "Mở ShopeeFood" : "Order on ShopeeFood"}: ${spot.name}`}
               >
                 <span>{vi ? "Đặt" : "Order"}</span>

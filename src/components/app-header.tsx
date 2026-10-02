@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { Menu, Utensils } from "lucide-react";
+import type { RefObject } from "react";
+import { Menu, Settings, Utensils } from "lucide-react";
 import { FoodiePetWidget } from "./foodie-pet-widget";
 import type { FoodieStreakState } from "@/lib/foodie-streak";
 import type { Language } from "@/lib/i18n";
@@ -8,6 +8,11 @@ export function AppHeader({
   language,
   disabled,
   onOpenMenu,
+  onOpenSettings,
+  menuOpen = false,
+  settingsOpen = false,
+  menuTrigger,
+  settingsTrigger,
   streak,
   onOpenPet,
   petOpen = false,
@@ -16,12 +21,16 @@ export function AppHeader({
   language: Language;
   disabled: boolean;
   onOpenMenu: () => void;
+  onOpenSettings: () => void;
+  menuOpen?: boolean;
+  settingsOpen?: boolean;
+  menuTrigger?: RefObject<HTMLButtonElement | null>;
+  settingsTrigger?: RefObject<HTMLButtonElement | null>;
   streak?: FoodieStreakState;
   onOpenPet?: () => void;
   petOpen?: boolean;
   petPaused?: boolean;
 }) {
-  const trigger = useRef<HTMLButtonElement>(null);
   const vi = language === "vi";
 
   return (
@@ -49,26 +58,21 @@ export function AppHeader({
           <FoodiePetWidget streak={streak} onClick={onOpenPet} language={language} placement="header" disabled={disabled} paused={petPaused || petOpen} expanded={petOpen} />
         )}
 
-        <div
-          className="country-badge"
-          title="Khu vực Việt Nam"
-          aria-label="Khu vực Việt Nam"
-        >
-          <span className="flag-icon" aria-hidden="true">
-            🇻🇳
-          </span>
-          <span className="country-code">VN</span>
-        </div>
+        <button type="button" ref={settingsTrigger} className="settings-trigger" disabled={disabled} aria-label={vi ? "Cài đặt" : "Settings"} aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={onOpenSettings}>
+          <Settings size={18} aria-hidden="true" />
+        </button>
 
         <button
-          ref={trigger}
+          ref={menuTrigger}
+          type="button"
           className="main-menu-trigger"
+          aria-haspopup="dialog"
+          aria-expanded={menuOpen}
           disabled={disabled}
           aria-label={vi ? "Menu chính" : "Main menu"}
           onClick={onOpenMenu}
         >
           <Menu size={19} aria-hidden="true" />
-          <span className="menu-btn-label">{vi ? "Menu" : "Menu"}</span>
         </button>
       </div>
     </header>

@@ -1,0 +1,104 @@
+{
+  "url": "http://127.0.0.1:5173",
+  "generatedAt": "2026-10-02T06:52:44.385Z",
+  "passed": 16,
+  "total": 16,
+  "results": [
+    {
+      "engine": "chromium",
+      "scenario": "legacy-migration-and-backup",
+      "pass": true,
+      "durationMs": 1013
+    },
+    {
+      "engine": "chromium",
+      "scenario": "fresh-user-and-no-passive-xp",
+      "pass": true,
+      "durationMs": 578
+    },
+    {
+      "engine": "chromium",
+      "scenario": "failed-write-checkmark-and-rename-retry",
+      "pass": true,
+      "durationMs": 1618
+    },
+    {
+      "engine": "chromium",
+      "scenario": "two-tabs-concurrent-checkmarks",
+      "pass": true,
+      "durationMs": 1465
+    },
+    {
+      "engine": "chromium",
+      "scenario": "restaurant-click-daily-cap-and-mobile-handoff",
+      "pass": true,
+      "durationMs": 2156
+    },
+    {
+      "engine": "chromium",
+      "scenario": "homepage-search-grab-and-passive-actions-no-reward",
+      "pass": true,
+      "durationMs": 954
+    },
+    {
+      "engine": "chromium",
+      "scenario": "two-tabs-share-one-restaurant-reward",
+      "pass": true,
+      "durationMs": 1315
+    },
+    {
+      "engine": "chromium",
+      "scenario": "restaurant-reward-unsaved-then-retry",
+      "pass": true,
+      "durationMs": 1441
+    },
+    {
+      "engine": "webkit",
+      "scenario": "legacy-migration-and-backup",
+      "pass": true,
+      "durationMs": 1458
+    },
+    {
+      "engine": "webkit",
+      "scenario": "fresh-user-and-no-passive-xp",
+      "pass": true,
+      "durationMs": 669
+    },
+    {
+      "engine": "webkit",
+      "scenario": "failed-write-checkmark-and-rename-retry",
+      "pass": true,
+      "durationMs": 1683
+    },
+    {
+      "engine": "webkit",
+      "scenario": "two-tabs-concurrent-checkmarks",
+      "pass": true,
+      "durationMs": 1535
+    },
+    {
+      "engine": "webkit",
+      "scenario": "restaurant-click-daily-cap-and-mobile-handoff",
+      "pass": true,
+      "durationMs": 2089
+    },
+    {
+      "engine": "webkit",
+      "scenario": "homepage-search-grab-and-passive-actions-no-reward",
+      "pass": true,
+      "durationMs": 1369
+    },
+    {
+      "engine": "webkit",
+      "scenario": "two-tabs-share-one-restaurant-reward",
+      "pass": true,
+      "durationMs": 1299
+    },
+    {
+      "engine": "webkit",
+      "scenario": "restaurant-reward-unsaved-then-retry",
+      "pass": true,
+      "durationMs": 1404
+    }
+  ]
+}

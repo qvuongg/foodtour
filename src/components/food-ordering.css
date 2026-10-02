@@ -280,6 +280,14 @@
   transform: translateY(1px);
 }
 
+.ordering-xp-note {
+  margin: 3px 2px 6px;
+  color: #725c48;
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .ordering-specific-restaurant {
   margin: 6px 0 0;
   font-size: 12px;

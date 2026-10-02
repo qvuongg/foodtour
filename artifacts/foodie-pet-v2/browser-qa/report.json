@@ -1,0 +1,174 @@
+{
+  "baseURL": "http://127.0.0.1:5173",
+  "fixtureNotice": "Isolated seeded QA progress; external network blocked; no affiliate or share clicks.",
+  "results": [
+    {
+      "engine": "chromium",
+      "name": "layout 320x568",
+      "passed": true,
+      "durationMs": 1288
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 360x640",
+      "passed": true,
+      "durationMs": 1005
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 390x844",
+      "passed": true,
+      "durationMs": 1024
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 430x932",
+      "passed": true,
+      "durationMs": 1067
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 390x740",
+      "passed": true,
+      "durationMs": 1087
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 740x390",
+      "passed": true,
+      "durationMs": 1055
+    },
+    {
+      "engine": "chromium",
+      "name": "layout 1280x900",
+      "passed": true,
+      "durationMs": 1167
+    },
+    {
+      "engine": "chromium",
+      "name": "rename validation cancellation and persistence",
+      "passed": true,
+      "durationMs": 2154
+    },
+    {
+      "engine": "chromium",
+      "name": "journal rewards back navigation and persistence",
+      "passed": true,
+      "durationMs": 2475
+    },
+    {
+      "engine": "chromium",
+      "name": "focus trap pointer return and level progress",
+      "passed": true,
+      "durationMs": 1290
+    },
+    {
+      "engine": "chromium",
+      "name": "English maximum level and reduced motion",
+      "passed": true,
+      "durationMs": 1110
+    },
+    {
+      "engine": "chromium",
+      "name": "normal motion pauses behind pet and journal",
+      "passed": true,
+      "durationMs": 1537
+    },
+    {
+      "engine": "chromium",
+      "name": "pet spin 99 to 100 reduce",
+      "passed": true,
+      "durationMs": 5519
+    },
+    {
+      "engine": "chromium",
+      "name": "pet spin 199 to 200 no-preference",
+      "passed": true,
+      "durationMs": 11772
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 320x568",
+      "passed": true,
+      "durationMs": 1481
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 360x640",
+      "passed": true,
+      "durationMs": 1191
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 390x844",
+      "passed": true,
+      "durationMs": 1213
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 430x932",
+      "passed": true,
+      "durationMs": 1212
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 390x740",
+      "passed": true,
+      "durationMs": 1213
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 740x390",
+      "passed": true,
+      "durationMs": 1245
+    },
+    {
+      "engine": "webkit",
+      "name": "layout 1280x900",
+      "passed": true,
+      "durationMs": 1382
+    },
+    {
+      "engine": "webkit",
+      "name": "rename validation cancellation and persistence",
+      "passed": true,
+      "durationMs": 2265
+    },
+    {
+      "engine": "webkit",
+      "name": "journal rewards back navigation and persistence",
+      "passed": true,
+      "durationMs": 2537
+    },
+    {
+      "engine": "webkit",
+      "name": "focus trap pointer return and level progress",
+      "passed": true,
+      "durationMs": 2422
+    },
+    {
+      "engine": "webkit",
+      "name": "English maximum level and reduced motion",
+      "passed": true,
+      "durationMs": 1285
+    },
+    {
+      "engine": "webkit",
+      "name": "normal motion pauses behind pet and journal",
+      "passed": true,
+      "durationMs": 1755
+    },
+    {
+      "engine": "webkit",
+      "name": "pet spin 99 to 100 reduce",
+      "passed": true,
+      "durationMs": 6260
+    },
+    {
+      "engine": "webkit",
+      "name": "pet spin 199 to 200 no-preference",
+      "passed": true,
+      "durationMs": 11209
+    }
+  ]
+}

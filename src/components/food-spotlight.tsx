@@ -303,22 +303,6 @@ export function FoodSpotlight({
           },
         )}
       </div>
-      <div className="spotlight-caption" aria-hidden="true">
-        <strong>
-          {spinning
-            ? vi
-              ? "Đang tìm món hợp gu…"
-              : "Finding your next favorite…"
-            : foodName(selected, language)}
-        </strong>
-        <span>
-          {spinning
-            ? vi
-              ? "Một chút bất ngờ đang tới"
-              : "A little surprise is on its way"
-            : `${priceLabel(selected.price, language, true)} / ${foodServingUnit(selected, mealKind, language)}`}
-        </span>
-      </div>
       <div className="browse-controls">
         <button
           onClick={() => move(-1)}

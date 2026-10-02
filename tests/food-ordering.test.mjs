@@ -22,6 +22,8 @@ try {
     platform: "node",
     format: "cjs",
   });
+  buildSync({ entryPoints: ["src/lib/shopee-reward.ts"], outfile: join(out, "shopee-reward.cjs"), bundle: true, platform: "node", format: "cjs" });
+  const { isRewardableShopeeFoodLink, shopeeRestaurantRewardTarget } = createRequire(import.meta.url)(join(out, "shopee-reward.cjs"));
   const {
     ORDERING_CITIES,
     resolveShopeeFoodLink,
@@ -409,6 +411,19 @@ try {
       rawSearch,
       "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=C%C6%A1m%20t%E1%BA%A5m",
     );
+  });
+  test("restaurant XP supports direct and mapped short links without rewarding generic or unsafe destinations", () => {
+    const original = "https://shopeefood.vn/hue/pho";
+    const short = "https://spf.shopee.vn/RestaurantTest?utm_source=original%2Btracking";
+    assert.equal(isRewardableShopeeFoodLink(original), true);
+    assert.equal(shopeeRestaurantRewardTarget(short, original), original);
+    assert.equal(shopeeRestaurantRewardTarget(short), null, "An opaque short link needs a known restaurant mapping");
+    assert.equal(shopeeRestaurantRewardTarget(short, "https://shopeefood.vn/"), null);
+    assert.equal(shopeeRestaurantRewardTarget("https://evil.example/link", original), null);
+    assert.equal(shopeeRestaurantRewardTarget("https://spf.shopee.vn.evil.example/RestaurantTest", original), null);
+    for (const value of ["https://shopeefood.vn/da-nang/search", "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi", "https://shopeefood.vn/ha-noi/pho?q=pho", "https://user@shopeefood.vn/hue/pho", "javascript:alert(1)", "http://shopeefood.vn/hue/pho", "https://shopeefood.vn/hue/pho\n"]) {
+      assert.equal(isRewardableShopeeFoodLink(value), false, value);
+    }
   });
 } finally {
   rmSync(out, { recursive: true, force: true });

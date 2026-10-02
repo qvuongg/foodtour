@@ -1,15 +1,57 @@
-.foodie-pet-wrapper { position:relative; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; user-select:none; pointer-events:none; }
-.foodie-pet-wrapper.size-sm { width:44px; height:46px; }
-.foodie-pet-wrapper.size-md { width:100px; height:103px; }
-.foodie-pet-wrapper.size-lg { width:152px; height:156px; }
-.foodie-pet-wrapper .pet-mascot-svg { display:block; width:100%; height:100%; overflow:visible; }
-.foodie-pet-wrapper .pet-float-body { animation:foodie-float 4.8s ease-in-out infinite; transform-origin:80px 100px; }
-.foodie-pet-wrapper .pet-ground-shadow { animation:foodie-shadow 4.8s ease-in-out infinite; transform-origin:80px 152px; }
-.foodie-pet-wrapper .pet-eyes { animation:foodie-blink 7s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
-.foodie-pet-wrapper.is-eating .pet-float-body { animation:foodie-nibble .32s ease-in-out 3; }
-.foodie-pet-wrapper.is-paused *, .foodie-pet-widget:is(:hover,:focus-visible) .foodie-pet-wrapper * { animation-play-state:paused; }
-@keyframes foodie-float { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-5px) rotate(1deg); } }
-@keyframes foodie-shadow { 0%,100% { transform:scaleX(1); opacity:.13; } 50% { transform:scaleX(.84); opacity:.08; } }
-@keyframes foodie-blink { 0%,43%,47%,100% { transform:scaleY(1); } 45% { transform:scaleY(.08); } }
-@keyframes foodie-nibble { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(2px) scale(1.03,.97); } }
-@media(prefers-reduced-motion:reduce) { .foodie-pet-wrapper *, .foodie-pet-wrapper.is-eating * { animation:none !important; transition:none !important; } }
+.foodie-pet-wrapper {
+  --pet-outline: #8f3417;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  pointer-events: none;
+}
+.foodie-pet-wrapper.size-sm { width: 48px; height: 50px; }
+.foodie-pet-wrapper.size-md { width: 104px; height: 108px; }
+.foodie-pet-wrapper.size-lg { width: 192px; height: 200px; }
+.foodie-pet-wrapper .pet-mascot-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.foodie-pet-wrapper .pet-float-body {
+  animation: foodie-float 5.2s ease-in-out infinite;
+  transform-origin: 120px 174px;
+}
+.foodie-pet-wrapper .pet-ground-shadow {
+  animation: foodie-shadow 5.2s ease-in-out infinite;
+  transform-origin: 123px 231px;
+}
+.foodie-pet-wrapper .pet-eyes {
+  animation: foodie-blink 7.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.foodie-pet-wrapper .pet-level-sparkle { opacity: 0; transform-origin: 120px 125px; }
+.foodie-pet-wrapper.is-eating .pet-float-body { animation: foodie-nibble .3s ease-in-out 3; }
+.foodie-pet-wrapper.is-celebrating .pet-level-sparkle { animation: foodie-level-sparkle 1.1s ease-out both; }
+.foodie-pet-wrapper.is-paused *,
+.foodie-pet-widget:is(:hover, :focus-visible) .foodie-pet-wrapper * { animation-play-state: paused; }
+
+@keyframes foodie-float {
+  0%, 100% { transform: translateY(0) rotate(-.5deg); }
+  50% { transform: translateY(-4px) rotate(.5deg); }
+}
+@keyframes foodie-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 1; }
+  50% { transform: scaleX(.91); opacity: .76; }
+}
+@keyframes foodie-blink {
+  0%, 43%, 47%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(.07); }
+}
+@keyframes foodie-nibble {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(2px) scale(1.018, .985); }
+}
+@keyframes foodie-level-sparkle {
+  0% { opacity: 0; transform: scale(.8); }
+  28%, 58% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .foodie-pet-wrapper *, .foodie-pet-wrapper.is-eating * { animation: none !important; transition: none !important; }
+}

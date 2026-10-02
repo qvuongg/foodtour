@@ -29,27 +29,41 @@ const {
   classifyDishTaste,
   matchesTasteCategory,
   getFoodsForSessionAndTaste,
+  filterFoodsByTastes,
+  matchSingleTaste,
+  getTasteCategoriesForMealKind,
   TASTE_CATEGORIES,
   MEAL_SESSIONS,
 } = createRequire(import.meta.url)(join(out, "taxonomy.cjs"));
 
 const { CITY_CHECKLISTS } = createRequire(import.meta.url)(join(out, "checklist.cjs"));
 
-test("detectCurrentMealSession recognizes proper session based on hours", () => {
-  const d7 = new Date("2026-10-01T07:30:00");
-  assert.equal(detectCurrentMealSession(d7), "breakfast");
+test("detectCurrentMealSession recognizes proper session based on hours and minutes", () => {
+  // Breakfast: 06:01 - 10:00
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T06:00:00")), "late");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T06:01:00")), "breakfast");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T07:30:00")), "breakfast");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T10:00:00")), "breakfast");
 
-  const d12 = new Date("2026-10-01T12:00:00");
-  assert.equal(detectCurrentMealSession(d12), "lunch");
+  // Lunch: 10:01 - 14:00
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T10:01:00")), "lunch");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T12:00:00")), "lunch");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T14:00:00")), "lunch");
 
-  const d15 = new Date("2026-10-01T15:30:00");
-  assert.equal(detectCurrentMealSession(d15), "afternoon");
+  // Afternoon: 14:01 - 17:00
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T14:01:00")), "afternoon");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T15:30:00")), "afternoon");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T17:00:00")), "afternoon");
 
-  const d19 = new Date("2026-10-01T19:00:00");
-  assert.equal(detectCurrentMealSession(d19), "dinner");
+  // Dinner: 17:01 - 23:00
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T17:01:00")), "dinner");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T19:00:00")), "dinner");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T23:00:00")), "dinner");
 
-  const d23 = new Date("2026-10-01T23:30:00");
-  assert.equal(detectCurrentMealSession(d23), "late");
+  // Late: 23:01 - 06:00
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T23:01:00")), "late");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T23:30:00")), "late");
+  assert.equal(detectCurrentMealSession(new Date("2026-10-01T02:00:00")), "late");
 });
 
 test("matchesTasteCategory correctly differentiates broth, dry, and veg dishes", () => {
@@ -123,4 +137,58 @@ test("the expanded journal retains every legacy saved item identity and drink cl
   for (const id of ["hn-3", "dn-5", "hcm-4"]) {
     assert.equal(byId.get(id).kind, "drink", `Saved coffee ${id} belongs in the drinks filter`);
   }
+});
+
+test("getTasteCategoriesForMealKind returns configured taste categories for each mealKind", () => {
+  const lunchCats = getTasteCategoriesForMealKind("lunch");
+  assert.equal(lunchCats.length, 3);
+  assert.deepEqual(lunchCats.map((c) => c.id), ["dry", "broth", "veg"]);
+
+  const drinkCats = getTasteCategoriesForMealKind("drink");
+  assert.equal(drinkCats.length, 4);
+  assert.deepEqual(drinkCats.map((c) => c.id), ["coffee", "milktea", "fruittea", "juice"]);
+
+  const snackCats = getTasteCategoriesForMealKind("snack");
+  assert.equal(snackCats.length, 4);
+  assert.deepEqual(snackCats.map((c) => c.id), ["fried", "mixed", "sweet", "savory"]);
+
+  const nhauCats = getTasteCategoriesForMealKind("nhau");
+  assert.equal(nhauCats.length, 4);
+  assert.deepEqual(nhauCats.map((c) => c.id), ["grill", "stirfry", "hotpot", "nibble"]);
+});
+
+test("filterFoodsByTastes supports multi-select across different tastes and meal kinds", () => {
+  const drinks = [
+    { name: "Cà phê sữa đá", price: 25, rarity: 1, image: 1 },
+    { name: "Trà sữa trân châu đường đen", price: 40, rarity: 1, image: 2 },
+    { name: "Trà đào cam sả", price: 35, rarity: 1, image: 3 },
+    { name: "Sinh tố bơ", price: 35, rarity: 1, image: 4 },
+  ];
+
+  // Empty or "all" returns all
+  assert.equal(filterFoodsByTastes(drinks, [], "drink").length, 4);
+  assert.equal(filterFoodsByTastes(drinks, ["all"], "drink").length, 4);
+
+  // Single select
+  const coffeeOnly = filterFoodsByTastes(drinks, ["coffee"], "drink");
+  assert.equal(coffeeOnly.length, 1);
+  assert.equal(coffeeOnly[0].name, "Cà phê sữa đá");
+
+  // Multi-select: coffee + milktea
+  const combo = filterFoodsByTastes(drinks, ["coffee", "milktea"], "drink");
+  assert.equal(combo.length, 2);
+  assert.ok(combo.some((d) => d.name === "Cà phê sữa đá"));
+  assert.ok(combo.some((d) => d.name === "Trà sữa trân châu đường đen"));
+
+  // Nhậu multi-select: grill + hotpot
+  const pubDishes = [
+    { name: "Bò nướng tảng", price: 120, rarity: 1, image: 1 },
+    { name: "Lẩu thái chua cay", price: 180, rarity: 1, image: 2 },
+    { name: "Rau muống xào tỏi", price: 45, rarity: 1, image: 3 },
+    { name: "Đậu phộng rang tỏi ớt", price: 25, rarity: 1, image: 4 },
+  ];
+  const pubCombo = filterFoodsByTastes(pubDishes, ["grill", "hotpot"], "nhau");
+  assert.equal(pubCombo.length, 2);
+  assert.ok(pubCombo.some((d) => d.name === "Bò nướng tảng"));
+  assert.ok(pubCombo.some((d) => d.name === "Lẩu thái chua cay"));
 });

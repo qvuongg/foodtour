@@ -3,12 +3,16 @@ import { MealKindTabs } from "@/components/meal-kind-tabs";
 import { SpinControls } from "@/components/spin-controls";
 import { FoodImage } from "@/components/food-image";
 import { FoodResultDialog } from "@/components/food-result-dialog";
-import { DistrictSpotsChecklist } from "@/components/district-spots-checklist";
 import { BrandCarousel } from "@/components/brand-carousel";
 import { FoodSpotlight, type SpotlightSpin } from "@/components/food-spotlight";
+import { SettingsDialog } from "@/components/settings-dialog";
 import { MainMenuDrawer } from "@/components/main-menu-drawer";
-import { CityChecklistModal } from "@/components/city-checklist-modal";
 import { FoodiePetWidget } from "@/components/foodie-pet-widget";
+import { FoodiePetModal } from "@/components/foodie-pet-modal";
+import { useFoodieProgress } from "@/hooks/use-foodie-progress";
+import { useCompanionNavigation } from "@/hooks/use-companion-navigation";
+import { hasRestaurantRewardToday } from "@/lib/foodie-streak";
+import { SHOPEE_RESTAURANT_OPEN_EVENT } from "@/lib/shopee-reward";
 import { readCookie, writeCookie } from "@/lib/cookies";
 import { createSpinProfile } from "@/lib/case-mechanics";
 import type { Food } from "@/lib/foods";
@@ -21,20 +25,15 @@ import { servingUnit } from "@/lib/meal-settings";
 import { personalSelector } from "@/lib/personal-pool";
 import { CaseAudio } from "@/lib/case-audio";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown } from "lucide-react";
+import { Compass } from "lucide-react";
 import { type MealKind, getMealFoods } from "@/lib/food-categories";
 import {
   detectCurrentMealSession,
   getFoodsForSessionAndTaste,
+  filterFoodsByTastes,
   MEAL_SESSIONS,
-  type DishTasteCategory,
   type MealSession,
 } from "@/lib/dish-taxonomy";
-import {
-  loadStreakState,
-  addSpinStreak,
-  type FoodieStreakState,
-} from "@/lib/foodie-streak";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -91,21 +90,34 @@ export default function Home() {
     return 35;
   });
 
-  // Tự động nhận diện buổi ăn theo khung giờ thực tế
+  // Tự động nhận diện buổi ăn theo khung giờ thực tế:
+  // Ăn sáng (06:01 - 10:00) | Ăn trưa (10:01 - 14:00) | Ăn xế (14:01 - 17:00) | Ăn tối (17:01 - 23:00) | Ăn đêm (23:01 - 06:00)
   const [session, setSession] = useState<MealSession>(() =>
     detectCurrentMealSession(),
   );
 
-  // Bộ lọc Gu món (setting tương tự Mức chi: Món nước, Món khô, Món chay, Đồ uống...)
-  const [tasteCategory, setTasteCategory] = useState<DishTasteCategory>("all");
+  // Tự động cập nhật phiên ăn theo thời gian thực mỗi 30 giây
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const nextSession = detectCurrentMealSession();
+      setSession((curr) => (curr !== nextSession ? nextSession : curr));
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
-  // TikTok-style Foodie Pet & Flame Streak state
-  const [streak, setStreak] = useState<FoodieStreakState>(() =>
-    loadStreakState(),
-  );
+  // Bộ lọc Gu món đa chọn (multi-select) hỗ trợ tất cả 4 nhóm món
+  const [selectedTastes, setSelectedTastes] = useState<string[]>([]);
+
+  const foodie = useFoodieProgress();
+  const streak = foodie.state;
+  const companion = useCompanionNavigation();
+  const petOpen = companion.view === "pet";
 
   const [mainMenuOpen, setMainMenuOpen] = useState(false);
-  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const settingsTrigger = useRef<HTMLButtonElement>(null);
+  const preferencesReturnFocus = useRef<HTMLElement | null>(null);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Food | null>(null);
@@ -113,12 +125,52 @@ export default function Home() {
   const [spin, setSpin] = useState<SpotlightSpin | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [previewFood, setPreviewFood] = useState<Food | null>(null);
+  const [lastPickedFood, setLastPickedFood] = useState<Food | null>(null);
   const busy = useRef(false);
+  const activeSpinId = useRef<string | null>(null);
   const dialogTrigger = useRef<HTMLButtonElement | null>(null);
   const popupFood = previewFood ?? result;
 
+  useEffect(() => {
+    const openedRestaurant = (event: Event) => {
+      const url = (event as CustomEvent<{ url?: unknown }>).detail?.url;
+      if (typeof url === "string") void foodie.openRestaurant(url);
+    };
+    window.addEventListener(SHOPEE_RESTAURANT_OPEN_EVENT, openedRestaurant);
+    return () => window.removeEventListener(SHOPEE_RESTAURANT_OPEN_EVENT, openedRestaurant);
+  }, [foodie.openRestaurant]);
+
+  function openCompanion(view: "pet") {
+    if (busy.current) return;
+    setMainMenuOpen(false);
+    setSettingsOpen(false);
+    setPreferencesOpen(false);
+    companion.open(view);
+  }
+
+  function spinFromPet() {
+    companion.trigger.current = document.querySelector<HTMLButtonElement>(".open-button");
+    companion.close();
+    requestAnimationFrame(() => {
+      const button = document.querySelector<HTMLButtonElement>(".open-button");
+      button?.focus({ preventScroll: true });
+      button?.click();
+    });
+  }
+
+  function openOrderingFromPet() {
+    const food = lastPickedFood ?? result;
+    if (!food) return;
+    const trigger = document.querySelector<HTMLButtonElement>(".open-button");
+    companion.trigger.current = trigger;
+    dialogTrigger.current = trigger;
+    companion.close();
+    requestAnimationFrame(() => setPreviewFood(food));
+  }
+
   const selectFood = useCallback((food: Food, trigger: HTMLButtonElement) => {
     if (busy.current) return;
+    setLastPickedFood(food);
     dialogTrigger.current = trigger;
     setPreviewFood(food);
   }, []);
@@ -154,11 +206,8 @@ export default function Home() {
     if (busy.current || kind === mealKind) return;
     setSpin(null);
     setRevealed(false);
+    setSelectedTastes([]);
     settings.selectMealKind(kind);
-  };
-
-  const handleSelectTasteCategory = (cat: DishTasteCategory) => {
-    setTasteCategory(cat);
   };
 
   const target = budget === "custom" ? Number(custom) : Number(budget);
@@ -188,11 +237,13 @@ export default function Home() {
     setResult(match ?? null);
   }, [population]);
 
-  // Lọc món ăn: nếu là nhóm bữa chính (lunch) thì áp dụng Buổi ăn thực tế và Gu món
+  // Lọc món ăn: nếu là nhóm bữa chính (lunch) thì áp dụng Buổi ăn thực tế và Gu món đa chọn
   const eligible = useMemo(() => {
-    if (mealKind !== "lunch") return population;
-    return getFoodsForSessionAndTaste(session, tasteCategory, population);
-  }, [mealKind, session, tasteCategory, population]);
+    if (mealKind === "lunch") {
+      return getFoodsForSessionAndTaste(session, selectedTastes, population);
+    }
+    return filterFoodsByTastes(population, selectedTastes, mealKind);
+  }, [mealKind, session, selectedTastes, population]);
 
   const lunchSelector = useMemo(
     () =>
@@ -275,6 +326,7 @@ export default function Home() {
     if (busy.current || !validTarget || !eligible.length || !lunchSelector)
       return;
     busy.current = true;
+    activeSpinId.current = crypto.randomUUID();
     dialogTrigger.current =
       document.activeElement instanceof HTMLButtonElement
         ? document.activeElement
@@ -302,11 +354,12 @@ export default function Home() {
   }
 
   function finishSpin(winner: Food) {
+    const spinId = activeSpinId.current;
+    if (!spinId) return;
+    activeSpinId.current = null;
+    setLastPickedFood(winner);
     recordSpin(winner);
-    setStreak((prev) => {
-      const { nextState } = addSpinStreak(prev);
-      return nextState;
-    });
+    void foodie.completeSpin(spinId);
     busy.current = false;
     setSpin(null);
     setSpinning(false);
@@ -336,6 +389,7 @@ export default function Home() {
   }
 
   return (
+    <div className={`site-frame${mainMenuOpen ? " menu-is-open" : ""}`}>
     <div className="site-shell">
       {settings.error && (
         <div className="settings-notice" role="status">
@@ -346,37 +400,75 @@ export default function Home() {
         </div>
       )}
 
-      {/* Header: [Logo] | [ 🐱 🔥 42 ] [ 🇻🇳 VN ] [ ☰ Menu ] */}
+      {foodie.storageError && !companion.view && (
+        <div className="settings-notice" role="status">
+          <p>{vi ? "Tiến độ linh thú chưa được lưu trên thiết bị này." : "Your pet progress has not been saved on this device."}</p>
+          <button onClick={() => { void foodie.retrySave(); }}>{vi ? "Thử lưu lại" : "Retry saving"}</button>
+        </div>
+      )}
+
+      {/* Keep utility controls separate from the meal selection flow. */}
       <AppHeader
         language={language}
         disabled={spinning}
         onOpenMenu={() => setMainMenuOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+        menuOpen={mainMenuOpen}
+        settingsOpen={settingsOpen}
+        menuTrigger={menuTrigger}
+        settingsTrigger={settingsTrigger}
         streak={streak}
-        onOpenPet={() => setChecklistOpen(true)}
-        petOpen={checklistOpen}
-        petPaused={mainMenuOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
+        onOpenPet={() => openCompanion("pet")}
+        petOpen={petOpen}
+        petPaused={mainMenuOpen || settingsOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
       />
 
-      {/* Main Menu Drawer: Âm lượng dạng kéo slider, Lối tắt Checklist ẩm thực */}
       <MainMenuDrawer
         open={mainMenuOpen}
         onClose={() => setMainMenuOpen(false)}
+        language={language}
+        state={streak}
+        onSetChecked={foodie.setChecked}
+        storageError={foodie.storageError}
+        onRetrySave={foodie.retrySave}
+        finalFocus={menuTrigger}
+      />
+
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
         volume={volume}
         onVolumeChange={handleVolumeChange}
         language={language}
         onLanguageChange={changeLanguage}
-        onOpenPreferences={() => setPreferencesOpen(true)}
-        onOpenChecklist={() => setChecklistOpen(true)}
+        finalFocus={settingsTrigger}
+        onOpenPreferences={() => {
+          preferencesReturnFocus.current = settingsTrigger.current;
+          requestAnimationFrame(() => setPreferencesOpen(true));
+        }}
+        onOpenPet={() => {
+          requestAnimationFrame(() => {
+            openCompanion("pet");
+            companion.trigger.current = settingsTrigger.current;
+          });
+        }}
       />
 
-      {/* Dedicated City Food Checklist Modal with TikTok-style Pet & Flame Streak */}
-      <CityChecklistModal
-        open={checklistOpen}
-        onClose={() => setChecklistOpen(false)}
+      <FoodiePetModal
+        open={petOpen}
+        onClose={companion.close}
         language={language}
-        streak={streak}
-        onStreakChange={setStreak}
+        state={streak}
+        onRename={foodie.rename}
+        onSpin={spinFromPet}
+        onOpenOrdering={openOrderingFromPet}
+        orderingAvailable={Boolean(lastPickedFood ?? result)}
+        storageError={foodie.storageError}
+        onRetrySave={foodie.retrySave}
+        finalFocus={companion.trigger}
+        spinDisabled={spinning || !validTarget || !eligible.length || !settings.ready}
       />
+
 
       <main>
         <section
@@ -397,8 +489,8 @@ export default function Home() {
             </h1>
             <p>
               {vi
-                ? "Chọn nhóm, chỉnh gu. Để hôm nay có món hay."
-                : "Choose a category and your budget. We’ll pick the dish."}
+                ? "Khám phá hơn 340+ món ngon chuẩn vị & hàng trăm quán đỉnh tuyển chọn khắp Việt Nam."
+                : "Curated catalog of 340+ iconic dishes & hundreds of top-rated spots across Vietnam."}
             </p>
           </div>
 
@@ -410,6 +502,7 @@ export default function Home() {
               onChange={handleSelectMealKind}
               idPrefix="desktop"
               sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
+              sessionTimeRange={currentSessionConfig.timeRangeVi}
             />
           </div>
 
@@ -424,9 +517,9 @@ export default function Home() {
                 streak={streak}
                 language={language}
                 disabled={spinning}
-                paused={checklistOpen || mainMenuOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
-                expanded={checklistOpen}
-                onClick={() => setChecklistOpen(true)}
+                paused={petOpen || mainMenuOpen || settingsOpen || preferencesOpen || panelOpen || revealed || previewFood !== null}
+                expanded={petOpen}
+                onClick={() => openCompanion("pet")}
               />
             </div>
             <FoodSpotlight
@@ -436,20 +529,21 @@ export default function Home() {
               spin={spin}
               spinning={spinning}
               won={revealed}
-              suspended={panelOpen || previewFood !== null || checklistOpen || mainMenuOpen || preferencesOpen}
+              suspended={panelOpen || previewFood !== null || petOpen || mainMenuOpen || settingsOpen || preferencesOpen}
               onFinish={finishSpin}
               onTick={() => audio.current?.play("csgo_ui_crate_item_scroll")}
               onBrowse={() => setRevealed(false)}
-              onClearFilter={() => setTasteCategory("all")}
+              onClearFilter={() => setSelectedTastes([])}
             />
           </section>
 
-          {/* Spin controls với Bộ lọc Gu Món và Nút Quay 'Quay cơm ngay thôi' */}
+          {/* Spin controls với Bộ lọc Gu Món đa chọn và Nút Quay */}
           <SpinControls
             settings={settings}
             language={language}
-            tasteCategory={tasteCategory}
-            onSelectTasteCategory={handleSelectTasteCategory}
+            selectedTastes={selectedTastes}
+            onSelectTastes={setSelectedTastes}
+            session={session}
             spinning={spinning}
             hasResult={!!result}
             empty={!eligible.length}
@@ -463,13 +557,14 @@ export default function Home() {
                 onChange={handleSelectMealKind}
                 idPrefix="dock"
                 sessionLabel={vi ? currentSessionConfig.labelVi : currentSessionConfig.labelEn}
+                sessionTimeRange={currentSessionConfig.timeRangeVi}
               />
             }
           />
 
           <a className="explore-link" href="#menu">
-            {vi ? "Hoặc tự chọn món bên dưới" : "Or choose from the menu"}
-            <ArrowDown size={14} />
+            <Compass size={14} aria-hidden="true" />
+            <span>{vi ? "Hoặc tự chọn món bên dưới" : "Or choose from the menu"}</span>
           </a>
         </section>
 
@@ -481,14 +576,11 @@ export default function Home() {
           isPreview={previewFood !== null}
           triggerRef={dialogTrigger}
           onClose={closeFoodDialog}
+          restaurantRewardedToday={hasRestaurantRewardToday(streak)}
+          progressStorageError={foodie.storageError}
         />
 
-        {mealKind === "drink" && (
-          <>
-            <BrandCarousel language={language} />
-            <DistrictSpotsChecklist language={language} />
-          </>
-        )}
+        {mealKind === "drink" && <BrandCarousel language={language} />}
 
         <section className="inventory" id="menu" aria-labelledby="menu-title">
           <div className="section-heading">
@@ -501,17 +593,20 @@ export default function Home() {
                 <span>{eligible.length}</span>
               </h2>
             </div>
-            {mealKind === "lunch" && (
-              <PreferencesPanel
-                preferences={preferences}
-                language={language}
-                disabled={spinning}
-                variant="inventory"
-                open={preferencesOpen}
-                onControlledOpenChange={setPreferencesOpen}
-                onOpenChange={setPanelOpen}
-              />
-            )}
+            <PreferencesPanel
+              preferences={preferences}
+              language={language}
+              disabled={spinning}
+              variant="inventory"
+              hideTrigger={mealKind !== "lunch"}
+              finalFocus={preferencesReturnFocus}
+              open={preferencesOpen}
+              onControlledOpenChange={(next) => {
+                if (next) preferencesReturnFocus.current = document.activeElement as HTMLElement;
+                setPreferencesOpen(next);
+              }}
+              onOpenChange={setPanelOpen}
+            />
           </div>
           <p className="inventory-browse-note">
             {vi
@@ -552,7 +647,7 @@ export default function Home() {
                   ? "Chưa có món phù hợp với bộ lọc."
                   : "No dishes match this filter."}
               </p>
-              <button onClick={() => setTasteCategory("all")}>
+              <button onClick={() => setSelectedTastes([])}>
                 {vi ? "Xem tất cả món" : "Show all dishes"}
               </button>
             </div>
@@ -605,6 +700,7 @@ export default function Home() {
           </span>
         </footer>
       </main>
+    </div>
     </div>
   );
 }
