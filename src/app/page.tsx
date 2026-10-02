@@ -223,15 +223,14 @@ export default function Home() {
   };
 
   const handleSpinModeChange = (nextMode: SpinMode) => {
+    // Restaurant mode is temporarily locked (Coming soon)
+    if (nextMode === "restaurant") return;
     if (busy.current || nextMode === spinMode) return;
     setSpin(null);
     setRestaurantSpin(null);
     setRevealed(false);
     setRestaurantRevealed(false);
     setSpinMode(nextMode);
-    if (nextMode === "restaurant") {
-      requestLocation();
-    }
   };
 
   const target = budget === "custom" ? Number(custom) : Number(budget);
@@ -632,6 +631,7 @@ export default function Home() {
               onChange={handleSpinModeChange}
               language={language}
               disabled={spinning}
+              restaurantLocked={true}
             />
             <div className="desktop-tabs-wrapper">
               <MealKindTabs

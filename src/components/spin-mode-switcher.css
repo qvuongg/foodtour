@@ -18,6 +18,12 @@
   box-shadow: inset 0 1px 2px rgba(90, 50, 20, 0.05);
 }
 
+.spin-mode-btn-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
 .spin-mode-btn {
   display: inline-flex;
   align-items: center;
@@ -56,8 +62,78 @@
   color: var(--pet-outline, #8f3417);
 }
 
+/* Locked mode styling */
+.spin-mode-btn.is-locked {
+  opacity: 0.52;
+  cursor: pointer;
+  gap: 4px;
+}
+
+.spin-mode-btn.is-locked:hover {
+  opacity: 0.72;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.spin-mode-lock-badge {
+  color: #796c5e;
+  margin-left: 1px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* Coming soon floating tooltip */
+.spin-mode-coming-soon-tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #555555;
+  color: #adacac;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 5px 9px 5.5px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 0, 0, 0.12);
+  letter-spacing: 0.2px;
+  animation: comingSoonPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.spin-mode-coming-soon-tooltip .tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-top: 5px solid #484747;
+}
+
+@keyframes comingSoonPop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px) scale(0.88);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-1px) scale(1.03);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
 .spin-mode-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: default;
 }
 
@@ -68,5 +144,11 @@
     padding: 0 10px;
     font-size: 11px;
     gap: 4px;
+  }
+
+  .spin-mode-coming-soon-tooltip {
+    bottom: calc(100% + 6px);
+    font-size: 10.5px;
+    padding: 4.5px 8px 5px 8px;
   }
 }

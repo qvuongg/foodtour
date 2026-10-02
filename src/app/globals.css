@@ -162,11 +162,12 @@ button:active:not(:disabled) {
 
 .brand-wordmark .brand-title {
   display: block;
-  color: var(--primary, #bb381c);
+  color: var(--orange, #f4512c);
   /* Quay Cơm màu cam */
   font-size: 18.5px;
   font-weight: 850;
   letter-spacing: -0.6px;
+  word-spacing: -2.8px;
   line-height: 0.8;
 }
 
@@ -178,7 +179,7 @@ button:active:not(:disabled) {
   font-size: 14.5px;
   font-weight: 750;
   letter-spacing: 0.1px;
-  line-height: 1.05;
+  line-height: 0.8;
 }
 
 .brand-wordmark .brand-dot {
@@ -1339,7 +1340,7 @@ footer a {
   }
 
   .brand-wordmark .brand-sub {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .brand-wordmark .brand-dot {
