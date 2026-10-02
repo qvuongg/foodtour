@@ -199,14 +199,14 @@ export default function Home() {
     setLanguage(selected);
     document.documentElement.lang = selected;
     document.title =
-      selected === "en" ? "Quay com online. — What to eat today?" : "Quay cơm online.";
+      selected === "en" ? "Quay Com.online — What to eat today?" : "Quay Cơm.online";
   }, []);
 
   const changeLanguage = (next: Language) => {
     setLanguage(next);
     document.documentElement.lang = next;
     document.title =
-      next === "en" ? "Quay com online. — What to eat today?" : "Quay cơm online.";
+      next === "en" ? "Quay Com.online — What to eat today?" : "Quay Cơm.online";
     try {
       writeCookie("language", next);
     } catch {}
@@ -852,7 +852,7 @@ export default function Home() {
         </span>
         <footer>
           <span>
-            Quay cơm online. ·{" "}
+            Quay Cơm.online ·{" "}
             <a href={`${basePath}/privacy.html`}>
               {language === "vi" ? "Quyền riêng tư" : "Privacy"}
             </a>{" "}

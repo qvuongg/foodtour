@@ -49,7 +49,7 @@ export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, s
       <Dialog.Popup className="compact-main-menu" initialFocus={closeRef} finalFocus={finalFocus}>
         <header className="menu-hub-header">
           {view !== "home" && <button ref={backRef} type="button" className="menu-detail-back menu-round-button" aria-label={vi ? "Trở về menu" : "Back to menu"} onClick={() => show("home")}><ArrowLeft size={21} aria-hidden="true" /></button>}
-          <div><span className="menu-hub-eyebrow">{vi ? "QUAY CƠM ONLINE" : "QUAY COM ONLINE"}</span><Dialog.Title>{view === "home" ? vi ? "Khám phá" : "Explore" : view === "voucher" ? "Voucher" : view === "checklist" ? vi ? "Món local" : "Local food" : "Happy Hour"}</Dialog.Title></div>
+          <div><span className="menu-hub-eyebrow">{vi ? "QUAY CƠM.ONLINE" : "QUAY COM.ONLINE"}</span><Dialog.Title>{view === "home" ? vi ? "Khám phá" : "Explore" : view === "voucher" ? "Voucher" : view === "checklist" ? vi ? "Món local" : "Local food" : "Happy Hour"}</Dialog.Title></div>
           <Dialog.Close ref={closeRef} className="menu-close menu-round-button" aria-label={vi ? "Đóng menu" : "Close menu"}><X size={21} aria-hidden="true" /></Dialog.Close>
         </header>
         <Dialog.Description className="sr-only">{vi ? "Voucher ShopeeFood, checklist món địa phương và gợi ý thực đơn cho cả nhóm." : "ShopeeFood offers, a local food checklist and menus for your group."}</Dialog.Description>
