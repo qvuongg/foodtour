@@ -80,22 +80,25 @@ test("resolveVoucherAffiliateLink embeds required affiliate parameters when no s
 });
 
 test("resolveVoucherAffiliateLink prefers custom affiliateUrl when set", () => {
-  const voucher = CITY_VOUCHERS_CATALOG[0];
-  const resolved = resolveVoucherAffiliateLink(voucher);
-  assert.ok(resolved.startsWith("https://shope.ee/"), `Must return shope.ee link: ${resolved}`);
+  const customVoucher = {
+    ...CITY_VOUCHERS_CATALOG[0],
+    affiliateUrl: "https://shope.ee/testCustom123",
+  };
+  const resolved = resolveVoucherAffiliateLink(customVoucher);
+  assert.equal(resolved, "https://shope.ee/testCustom123");
 });
 
 test("getCityShopeeHubUrl generates city-specific affiliate landing link", () => {
   const hanoiHub = getCityShopeeHubUrl("ha-noi");
-  assert.ok(hanoiHub.includes("/ha-noi/food/collection-list"));
+  assert.ok(hanoiHub.includes("shopeefood.vn/ha-noi"));
   assert.ok(hanoiHub.includes("mmp_pid=an_17316810077"));
   assert.ok(hanoiHub.includes("sub_id=hubhanoi"));
 
   const danangHub = getCityShopeeHubUrl("da-nang");
-  assert.ok(danangHub.includes("/da-nang/food/collection-list"));
+  assert.ok(danangHub.includes("shopeefood.vn/da-nang"));
   assert.ok(danangHub.includes("sub_id=hubdanang"));
 
   const hcmHub = getCityShopeeHubUrl("ho-chi-minh");
-  assert.ok(hcmHub.includes("/ho-chi-minh/food/collection-list"));
+  assert.ok(hcmHub.includes("shopeefood.vn/ho-chi-minh"));
   assert.ok(hcmHub.includes("sub_id=hubhochiminh"));
 });

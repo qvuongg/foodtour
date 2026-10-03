@@ -59,8 +59,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Freeship",
     tagEn: "Freeship",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/mon-ngon-hoi-tu-freeship-0d",
-    affiliateUrl: "https://shope.ee/9V1wgGDhKn",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=freeship",
     icon: "delivery",
   },
   {
@@ -78,8 +77,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Giảm sâu",
     tagEn: "Mega deal",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/dai-tiec-muon-vi-giam-50",
-    affiliateUrl: "https://shope.ee/9fLMsZD3zq",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=giam+50",
     icon: "food",
   },
   {
@@ -96,8 +94,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "lunch",
     tagVi: "Cơm trưa",
     tagEn: "Lunch",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/quan-ngon-gan-nha-giam-toi-35000d-8",
-    affiliateUrl: "https://shope.ee/9pen4sCQet",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=com+trua",
     icon: "nearby",
   },
   {
@@ -114,8 +111,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "drinks",
     tagVi: "Trà sữa",
     tagEn: "Drinks",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/tra-sua-ca-phe-giam-30000d-oth",
-    affiliateUrl: "https://shope.ee/60S4VpR1RA",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=tra+sua",
     icon: "drink",
   },
   {
@@ -132,8 +128,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "lunch",
     tagVi: "Đặc sản",
     tagEn: "Local",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/den-sai-gon-an-gi",
-    affiliateUrl: "https://shope.ee/6AlUi8QO6D",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=com+tam",
     icon: "city",
   },
   {
@@ -150,8 +145,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Quán mới",
     tagEn: "New spots",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/deal-lam-quen-giam-40000d-1",
-    affiliateUrl: "https://shope.ee/6L4uuRPklG",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=quan+moi",
     icon: "new",
   },
   {
@@ -168,8 +162,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "party",
     tagVi: "Tiệc nhóm",
     tagEn: "Party",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/len-don-nhomgiam-toi-105000d",
-    affiliateUrl: "https://shope.ee/6VOL6kP7QJ",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=dat+nhom",
     icon: "group",
   },
   {
@@ -186,8 +179,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "lunch",
     tagVi: "Quán quen",
     tagEn: "Favorites",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/quan-ruot-dan-sanh-an---giam-30000d",
-    affiliateUrl: "https://shope.ee/5LCNibTYn6",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=quan+quen",
     icon: "favorite",
   },
   {
@@ -204,8 +196,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Đi chợ",
     tagEn: "Groceries",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/cho-tuoi-ngon-dinh-giam-50-t10",
-    affiliateUrl: "https://shope.ee/5VVnuuSvS9",
+    originalUrl: "https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q=mart",
     icon: "groceries",
   },
 
@@ -227,8 +218,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Freeship",
     tagEn: "Freeship",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-mon-ngon-freeship-0d",
-    affiliateUrl: "https://shope.ee/5fpE7DSI7C",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=freeship",
     icon: "delivery",
   },
   {
@@ -246,8 +236,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Đặc sản",
     tagEn: "Local",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-quan-quen-pho-co-giam-35k",
-    affiliateUrl: "https://shope.ee/5q8eJWRemF",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=pho",
     icon: "city",
   },
   {
@@ -264,8 +253,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "lunch",
     tagVi: "Cơm trưa",
     tagEn: "Lunch",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-com-trua-cong-so-giam-50",
-    affiliateUrl: "https://shope.ee/7KxS6HLwjY",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=com+trua",
     icon: "nearby",
   },
   {
@@ -282,8 +270,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "drinks",
     tagVi: "Trà sữa",
     tagEn: "Drinks",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-tra-sua-ca-phe-giam-30k",
-    affiliateUrl: "https://shope.ee/7VGsIaLJOb",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=tra+sua",
     icon: "drink",
   },
   {
@@ -300,8 +287,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "party",
     tagVi: "Lẩu nướng",
     tagEn: "Hotpot",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-lau-nuong-tiec-tung-giam-70k",
-    affiliateUrl: "https://shope.ee/7faIUtKg3e",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=lau+nuong",
     icon: "party",
   },
   {
@@ -318,8 +304,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Ăn vặt",
     tagEn: "Snacks",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-an-vat-gio-chieu-giam-25k",
-    affiliateUrl: "https://shope.ee/7ptihCK2ih",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=an+vat",
     icon: "explore",
   },
   {
@@ -336,8 +321,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Quán mới",
     tagEn: "New spots",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-quan-moi-deal-hoi-giam-40k",
-    affiliateUrl: "https://shope.ee/6fhlJ3OU5U",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=quan+moi",
     icon: "new",
   },
   {
@@ -354,8 +338,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "party",
     tagVi: "Tiệc nhóm",
     tagEn: "Party",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/ha-noi-dat-don-nhom-giam-100k",
-    affiliateUrl: "https://shope.ee/6q1BVMNqkX",
+    originalUrl: "https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q=dat+nhom",
     icon: "group",
   },
 
@@ -377,8 +360,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Freeship",
     tagEn: "Freeship",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-freeship-0d-pho-bien",
-    affiliateUrl: "https://shope.ee/70KbhfNDPa",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=freeship",
     icon: "delivery",
   },
   {
@@ -396,8 +378,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Đặc sản",
     tagEn: "Local",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-mi-quang-dac-san-giam-35k",
-    affiliateUrl: "https://shope.ee/7Ae1tyMa4d",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=mi+quang",
     icon: "city",
   },
   {
@@ -415,8 +396,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     tagVi: "Hải sản",
     tagEn: "Seafood",
     highlight: true,
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-hai-san-pho-bien-giam-50k",
-    affiliateUrl: "https://shope.ee/3LRJKvbAqu",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=hai+san",
     icon: "food",
   },
   {
@@ -433,8 +413,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "drinks",
     tagVi: "Trà sữa",
     tagEn: "Drinks",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-tra-sua-ca-phe-giam-25k",
-    affiliateUrl: "https://shope.ee/3VkjXEaXVx",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=tra+sua",
     icon: "drink",
   },
   {
@@ -451,8 +430,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Ăn vặt",
     tagEn: "Snacks",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-an-vat-cho-dem-giam-20k",
-    affiliateUrl: "https://shope.ee/3g49jXZuB0",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=an+vat",
     icon: "explore",
   },
   {
@@ -469,8 +447,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "lunch",
     tagVi: "Cơm trưa",
     tagEn: "Lunch",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-com-ga-bun-bo-giam-30k",
-    affiliateUrl: "https://shope.ee/3qNZvqZGq3",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=com+ga",
     icon: "nearby",
   },
   {
@@ -487,8 +464,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "megadeal",
     tagVi: "Quán mới",
     tagEn: "New spots",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-quan-moi-giam-40k",
-    affiliateUrl: "https://shope.ee/2gBcXhdiCq",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=quan+moi",
     icon: "new",
   },
   {
@@ -505,8 +481,7 @@ export const CITY_VOUCHERS_CATALOG: readonly CityVoucher[] = [
     category: "party",
     tagVi: "Tiệc nhóm",
     tagEn: "Party",
-    originalUrl: "https://shopeefood.vn/bo-suu-tap/da-nang-dat-nhom-ban-giam-90k",
-    affiliateUrl: "https://shope.ee/2qV2k0d4rt",
+    originalUrl: "https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q=dat+nhom",
     icon: "group",
   },
 ];
@@ -567,7 +542,7 @@ export function getCityShopeeHubUrl(city: CitySlug): string {
         ? "da-nang"
         : "ho-chi-minh";
 
-  const hubUrl = new URL(`https://shopeefood.vn/${cityPath}/food/collection-list`);
+  const hubUrl = new URL(`https://shopeefood.vn/${cityPath}`);
   hubUrl.searchParams.set("mmp_pid", "an_17316810077");
   hubUrl.searchParams.set("utm_source", "an_17316810077");
   hubUrl.searchParams.set("utm_medium", "affiliate_food");

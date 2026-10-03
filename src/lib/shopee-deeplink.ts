@@ -24,7 +24,16 @@ export function handleShopeeFoodClick(
 
   if (!isMobile) return;
 
-  // Trên mobile: Chặn tạo tab mới và chặn chuyển hướng trang web
+  // Với link rút gọn Shopee Affiliate (shope.ee hoặc s.shopee.vn):
+  // Đây là Universal Link chính thức của Shopee, trình duyệt iOS/Android sẽ tự động
+  // xử lý chuyển tiếp, ghi nhận cookie hoa hồng và mở app Shopee nếu có cài đặt.
+  // Không được bọc vào `shopeevn://main?apprl=` vì apprl trong app Shopee không hỗ trợ
+  // phân giải redirect HTTP 302 của link rút gọn bên ngoài, gây lỗi webview ("Rất tiếc, có lỗi xảy ra").
+  if (url.includes("shope.ee") || url.includes("s.shopee.vn")) {
+    return;
+  }
+
+  // Trên mobile với link trực tiếp shopeefood.vn / shopee.vn: Chặn tạo tab mới và mở deep link app
   if (e && typeof e.preventDefault === "function") {
     e.preventDefault();
   }
