@@ -170,11 +170,16 @@ export function reduceFoodieProgress(state: FoodieProgressState, event: FoodiePr
     return validation.valid && validation.name !== state.petName ? { ...state, petName: validation.name } : state;
   }
   if (event.type === "restaurantOpened") {
-    if (!isRewardableShopeeFoodLink(event.url) || !validDate(event.date)
-      || state.rewardedRestaurantDates.includes(event.date)) return state;
-    const rewardedRestaurantDates = [...state.rewardedRestaurantDates, event.date].sort();
-    return { ...state, xp: nonnegativeInteger(state.xp + 2), rewardedRestaurantDates,
-      lastRestaurantRewardDate: rewardedRestaurantDates.at(-1)! };
+    if (!isRewardableShopeeFoodLink(event.url) || !validDate(event.date)) return state;
+    const rewardedRestaurantDates = state.rewardedRestaurantDates.includes(event.date)
+      ? state.rewardedRestaurantDates
+      : [...state.rewardedRestaurantDates, event.date].sort();
+    return {
+      ...state,
+      xp: nonnegativeInteger(state.xp + 2),
+      rewardedRestaurantDates,
+      lastRestaurantRewardDate: rewardedRestaurantDates.at(-1) || event.date,
+    };
   }
   if (!event.id || event.id.length > 256) return state;
   if (event.type === "setChecked") {

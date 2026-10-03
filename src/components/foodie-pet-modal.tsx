@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { Check, ChevronRight, Pencil, RotateCcw, Share2, ShoppingBag, Sparkles, X } from "lucide-react";
-import { getPetLevel, getPetProgress, hasRestaurantRewardToday, validatePetName, type FoodieProgressState } from "@/lib/foodie-streak";
+import { getPetLevel, getPetProgress, validatePetName, type FoodieProgressState } from "@/lib/foodie-streak";
 import type { Language } from "@/lib/i18n";
 import { FoodiePetLevels } from "./foodie-pet-levels";
 import "./foodie-pet-modal.css";
@@ -43,9 +43,8 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
   const [shareCopied, setShareCopied] = useState(false);
   const progress = getPetProgress(state.xp);
   const level = progress.level;
-  const restaurantRewardReceived = hasRestaurantRewardToday(state) && !storageError;
   const levelName = vi ? level.nameVi : level.nameEn;
-  const restaurantRewardBadge = <b className={`pet-home-reward${restaurantRewardReceived ? " is-received" : ""}`}>{restaurantRewardReceived ? <><Check size={13} aria-hidden="true" /><span>{vi ? "Đã nhận" : "Received"}</span><span className="pet-home-sr-only">{vi ? " 2 XP hôm nay" : " 2 XP today"}</span></> : "+2 XP"}</b>;
+  const restaurantRewardBadge = <b className="pet-home-reward">+2 XP</b>;
 
   useEffect(() => {
     const updateVisibility = () => setTabHidden(document.hidden);
@@ -233,7 +232,7 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
                     </div>
                     <span className="pet-home-activity-content">
                       <span className="pet-home-activity-title">{vi ? "Mở quán trên ShopeeFood" : "Open a ShopeeFood restaurant"}</span>
-                      <small>{vi ? "Mở từ món đã chọn · Tối đa 1 lần/ngày" : "From your chosen dish · Once a day"}</small>
+                      <small>{vi ? "Mỗi lượt mở quán · Không giới hạn" : "Every opened spot · No limit"}</small>
                     </span>
                     {restaurantRewardBadge}
                     <ChevronRight size={16} strokeWidth={2.4} className="pet-home-activity-arrow" aria-hidden="true" />
@@ -245,15 +244,15 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
                     </div>
                     <span className="pet-home-activity-content">
                       <span className="pet-home-activity-title">{vi ? "Mở quán trên ShopeeFood" : "Open a ShopeeFood restaurant"}</span>
-                      <small>{vi ? "Chọn món rồi mở quán trong kết quả" : "Choose a dish, then open a restaurant from the result"}</small>
+                      <small>{vi ? "Chọn món rồi mở quán · Không giới hạn" : "Pick dish then open spot · No limit"}</small>
                     </span>
                     {restaurantRewardBadge}
                   </div>
                 )}
               </div>
-              <div className={`pet-home-tip${restaurantRewardReceived ? " is-completed" : ""}`}>
-                <span className="pet-home-tip-bulb" aria-hidden="true">{restaurantRewardReceived ? "✨" : "💡"}</span>
-                <p className="pet-home-reward-note">{restaurantRewardReceived ? vi ? "Đã nhận 2 XP hôm nay. Bạn vẫn có thể tiếp tục khám phá quán." : "You received 2 XP today. You can keep exploring restaurants." : vi ? "Nhận 2 XP khi mở quán trên ShopeeFood, tối đa 1 lần/ngày." : "Earn 2 XP for opening a ShopeeFood restaurant, once a day."}</p>
+              <div className="pet-home-tip">
+                <span className="pet-home-tip-bulb" aria-hidden="true">💡</span>
+                <p className="pet-home-reward-note">{vi ? "Nhận +2 XP mỗi lần mở quán trên ShopeeFood, không giới hạn số lượt." : "Earn +2 XP every time you open a ShopeeFood restaurant, with no limits."}</p>
               </div>
             </section>
           </div>

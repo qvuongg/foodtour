@@ -391,11 +391,9 @@ export function FoodOrdering({
       </a>
 
       {rewardable && <p className="ordering-xp-note" role="status" aria-live="polite">
-        {restaurantRewardedToday
-          ? progressStorageError
-            ? vi ? "Đã nhận 2 XP trong phiên này · Chưa lưu được trên thiết bị" : "2 XP earned in this session · Not saved on this device yet"
-            : vi ? "Đã nhận 2 XP mở quán hôm nay" : "2 XP earned for opening a restaurant today"
-          : vi ? "+2 XP khi mở quán · Tối đa 1 lần/ngày" : "+2 XP for opening a restaurant · Once per day"}
+        {progressStorageError
+          ? vi ? "+2 XP trong phiên này · Chưa lưu được trên thiết bị" : "+2 XP in this session · Not saved on this device yet"
+          : vi ? "+2 XP mỗi lần mở quán · Không giới hạn" : "+2 XP every time you open a restaurant · No limit"}
       </p>}
 
       {isSpecific && !primarySpot && (

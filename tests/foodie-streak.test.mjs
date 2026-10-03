@@ -299,7 +299,7 @@ const restaurantURL = 'https://shopeefood.vn/da-nang/pho-ha-thanh-bo-ga';
 const affiliateURL = 'https://shopeefood.vn/now-food/affiliate/landing-page?brandId=15544&mmp_pid=an_17316810077&restaurantId=947982';
 const restaurantEvent = (date, url = restaurantURL) => ({ type: 'restaurantOpened', date, url });
 
-test('restaurant discovery gives +2 once per Vietnam day across different eligible URLs', async () => {
+test('restaurant discovery gives +2 XP per eligible URL without daily cap', async () => {
   const storage = memoryStorage();
   const store = createFoodieProgressStore(storage);
   const now = new Date('2026-10-02T05:00:00Z');
@@ -308,7 +308,7 @@ test('restaurant discovery gives +2 once per Vietnam day across different eligib
   assert.equal(await store.openRestaurant(restaurantURL, now), true);
   const state = store.getSnapshot().state;
   assert.deepEqual([state.xp, state.rewardedRestaurantDates, state.lastRestaurantRewardDate],
-    [5, ['2026-10-02'], '2026-10-02']);
+    [9, ['2026-10-02'], '2026-10-02']);
   assert.deepEqual([state.totalSpins, state.dailyStreak, state.lastActiveDate], [0, 0, '']);
   assert.equal(hasRestaurantRewardToday(state, now), true);
   assert.equal(hasRestaurantRewardToday(state, new Date('2026-10-03T05:00:00Z')), false);
@@ -342,18 +342,20 @@ test('older v2 snapshots gain empty restaurant reward fields without changing pr
   assert.deepEqual(store.getSnapshot().state, { ...old, rewardedRestaurantDates: [], lastRestaurantRewardDate: '' });
 });
 
-test('restaurant daily cap resets at Vietnam midnight, without a separate daily bonus', async () => {
+test('restaurant rewards work across dates and multiple opens on the same day', async () => {
   const store = createFoodieProgressStore(memoryStorage());
   await store.openRestaurant(restaurantURL, new Date('2026-10-01T16:59:59Z'));
   assert.equal(store.getSnapshot().state.xp, 5);
   await store.openRestaurant(affiliateURL, new Date('2026-10-01T17:00:00Z'));
   assert.deepEqual([store.getSnapshot().state.xp, store.getSnapshot().state.rewardedRestaurantDates],
     [7, ['2026-10-01', '2026-10-02']]);
+  await store.openRestaurant(restaurantURL, new Date('2026-10-01T17:00:30Z'));
+  assert.equal(store.getSnapshot().state.xp, 9, 'subsequent restaurant open earns +2 XP without limit');
   await store.completeSpin('spin-same-day', new Date('2026-10-01T17:01:00Z'));
-  assert.equal(store.getSnapshot().state.xp, 8, 'completed spin still awards exactly +1');
+  assert.equal(store.getSnapshot().state.xp, 10, 'completed spin still awards exactly +1');
 });
 
-test('failed restaurant rewards remain pending, and reload after retry never doubles them', async () => {
+test('failed restaurant rewards remain pending, and save on retry', async () => {
   const storage = memoryStorage();
   const store = createFoodieProgressStore(storage);
   await store.initialize();
@@ -361,19 +363,19 @@ test('failed restaurant rewards remain pending, and reload after retry never dou
   storage.failWrite = true;
   assert.equal(await store.openRestaurant(restaurantURL, now), false);
   assert.equal(await store.openRestaurant(affiliateURL, now), false);
-  assert.equal(store.getSnapshot().state.xp, 5);
+  assert.equal(store.getSnapshot().state.xp, 7);
   assert.equal(store.getSnapshot().storageError, 'write-failed');
   assert.equal(JSON.parse(storage.data.get(FOODIE_STORAGE_KEY)).xp, 3);
   store.refresh();
-  assert.equal(store.getSnapshot().state.xp, 5);
+  assert.equal(store.getSnapshot().state.xp, 7);
   storage.failWrite = false;
   await store.retrySave();
   const reloaded = createFoodieProgressStore(storage);
   await reloaded.openRestaurant(restaurantURL, now);
-  assert.deepEqual([reloaded.getSnapshot().state.xp, reloaded.getSnapshot().state.rewardedRestaurantDates], [5, ['2026-10-02']]);
+  assert.deepEqual([reloaded.getSnapshot().state.xp, reloaded.getSnapshot().state.rewardedRestaurantDates], [9, ['2026-10-02']]);
 });
 
-test('two tabs share the restaurant cap even when clicking different restaurants simultaneously', async () => {
+test('two tabs earn rewards when clicking different restaurants simultaneously', async () => {
   const storage = memoryStorage();
   let queue = Promise.resolve();
   const exclusive = (operation) => { const result = queue.then(operation); queue = result.catch(() => {}); return result; };
@@ -382,7 +384,7 @@ test('two tabs share the restaurant cap even when clicking different restaurants
   const now = new Date('2026-10-02T05:00:00Z');
   await Promise.all([a.openRestaurant(restaurantURL, now), b.openRestaurant(affiliateURL, now)]);
   a.refresh(); b.refresh();
-  assert.equal(a.getSnapshot().state.xp, 5);
+  assert.equal(a.getSnapshot().state.xp, 7);
   assert.deepEqual(a.getSnapshot().state, b.getSnapshot().state);
   assert.deepEqual(a.getSnapshot().state.rewardedRestaurantDates, ['2026-10-02']);
 });
@@ -400,12 +402,12 @@ test('retry of a pending earlier day merges after a newer day without moving las
   await a.retrySave();
   await a.openRestaurant(affiliateURL, yesterday);
   assert.deepEqual([a.getSnapshot().state.xp, a.getSnapshot().state.rewardedRestaurantDates,
-    a.getSnapshot().state.lastRestaurantRewardDate], [7, ['2026-10-01', '2026-10-02'], '2026-10-02']);
+    a.getSnapshot().state.lastRestaurantRewardDate], [9, ['2026-10-01', '2026-10-02'], '2026-10-02']);
   b.refresh();
   assert.deepEqual(a.getSnapshot().state, b.getSnapshot().state);
 });
 
-test('a failed same-day restaurant reward does not stack with another tab that already saved it', async () => {
+test('concurrent restaurant rewards across tabs combine correctly without losing points', async () => {
   const storage = memoryStorage();
   const a = createFoodieProgressStore(storage);
   await a.initialize();
@@ -416,7 +418,8 @@ test('a failed same-day restaurant reward does not stack with another tab that a
   const b = createFoodieProgressStore(storage);
   await b.openRestaurant(affiliateURL, now);
   await a.retrySave();
-  assert.equal(a.getSnapshot().state.xp, 5);
+  b.refresh();
+  assert.equal(a.getSnapshot().state.xp, 7);
   assert.deepEqual(a.getSnapshot().state.rewardedRestaurantDates, ['2026-10-02']);
 });
 
