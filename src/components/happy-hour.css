@@ -1,5 +1,95 @@
 .happy-hour { min-width: 0; color: var(--foreground); }
-.happy-hour-intro { margin: 0 0 18px; color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
+.happy-hour-intro { margin: 0 0 14px; color: var(--muted-foreground); font-size: 13px; line-height: 1.5; }
+.happy-hour-categories {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin: 0 0 16px;
+  padding: 2px 1px 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.happy-hour-categories::-webkit-scrollbar {
+  display: none;
+}
+.happy-hour-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted-foreground);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+.happy-hour-cat-btn:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+.happy-hour-cat-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 1px 4px rgba(220, 38, 38, 0.25);
+}
+.happy-hour-cat-btn .cat-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+.happy-hour-combo-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -6px 0 14px;
+  padding: 0 1px;
+}
+.combo-toggle-hint {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  line-height: 1.3;
+}
+.happy-hour-combo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  user-select: none;
+}
+.happy-hour-combo-pill:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+.happy-hour-combo-pill.is-active {
+  background: #fff4ed;
+  border-color: #fdba74;
+  color: #ea580c;
+}
+.happy-hour-combo-pill .combo-pill-check {
+  font-size: 11px;
+  font-weight: 700;
+}
+.happy-hour-combo-pill .combo-pill-icon {
+  font-size: 11px;
+  line-height: 1;
+}
 .happy-hour-controls { padding-bottom: 18px; border-bottom: 1px solid var(--border); }
 .happy-hour-budget-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .happy-hour-budget-heading label, .happy-hour-people > span { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; }

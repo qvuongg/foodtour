@@ -30,7 +30,6 @@ export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, s
   const voucherRef = useRef<HTMLButtonElement>(null);
   const happyRef = useRef<HTMLButtonElement>(null);
   const checklistRef = useRef<HTMLButtonElement>(null);
-  const checkedCount = state.checkedSpotIds.length;
   const total = CITY_CHECKLISTS.reduce((sum, city) => sum + city.items.length, 0);
   useEffect(() => { if (open) { setView("home"); } }, [open]);
   function show(next: MenuView) {
@@ -58,7 +57,7 @@ export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, s
             <p className="menu-hub-intro">{vi ? "Một chút cảm hứng cho cuộc hẹn tiếp theo." : "A little inspiration for your next get-together."}</p>
             <nav className="menu-hub-nav" aria-label={vi ? "Tiện ích" : "Tools"}>
               <button ref={voucherRef} className="menu-nav-button" data-destination="voucher" onClick={() => show("voucher")}><span className="menu-nav-icon is-voucher"><Ticket size={23} aria-hidden="true" /></span><span><strong>Voucher</strong><small>{vi ? "Khám phá ưu đãi ShopeeFood" : "Explore ShopeeFood offers"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
-              <button ref={checklistRef} className="menu-nav-button" data-destination="checklist" onClick={() => show("checklist")}><span className="menu-nav-icon is-journal"><BookOpen size={22} aria-hidden="true" /></span><span><strong>{vi ? "Checklist món local" : "Local food checklist"}</strong><small>{vi ? `${checkedCount}/${total} món đã thử · 3 thành phố` : `${checkedCount}/${total} tried · 3 cities`}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+              <button ref={checklistRef} className="menu-nav-button" data-destination="checklist" onClick={() => show("checklist")}><span className="menu-nav-icon is-journal"><BookOpen size={22} aria-hidden="true" /></span><span><strong>{vi ? "Món ngon local" : "Local food"}</strong><small>{vi ? `${total} món đặc sản · 3 thành phố` : `${total} local dishes · 3 cities`}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
               <button ref={happyRef} className="menu-nav-button" data-destination="happy-hour" onClick={() => show("happy-hour")}><span className="menu-nav-icon is-happy"><PartyPopper size={23} aria-hidden="true" /></span><span><strong>Happy Hour</strong><small>{vi ? "Lên menu vừa túi tiền cả nhóm" : "Plan a menu for your group"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
             </nav>
           </>}
