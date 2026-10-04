@@ -7,8 +7,17 @@ import { handleShopeeFoodClick } from "@/lib/shopee-deeplink";
 import type { Language } from "@/lib/i18n";
 import "./brand-carousel.css";
 
-export function BrandCarousel({ language }: { language: Language }) {
+export function BrandCarousel({
+  language,
+  city,
+}: {
+  language: Language;
+  city?: string;
+}) {
   const vi = language === "vi";
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   return (
     <section
@@ -20,7 +29,7 @@ export function BrandCarousel({ language }: { language: Language }) {
           {vi ? "THƯƠNG HIỆU NỔI BẬT" : "POPULAR BRANDS"}
         </span>
         <h3 id="brand-carousel-heading" className="brand-heading">
-          <span>{vi ? "Quán quen bạn nên thử" : "Famous brands to try"}</span>
+          <span>{vi ? "Quán ngon bạn nên thử" : "Famous brands to try"}</span>
           <span className="brand-heading-badge">
             {TOP_BEVERAGE_BRANDS.length}
           </span>
@@ -36,18 +45,21 @@ export function BrandCarousel({ language }: { language: Language }) {
         tabIndex={0}
       >
         {TOP_BEVERAGE_BRANDS.map((brand) => {
-          const link = resolveBrandShopeeLink(brand);
+          const link = resolveBrandShopeeLink(brand, city);
+          const restaurantUrl =
+            (city && brand.cityBranches?.[city]?.originalUrl) ||
+            brand.restaurantUrl;
           const displayName = brand.shortName || brand.name;
 
           return (
             <a
               key={brand.id}
               href={link}
-              target="_blank"
-              rel="noopener noreferrer"
+              target={isMobile ? undefined : "_blank"}
+              rel="sponsored noopener noreferrer"
               className="brand-card"
-              onClick={(e) => handleShopeeFoodClick(link, e)}
-              title={`${vi ? "Mở ShopeeFood" : "Order on ShopeeFood"}: ${brand.name}`}
+              onClick={(e) => handleShopeeFoodClick(link, e, restaurantUrl)}
+              title={`${vi ? "Đặt trên ShopeeFood" : "Order on ShopeeFood"}: ${brand.name}`}
             >
               <div className="brand-logo-wrapper">
                 <img

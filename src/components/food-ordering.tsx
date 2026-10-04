@@ -63,7 +63,7 @@ function resolveSpotLink(
         if (parsed.protocol === "https:" || parsed.protocol === "http:") {
           return trimmedAff;
         }
-      } catch {}
+      } catch { }
     }
   }
 
@@ -143,7 +143,7 @@ export function FoodOrdering({
               3000,
               15,
             );
-          } catch {}
+          } catch { }
         }
 
         if (spots.length > 0) {
@@ -393,7 +393,7 @@ export function FoodOrdering({
       {rewardable && <p className="ordering-xp-note" role="status" aria-live="polite">
         {progressStorageError
           ? vi ? "+2 XP trong phiên này · Chưa lưu được trên thiết bị" : "+2 XP in this session · Not saved on this device yet"
-          : vi ? "+2 XP mỗi lần mở quán · Không giới hạn" : "+2 XP every time you open a restaurant · No limit"}
+          : vi ? "+2 XP mỗi lần mở quán" : "+2 XP every time you open a restaurant"}
       </p>}
 
       {isSpecific && !primarySpot && (

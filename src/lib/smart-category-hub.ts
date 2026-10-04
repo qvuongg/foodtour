@@ -91,29 +91,57 @@ export function detectFoodCategory(dish: string): FoodCategory {
     return "vegetarian";
   }
 
-  // 2. Món Nước, Bún, Phở, Mì, Hủ tiếu
+  // 2. Bánh mì, Món cuốn, Fastfood (Bắt trước mì để tránh 'bánh mì' dính vào 'mì')
   if (
-    name.includes("bún") ||
-    name.includes("phở") ||
-    name.includes("mì") ||
-    name.includes("miến") ||
-    name.includes("hủ tiếu") ||
-    name.includes("bánh canh") ||
-    name.includes("ramen") ||
-    name.includes("udon") ||
-    name.includes("nui") ||
-    name.includes("súp") ||
-    name.includes("cháo") ||
-    name.includes("hoành thánh") ||
-    name.includes("sủi cảo")
+    name.includes("bánh mì") ||
+    name.includes("bánh mỳ") ||
+    name.includes("bánh cuốn") ||
+    name.includes("bánh xèo") ||
+    name.includes("bánh bèo") ||
+    name.includes("bột lọc") ||
+    name.includes("gỏi cuốn") ||
+    name.includes("nem cuốn") ||
+    name.includes("phở cuốn") ||
+    name.includes("chả giò") ||
+    name.includes("burger") ||
+    name.includes("pizza") ||
+    name.includes("sandwich") ||
+    name.includes("gà rán") ||
+    name.includes("taco") ||
+    name.includes("burrito") ||
+    name.includes("wrap") ||
+    name.includes("bánh bao") ||
+    name.includes("bánh giò") ||
+    name.includes("bánh ướt")
   ) {
-    return "noodles";
+    return "rolls_bread";
   }
 
-  // 3. Món Cơm, Xôi
+  // 3. Lẩu, Nướng, Quốc tế
+  if (
+    name.includes("lẩu") ||
+    name.includes("nướng") ||
+    name.includes("bbq") ||
+    name.includes("sushi") ||
+    name.includes("sashimi") ||
+    name.includes("kimbap") ||
+    name.includes("tokbokki") ||
+    name.includes("tteokbokki") ||
+    name.includes("steak") ||
+    name.includes("bít tết") ||
+    name.includes("pasta") ||
+    name.includes("curry") ||
+    name.includes("dimsum")
+  ) {
+    return "international_hotpot";
+  }
+
+  // 4. Món Cơm, Xôi (Bắt trước udon để tránh 'gyudon' dính vào 'udon')
   if (
     name.includes("cơm") ||
     name.includes("xôi") ||
+    name.includes("gyudon") ||
+    name.includes("bibimbap") ||
     name.includes("sườn") ||
     name.includes("lúc lắc") ||
     name.includes("heo quay") ||
@@ -122,26 +150,30 @@ export function detectFoodCategory(dish: string): FoodCategory {
     return "rice";
   }
 
-  // 4. Bánh mì, Món cuốn, Fastfood
+  // 5. Món Nước, Bún, Phở, Mì, Hủ tiếu
   if (
-    name.includes("bánh mì") ||
-    name.includes("bánh cuốn") ||
-    name.includes("bánh xèo") ||
-    name.includes("bánh bèo") ||
-    name.includes("bột lọc") ||
-    name.includes("gỏi cuốn") ||
-    name.includes("nem cuốn") ||
-    name.includes("chả giò") ||
-    name.includes("burger") ||
-    name.includes("pizza") ||
-    name.includes("sandwich") ||
-    name.includes("gà rán") ||
-    name.includes("taco")
+    name.includes("bún") ||
+    name.includes("phở") ||
+    name.includes("bánh đa") ||
+    name.includes("mì") ||
+    name.includes("miến") ||
+    name.includes("hủ tiếu") ||
+    name.includes("bánh canh") ||
+    name.includes("ramen") ||
+    name.includes("udon") ||
+    name.includes("soba") ||
+    name.includes("kalguksu") ||
+    name.includes("nui") ||
+    name.includes("súp") ||
+    name.includes("cháo") ||
+    name.includes("canh") ||
+    name.includes("hoành thánh") ||
+    name.includes("sủi cảo")
   ) {
-    return "rolls_bread";
+    return "noodles";
   }
 
-  // 5. Đồ uống, Trà sữa, Ăn vặt
+  // 6. Đồ uống, Trà sữa, Ăn vặt
   if (
     name.includes("trà") ||
     name.includes("cà phê") ||
@@ -154,24 +186,6 @@ export function detectFoodCategory(dish: string): FoodCategory {
     name.includes("tráng miệng")
   ) {
     return "drinks_desserts";
-  }
-
-  // 6. Lẩu, Nướng, Quốc tế
-  if (
-    name.includes("lẩu") ||
-    name.includes("nướng") ||
-    name.includes("bbq") ||
-    name.includes("sushi") ||
-    name.includes("sashimi") ||
-    name.includes("kimbap") ||
-    name.includes("tokbokki") ||
-    name.includes("tteokbokki") ||
-    name.includes("steak") ||
-    name.includes("pasta") ||
-    name.includes("curry") ||
-    name.includes("dimsum")
-  ) {
-    return "international_hotpot";
   }
 
   return "general";

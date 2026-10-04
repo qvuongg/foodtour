@@ -100,9 +100,70 @@ export function FoodSpotlight({
     const next = new Map<number, Food | RestaurantRouletteItem>();
     for (let slot = anchor - 4; slot <= anchor + 4; slot++)
       next.set(slot, at(slot));
-    for (let slot = anchor + 5; slot <= end + 4; slot++)
-      next.set(slot, (currentSpin.fillers as (Food | RestaurantRouletteItem)[])[slot - anchor] ?? currentSpin.winner);
+    for (let slot = anchor + 5; slot <= end + 6; slot++) {
+      const filler = (currentSpin.fillers as (Food | RestaurantRouletteItem)[])[slot - anchor];
+      if (filler) {
+        next.set(slot, filler);
+      } else {
+        // Fallback: chọn tuần tự từ items thay vì nhân bản winner
+        const fb = items[((slot % items.length) + items.length) % items.length];
+        next.set(slot, fb);
+      }
+    }
     next.set(end, currentSpin.winner);
+
+    // Sanity pass: Đảm bảo không có 2 ô liền kề trùng nhau và các ô sát winner không trùng winner
+    const getItemKey = (item: Food | RestaurantRouletteItem | undefined | null): string => {
+      if (!item) return "";
+      if ("customId" in item && item.customId) return String(item.customId);
+      if ("image" in item && typeof item.image === "number") return `img_${item.image}`;
+      if ("id" in item && item.id) return String(item.id);
+      return item.name;
+    };
+
+    const winnerKey = getItemKey(currentSpin.winner);
+
+    // 1. Các ô trong vùng winner ± 2 ô TUYỆT ĐỐI không trùng winner
+    if (items.length > 1) {
+      for (const offset of [-2, -1, 1, 2]) {
+        const slot = end + offset;
+        const cur = next.get(slot);
+        if (!cur || getItemKey(cur) === winnerKey) {
+          const neighborKeys = new Set([
+            winnerKey,
+            getItemKey(next.get(slot - 1)),
+            getItemKey(next.get(slot + 1)),
+          ]);
+          const rep = items.find((c) => !neighborKeys.has(getItemKey(c))) ?? items.find((c) => getItemKey(c) !== winnerKey);
+          if (rep) next.set(slot, rep);
+        }
+      }
+    }
+
+    // 2. Toàn dải cuộn quay: không bao giờ để 2 ô liền kề trùng nhau
+    if (items.length > 1) {
+      for (let slot = anchor - 3; slot <= end + 6; slot++) {
+        const cur = next.get(slot);
+        const prev = next.get(slot - 1);
+        if (cur && prev && getItemKey(cur) === getItemKey(prev)) {
+          if (slot === end) {
+            const neighborKeys = new Set([getItemKey(next.get(slot - 2)), winnerKey]);
+            const rep = items.find((c) => !neighborKeys.has(getItemKey(c)));
+            if (rep) next.set(slot - 1, rep);
+          } else {
+            const nextKey = getItemKey(next.get(slot + 1));
+            const forbidden = new Set([
+              getItemKey(prev),
+              nextKey,
+              Math.abs(slot - end) <= 2 ? winnerKey : "",
+            ]);
+            const rep = items.find((c) => !forbidden.has(getItemKey(c))) ?? items.find((c) => getItemKey(c) !== getItemKey(prev));
+            if (rep) next.set(slot, rep);
+          }
+        }
+      }
+    }
+
     sequence.current = next;
     let frame = 0,
       started: number | undefined,

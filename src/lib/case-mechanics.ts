@@ -67,3 +67,80 @@ export function spinProgress(progress:number,friction:number) {
  const p=Math.max(0,Math.min(1,progress));
  return 1-Math.pow(1-p,friction);
 }
+
+/**
+ * Sinh danh sách các thẻ bài trên cuộn quay (reel fillers) theo tiêu chuẩn CS:GO / Casino:
+ * 1. Tuyệt đối không bao giờ có 2 ô liền kề trùng nhau (tile[i] !== tile[i - 1]).
+ * 2. Vùng sát ô chiến thắng (winnerSlotIndex ± 2 ô) TUYỆT ĐỐI không được trùng với winner,
+ *    giúp người dùng nhìn vào cụm thẻ bài trung tâm luôn thấy các món khác nhau, tạo cảm giác
+ *    "suýt trúng" kịch tính và loại bỏ hoàn toàn lỗi lặp 3 món liên tiếp.
+ * 3. Nếu kho món >= 4, ngăn chặn cả mô hình lặp A - B - A (tile[i] !== tile[i - 2]).
+ */
+export function generateReelFillers<T extends { name: string }>(
+  pool: T[],
+  winner: T,
+  totalLength: number,
+  winnerSlotIndex: number,
+  chooseWeighted?: (pool: T[]) => T,
+): T[] {
+  if (!pool.length) return [];
+  if (pool.length === 1) return Array(totalLength).fill(pool[0]);
+
+  const getItemId = (item: T): string => {
+    if ("customId" in item && (item as any).customId) return String((item as any).customId);
+    if ("image" in item && typeof (item as any).image === "number") return `img_${(item as any).image}`;
+    if ("id" in item && (item as any).id) return String((item as any).id);
+    return item.name;
+  };
+
+  const isSame = (a: T | null | undefined, b: T | null | undefined): boolean => {
+    if (!a || !b) return false;
+    return getItemId(a) === getItemId(b) || a.name === b.name;
+  };
+
+  const result: T[] = [];
+
+  for (let i = 0; i < totalLength; i++) {
+    // Vùng xung quanh winner (winner ± 2 ô)
+    const isAdjacentToWinner = Math.abs(i - winnerSlotIndex) <= 2;
+    const prev = result[i - 1] ?? null;
+    const prev2 = pool.length >= 4 ? (result[i - 2] ?? null) : null;
+
+    const isForbidden = (candidate: T): boolean => {
+      if (isSame(candidate, prev)) return true;
+      if (isAdjacentToWinner && isSame(candidate, winner)) return true;
+      if (prev2 && isSame(candidate, prev2)) return true;
+      return false;
+    };
+
+    let picked: T | null = null;
+
+    if (chooseWeighted) {
+      for (let attempt = 0; attempt < 15; attempt++) {
+        const candidate = chooseWeighted(pool);
+        if (!isForbidden(candidate)) {
+          picked = candidate;
+          break;
+        }
+      }
+    }
+
+    if (!picked) {
+      const validCandidates = pool.filter((c) => !isForbidden(c));
+      if (validCandidates.length > 0) {
+        picked = validCandidates[Math.floor(Math.random() * validCandidates.length)];
+      } else {
+        const fallbackCandidates = pool.filter((c) => !isSame(c, prev));
+        if (fallbackCandidates.length > 0) {
+          picked = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
+        } else {
+          picked = pool[i % pool.length];
+        }
+      }
+    }
+
+    result.push(picked);
+  }
+
+  return result;
+}

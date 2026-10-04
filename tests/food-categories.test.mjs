@@ -69,17 +69,17 @@ try {
     const snackFoods = getMealFoods("snack");
     const pubFoods = getMealFoods("nhau");
 
-    assert.equal(lunchFoods.length, 128);
+    assert.equal(lunchFoods.length, 168);
     assert.equal(drinkFoods.length, 72);
     assert.equal(snackFoods.length, 96);
     assert.equal(pubFoods.length, 48);
 
     const allFoods = [...lunchFoods, ...drinkFoods, ...snackFoods, ...pubFoods];
-    assert.equal(allFoods.length, 344);
+    assert.equal(allFoods.length, 384);
 
     // Verify all image IDs are unique across entire database
     const allImages = allFoods.map((f) => f.image);
-    assert.equal(new Set(allImages).size, 344, "All food image IDs must be unique");
+    assert.equal(new Set(allImages).size, 384, "All food image IDs must be unique");
 
     for (const f of drinkFoods) {
       assert.ok(f.name.length > 0);

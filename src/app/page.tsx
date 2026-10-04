@@ -19,7 +19,7 @@ import { haversineDistanceKm } from "@/lib/geo-distance";
 import { hasRestaurantRewardToday } from "@/lib/foodie-streak";
 import { SHOPEE_RESTAURANT_OPEN_EVENT } from "@/lib/shopee-reward";
 import { readCookie, writeCookie } from "@/lib/cookies";
-import { createSpinProfile } from "@/lib/case-mechanics";
+import { createSpinProfile, generateReelFillers } from "@/lib/case-mechanics";
 import type { Food } from "@/lib/foods";
 import { copy, foodName, priceLabel, type Language } from "@/lib/i18n";
 import { useLocalSpinCount } from "@/hooks/use-local-spin-count";
@@ -394,10 +394,12 @@ export default function Home() {
         "(prefers-reduced-motion: reduce)",
       ).matches;
       const profile = createSpinProfile(Math.random, reducedMotion);
-      const fillers = Array.from({ length: profile.tiles + 5 }, () =>
-        eligibleRestaurants[
-          Math.floor(Math.random() * eligibleRestaurants.length)
-        ],
+      const fillers = generateReelFillers(
+        eligibleRestaurants,
+        winner,
+        profile.tiles + 12,
+        profile.tiles,
+        (pool) => pool[Math.floor(Math.random() * pool.length)],
       );
       setSpinning(true);
       setRestaurantRevealed(false);
@@ -427,8 +429,12 @@ export default function Home() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const profile = createSpinProfile(Math.random, reducedMotion);
-    const fillers = Array.from({ length: profile.tiles + 5 }, () =>
-      lunchSelector.choose(eligible),
+    const fillers = generateReelFillers(
+      eligible,
+      winner,
+      profile.tiles + 12,
+      profile.tiles,
+      () => lunchSelector.choose(eligible),
     );
     setSpinning(true);
     setRevealed(false);
@@ -770,7 +776,9 @@ export default function Home() {
           }}
         />
 
-        {mealKind === "drink" && <BrandCarousel language={language} />}
+        {mealKind === "drink" && (
+          <BrandCarousel language={language} city={activeCity} />
+        )}
 
         <section className="inventory" id="menu" aria-labelledby="menu-title">
           <div className="section-heading">

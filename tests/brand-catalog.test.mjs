@@ -55,15 +55,60 @@ test("TOP_BEVERAGE_BRANDS includes national iconic brands", () => {
   assert.ok(ids.includes("phuclong"), "Phúc Long should be included");
   assert.ok(ids.includes("phela"), "Phê La should be included");
   assert.ok(ids.includes("katinat"), "Katinat should be included");
-  assert.ok(ids.includes("thecoffeehouse"), "The Coffee House should be included");
   assert.ok(ids.includes("starbucks"), "Starbucks should be included");
+  assert.ok(ids.includes("mixue"), "Mixue should be included");
+  assert.ok(ids.includes("gongcha"), "Gong Cha should be included");
 });
 
-test("resolveBrandShopeeLink generates valid affiliate link with UTM parameters", () => {
+test("resolveBrandShopeeLink prioritizes direct affiliateUrl and cityBranches from database", () => {
   const highlands = TOP_BEVERAGE_BRANDS.find((b) => b.id === "highlands");
   assert.ok(highlands);
 
-  const urlStr = resolveBrandShopeeLink(highlands, "da-nang");
+  // Da Nang branch
+  const urlDaNang = resolveBrandShopeeLink(highlands, "da-nang");
+  assert.equal(urlDaNang, "https://shope.ee/3VkfEe8V7W");
+
+  // Hanoi branch
+  const urlHanoi = resolveBrandShopeeLink(highlands, "ha-noi");
+  assert.equal(urlHanoi, "https://shope.ee/6VOGo9x52q");
+
+  // HCM branch
+  const urlHcm = resolveBrandShopeeLink(highlands, "ho-chi-minh");
+  assert.equal(urlHcm, "https://shope.ee/8fSlO8opf4");
+
+  // Fallback to primary brand affiliate link when no city specified
+  const urlDefault = resolveBrandShopeeLink(highlands);
+  assert.equal(urlDefault, "https://shope.ee/3VkfEe8V7W");
+});
+
+test("resolveBrandShopeeLink generates valid tracked restaurant URL for brands without shortlink", () => {
+  const koithe = TOP_BEVERAGE_BRANDS.find((b) => b.id === "koithe");
+  assert.ok(koithe);
+
+  const urlHanoi = resolveBrandShopeeLink(koithe, "ha-noi");
+  assert.ok(urlHanoi.startsWith("https://shopeefood.vn/ha-noi/koi-the-cau-giay"));
+  const parsed = new URL(urlHanoi);
+  assert.equal(parsed.searchParams.get("mmp_pid"), "an_17316810077");
+  assert.equal(parsed.searchParams.get("utm_source"), "an_17316810077");
+  assert.equal(parsed.searchParams.get("sub_id"), "brand_koithe");
+});
+
+test("resolveBrandShopeeLink generates valid fallback search URL with UTM parameters when no store in DB", () => {
+  const genericBrand = {
+    id: "generic",
+    name: "Generic Tea",
+    shortName: "Generic",
+    logoUrl: "/brands/generic.png",
+    taglineVi: "Trà",
+    taglineEn: "Tea",
+    initials: "GT",
+    themeColor: "#123456",
+    textColor: "#FFFFFF",
+    searchKeyword: "Generic Tea",
+    subId: "brand_generic",
+  };
+
+  const urlStr = resolveBrandShopeeLink(genericBrand, "da-nang");
   assert.ok(urlStr.startsWith("https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q="));
 
   const parsed = new URL(urlStr);
@@ -71,40 +116,10 @@ test("resolveBrandShopeeLink generates valid affiliate link with UTM parameters"
   assert.equal(parsed.searchParams.get("utm_source"), "an_17316810077");
   assert.equal(parsed.searchParams.get("utm_medium"), "affiliate_food");
   assert.equal(parsed.searchParams.get("utm_campaign"), "foodtour_brand_hub");
-  assert.equal(parsed.searchParams.get("sub_id"), "brand_highlands");
-  assert.equal(parsed.searchParams.get("q"), "Highlands Coffee");
-});
+  assert.equal(parsed.searchParams.get("sub_id"), "brand_generic");
+  assert.equal(parsed.searchParams.get("q"), "Generic Tea");
 
-test("resolveBrandShopeeLink supports other cities gracefully", () => {
-  const phela = TOP_BEVERAGE_BRANDS.find((b) => b.id === "phela");
-  assert.ok(phela);
-
-  const urlHanoi = resolveBrandShopeeLink(phela, "ha-noi");
-  assert.ok(urlHanoi.startsWith("https://shopeefood.vn/ha-noi/danh-sach-dia-diem-giao-tan-noi?q="));
-
-  const urlHcm = resolveBrandShopeeLink(phela, "ho-chi-minh");
-  assert.ok(urlHcm.startsWith("https://shopeefood.vn/ho-chi-minh/danh-sach-dia-diem-giao-tan-noi?q="));
-
-  // Invalid city falls back to DEFAULT_ORDERING_CITY ("da-nang")
-  const urlFallback = resolveBrandShopeeLink(phela, "invalid-city-xyz");
+  // Invalid city falls back gracefully
+  const urlFallback = resolveBrandShopeeLink(genericBrand, "invalid-city-xyz");
   assert.ok(urlFallback.startsWith("https://shopeefood.vn/da-nang/danh-sach-dia-diem-giao-tan-noi?q="));
-});
-
-test("resolveBrandShopeeLink prioritizes direct affiliateUrl if present", () => {
-  const customBrand = {
-    id: "custom",
-    name: "Custom Cafe",
-    shortName: "Custom",
-    taglineVi: "Custom",
-    taglineEn: "Custom",
-    initials: "CC",
-    themeColor: "#123456",
-    textColor: "#FFFFFF",
-    searchKeyword: "Custom",
-    subId: "brand_custom",
-    affiliateUrl: "https://shope.ee/custom12345",
-  };
-
-  const resolved = resolveBrandShopeeLink(customBrand);
-  assert.equal(resolved, "https://shope.ee/custom12345");
 });

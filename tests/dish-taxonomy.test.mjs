@@ -87,6 +87,55 @@ test("matchesTasteCategory correctly differentiates broth, dry, and veg dishes",
   assert.equal(matchesTasteCategory(comTam, "all"), true);
 });
 
+test("matchesTasteCategory prevents bread/rice/dry noodles from leaking into broth and ensures soup dishes belong to broth", () => {
+  // Bread dishes MUST NOT be broth
+  const banhMi = { name: "Bánh mì", sub: "Thịt nướng", price: 25, rarity: 1, image: 2 };
+  const banhMiTrung = { name: "Bánh mì trứng", sub: "Trứng ốp la", price: 20, rarity: 1, image: 144 };
+  const banhMiChao = { name: "Bánh mì chảo", sub: "Trứng, pa tê", price: 40, rarity: 1, image: 120 };
+  const boKhoBanhMi = { name: "Bò kho bánh mì", sub: "Bò hầm & bánh mì", price: 50, rarity: 1, image: 118 };
+  const banhMiChay = { name: "Bánh mì chay", sub: "Chay", price: 25, rarity: 1, image: 34, veg: true };
+
+  for (const item of [banhMi, banhMiTrung, banhMiChao, boKhoBanhMi, banhMiChay]) {
+    assert.equal(matchesTasteCategory(item, "broth"), false, `${item.name} must never be classified as broth`);
+    assert.equal(matchesTasteCategory(item, "dry"), true, `${item.name} must be classified as dry`);
+  }
+
+  // Rice dishes MUST NOT be broth
+  const comBinhDan = { name: "Cơm bình dân", sub: "Chọn món mặn, rau & canh", price: 35, rarity: 1, image: 36 };
+  const comGyudon = { name: "Cơm bò gyudon", sub: "Phần ăn trưa", price: 75, rarity: 1, image: 52 };
+  const bibimbap = { name: "Bibimbap", sub: "Cơm trộn Hàn Quốc", price: 85, rarity: 1, image: 8 };
+
+  for (const item of [comBinhDan, comGyudon, bibimbap]) {
+    assert.equal(matchesTasteCategory(item, "broth"), false, `${item.name} must never be classified as broth`);
+    assert.equal(matchesTasteCategory(item, "dry"), true, `${item.name} must be classified as dry`);
+  }
+
+  // Dry noodle & roll dishes MUST NOT be broth
+  const miXaoBo = { name: "Mì xào bò", sub: "Món ăn trưa", price: 45, rarity: 1, image: 20 };
+  const miTronHQ = { name: "Mì trộn Hàn Quốc", sub: "Món ăn trưa", price: 50, rarity: 1, image: 46 };
+  const miYBoBam = { name: "Mì Ý bò bằm", sub: "Món ăn trưa", price: 65, rarity: 1, image: 29 };
+  const bunDau = { name: "Bún đậu mắm tôm", sub: "Món ăn trưa", price: 45, rarity: 1, image: 15 };
+  const bunThitNuong = { name: "Bún thịt nướng", sub: "Món ăn trưa", price: 45, rarity: 1, image: 13 };
+  const phoCuon = { name: "Phở cuốn", sub: "Phần 10 cuốn", price: 60, rarity: 1, image: 69 };
+
+  for (const item of [miXaoBo, miTronHQ, miYBoBam, bunDau, bunThitNuong, phoCuon]) {
+    assert.equal(matchesTasteCategory(item, "broth"), false, `${item.name} must never be classified as broth`);
+    assert.equal(matchesTasteCategory(item, "dry"), true, `${item.name} must be classified as dry`);
+  }
+
+  // Soup & noodle soup dishes MUST be broth
+  const banhDaCua = { name: "Bánh đa cua", sub: "Món ăn trưa", price: 45, rarity: 1, image: 19 };
+  const samgyetang = { name: "Gà hầm sâm Samgyetang", sub: "Gà non nhồi sâm", price: 120, rarity: 1, image: 133 };
+  const bunBoHue = { name: "Bún bò Huế", sub: "Món ăn trưa", price: 50, rarity: 1, image: 10 };
+  const huTieu = { name: "Hủ tiếu", sub: "Món ăn trưa", price: 45, rarity: 1, image: 11 };
+  const banhCanh = { name: "Bánh canh cua", sub: "Món ăn trưa", price: 55, rarity: 1, image: 39 };
+
+  for (const item of [banhDaCua, samgyetang, bunBoHue, huTieu, banhCanh]) {
+    assert.equal(matchesTasteCategory(item, "broth"), true, `${item.name} must be classified as broth`);
+    assert.equal(matchesTasteCategory(item, "dry"), false, `${item.name} must not be classified as dry`);
+  }
+});
+
 test("city journals contain useful food and drink collections without fabricated required metadata", () => {
   assert.equal(CITY_CHECKLISTS.length, 3);
   const cities = CITY_CHECKLISTS.map((c) => c.cityId);

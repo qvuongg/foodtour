@@ -1,5 +1,21 @@
 import { priceRarity } from './case-mechanics';
-export type Food={customId?:string;name:string;sub:string;price:number;rarity:number;image:number;veg?:boolean;quip:string};
+export type MealPeriod = "breakfast" | "lunch" | "afternoon" | "dinner" | "late" | "night";
+export type Food = {
+  customId?: string;
+  name: string;
+  nameEn?: string;
+  sub: string;
+  price: number;
+  rarity: number;
+  image: number;
+  veg?: boolean;
+  quip: string;
+  kind?: string;
+  category?: string;
+  meals?: (MealPeriod | string)[];
+  serving?: string;
+  groupMeal?: boolean;
+};
 // Approximate lunch portion prices in thousands of VND, not restaurant quotes.
 export const foods:Food[]=[
   {
@@ -974,5 +990,565 @@ export const foods:Food[]=[
   "sub": "Thịt & rau • Việt Nam",
   "quip": "Miến này không phải miếng mồi deadline.",
   "image": 131
+}
+,
+{
+  "name": "Cơm đậu hũ Mapo",
+  "nameEn": "Mapo tofu with rice",
+  "sub": "Đậu hũ, thịt heo băm, sốt tê cay và cơm • Trung Quốc",
+  "price": 80,
+  "image": 168,
+  "quip": "Tê cay vừa đủ để quên câu hỏi ăn gì.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cơm gà Kung Pao",
+  "nameEn": "Kung Pao chicken with rice",
+  "sub": "Gà xào đậu phộng, ớt khô, hành và cơm • Trung Quốc",
+  "price": 95,
+  "image": 169,
+  "quip": "Gà, đậu phộng và một bữa trưa có đáp án.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Mì Dan Dan Tứ Xuyên",
+  "nameEn": "Sichuan Dan Dan noodles",
+  "sub": "Mì lúa mì, thịt heo băm, cải muối và dầu ớt • Trung Quốc",
+  "price": 160,
+  "image": 170,
+  "quip": "Trộn đều rồi để đũa quyết định.",
+  "category": "noodles",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cháo thịt nạc trứng bắc thảo",
+  "nameEn": "Pork & century egg congee",
+  "sub": "Cháo gạo, thịt heo nạc, trứng bắc thảo và gừng • Trung Quốc",
+  "price": 50,
+  "image": 171,
+  "quip": "Một bát cháo ấm cho ngày cần chậm lại.",
+  "category": "hotpot",
+  "meals": [
+    "breakfast",
+    "lunch",
+    "dinner",
+    "late"
+  ]
+},
+{
+  "name": "Cơm heo xào cay Jeyuk",
+  "nameEn": "Spicy pork Jeyuk with rice",
+  "sub": "Thịt heo xào tương ớt, hành tây và cơm • Hàn Quốc",
+  "price": 100,
+  "image": 172,
+  "quip": "Bữa trưa cay một chút, đỡ nhạt một ngày.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Gà hầm sâm Samgyetang",
+  "nameEn": "Ginseng chicken soup Samgyetang",
+  "sub": "Gà non nhồi gạo nếp, nhân sâm, tỏi và táo tàu • Hàn Quốc",
+  "price": 250,
+  "image": 173,
+  "quip": "Gà hầm nóng hổi, cứ thong thả thưởng thức.",
+  "category": "hotpot",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Canh sườn bò Galbitang kèm cơm",
+  "nameEn": "Beef short rib soup Galbitang with rice",
+  "sub": "Sườn bò hầm củ cải, hành lá và cơm trắng • Hàn Quốc",
+  "price": 270,
+  "image": 174,
+  "quip": "Canh nóng, cơm trắng, bữa này đã đủ.",
+  "category": "hotpot",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Mì Kalguksu hải sản",
+  "nameEn": "Seafood knife-cut noodles Kalguksu",
+  "sub": "Mì cắt dao, nghêu, tôm và nước dùng hải sản • Hàn Quốc",
+  "price": 150,
+  "image": 175,
+  "quip": "Mì tươi và vị biển trong một tô.",
+  "category": "noodles",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cơm cuộn trứng Omurice",
+  "nameEn": "Japanese omelette rice Omurice",
+  "sub": "Cơm chiên gà bọc trứng, sốt cà chua • Nhật Bản",
+  "price": 75,
+  "image": 176,
+  "quip": "Mở lớp trứng, gặp cơm gà bên trong.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cơm heo xào gừng Shogayaki",
+  "nameEn": "Ginger pork Shogayaki with rice",
+  "sub": "Heo áp chảo sốt gừng, bắp cải và cơm • Nhật Bản",
+  "price": 80,
+  "image": 177,
+  "quip": "Thơm gừng rồi, đến giờ nghỉ trưa thôi.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cơm thịt băm Hambagu",
+  "nameEn": "Hamburg steak Hambagu with rice",
+  "sub": "Thịt bò, heo băm áp chảo, sốt nâu và cơm • Nhật Bản",
+  "price": 120,
+  "image": 178,
+  "quip": "Thịt mềm, sốt nâu, cơm trắng chờ sẵn.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Cơm trà cá hồi Ochazuke",
+  "nameEn": "Salmon green tea rice Ochazuke",
+  "sub": "Cơm chan trà và dashi, cá hồi chín, rong biển • Nhật Bản",
+  "price": 100,
+  "image": 179,
+  "quip": "Cơm chan trà, một bữa nhẹ nhàng.",
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Masala dosa",
+  "nameEn": "Masala dosa",
+  "sub": "Bánh gạo đậu nhân khoai tây, sambar và chutney • Nam Ấn Độ",
+  "price": 115,
+  "image": 180,
+  "quip": "Bánh giòn ôm khoai tây thơm gia vị.",
+  "veg": true,
+  "category": "bread",
+  "meals": [
+    "breakfast",
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Chole bhature",
+  "nameEn": "Chole bhature",
+  "sub": "Đậu gà nấu gia vị, 2 bánh bhature chiên • Bắc Ấn Độ",
+  "price": 165,
+  "image": 181,
+  "quip": "Bẻ bánh, chấm đậu gà, hết phân vân.",
+  "veg": true,
+  "category": "bread",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Palak paneer kèm cơm",
+  "nameEn": "Palak paneer with rice",
+  "sub": "Phô mai paneer sốt cải bó xôi, cơm basmati • Bắc Ấn Độ",
+  "price": 200,
+  "image": 182,
+  "quip": "Xanh màu cải bó xôi, béo vị paneer.",
+  "veg": true,
+  "category": "rice",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Gà tandoori kèm naan",
+  "nameEn": "Tandoori chicken with naan",
+  "sub": "Gà nướng ướp sữa chua, gia vị, bánh naan • Bắc Ấn Độ",
+  "price": 220,
+  "image": 183,
+  "quip": "Gà thơm lò nướng, xé naan ăn cùng.",
+  "category": "grill",
+  "meals": [
+    "lunch",
+    "dinner"
+  ]
+},
+{
+  "name": "Bánh mì trứng",
+  "nameEn": "Egg banh mi",
+  "sub": "Trứng ốp la, dưa leo và đồ chua • Một phần / người",
+  "price": 25,
+  "image": 600,
+  "quip": "Trứng ốp la lòng đào, bữa sáng giòn rụm nhanh gọn.",
+  "category": "bread",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon",
+    "late"
+  ]
+},
+{
+  "name": "Xôi xéo",
+  "nameEn": "Sticky rice with mung bean",
+  "sub": "Nếp, đậu xanh và hành phi • Một phần / người",
+  "price": 25,
+  "image": 601,
+  "quip": "Hành phi thơm lừng, xôi dẻo bùi đậu xanh.",
+  "veg": true,
+  "category": "rice",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon"
+  ]
+},
+{
+  "name": "Xôi bắp",
+  "nameEn": "Corn sticky rice",
+  "sub": "Nếp, bắp, đậu xanh và hành phi • Một phần / người",
+  "price": 25,
+  "image": 602,
+  "quip": "Hạt bắp ngọt bùi, ăn sáng hay ăn xế đều ấm bụng.",
+  "veg": true,
+  "category": "rice",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon"
+  ]
+},
+{
+  "name": "Xôi đậu xanh",
+  "nameEn": "Mung bean sticky rice",
+  "sub": "Nếp đậu xanh, muối mè đậu phộng • Một phần / người",
+  "price": 20,
+  "image": 603,
+  "quip": "Muối mè béo ngậy, nếp đậu xanh ngọt thanh thuần khiết.",
+  "veg": true,
+  "category": "rice",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon"
+  ]
+},
+{
+  "name": "Bánh bao nhân thịt",
+  "nameEn": "Pork steamed bun",
+  "sub": "Thịt heo, nấm và trứng • Một phần / người",
+  "price": 25,
+  "image": 604,
+  "quip": "Vỏ xốp mềm, nhân thịt trứng cút nóng hổi cứu đói tức thì.",
+  "category": "bread",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon",
+    "late"
+  ]
+},
+{
+  "name": "Bánh giò nóng",
+  "nameEn": "Warm pork rice dumpling",
+  "sub": "Bột gạo, thịt heo băm và mộc nhĩ • Một phần / người",
+  "price": 25,
+  "image": 605,
+  "quip": "Bánh giò mềm mịn, nhân mộc nhĩ giòn sần sật ấm lòng chiều muộn.",
+  "category": "bread",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon",
+    "late"
+  ]
+},
+{
+  "name": "Bánh ướt chả lụa",
+  "nameEn": "Rice sheets with pork sausage",
+  "sub": "Bánh ướt, chả lụa, rau và nước mắm • Một phần / người",
+  "price": 35,
+  "image": 606,
+  "quip": "Bánh ướt mướt mềm, chả lụa giòn dai nước mắm chua ngọt.",
+  "category": "bread",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon"
+  ]
+},
+{
+  "name": "Bánh bao chay",
+  "nameEn": "Vegetable steamed bun",
+  "sub": "Rau củ và nấm, không thịt • Một phần / người",
+  "price": 20,
+  "image": 607,
+  "quip": "Thanh đạm nhẹ nhàng, nấm ngọt rau tươi.",
+  "veg": true,
+  "category": "bread",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "afternoon",
+    "late"
+  ]
+},
+{
+  "name": "Cháo trắng ăn kèm",
+  "nameEn": "Rice congee with side dishes",
+  "sub": "Cháo trắng, trứng muối và thịt kho • Một phần / người",
+  "price": 40,
+  "image": 608,
+  "quip": "Cháo trắng lá dứa hột vịt muối, món ruột của hội cú đêm.",
+  "category": "hotpot",
+  "serving": "Một phần / người",
+  "meals": [
+    "late"
+  ]
+},
+{
+  "name": "Cháo ếch",
+  "nameEn": "Frog congee",
+  "sub": "Cháo trắng kèm ếch kho trong niêu • Một phần / người",
+  "price": 65,
+  "image": 609,
+  "quip": "Ếch kho cay đậm đà niêu đất, rưới lên bát cháo sánh mịn.",
+  "category": "hotpot",
+  "serving": "Một phần / người",
+  "meals": [
+    "dinner",
+    "late"
+  ]
+},
+{
+  "name": "Miến ngan",
+  "nameEn": "Duck glass noodle soup",
+  "sub": "Miến, thịt ngan và măng • Một phần / người",
+  "price": 55,
+  "image": 610,
+  "quip": "Nước dùng ngan béo ngậy ngọt thanh, măng giòn sợi miến dong trong suốt.",
+  "category": "noodles",
+  "serving": "Một phần / người",
+  "meals": [
+    "breakfast",
+    "lunch",
+    "dinner",
+    "late"
+  ]
+},
+{
+  "name": "Mì trộn trứng xúc xích",
+  "nameEn": "Mixed noodles with egg and sausage",
+  "sub": "Mì trộn kiểu Indomie, trứng và xúc xích • Một phần / người",
+  "price": 40,
+  "image": 611,
+  "quip": "Mì trộn thần thánh siêu cay bùng vị đêm khuya.",
+  "category": "noodles",
+  "serving": "Một phần / người",
+  "meals": [
+    "afternoon",
+    "late"
+  ]
+},
+{
+  "name": "Lẩu Thái hải sản",
+  "nameEn": "Thai seafood hotpot",
+  "sub": "Tôm, mực, rau và nước lẩu chua cay • Giá / người khi ăn nhóm 2–4 người",
+  "price": 180,
+  "image": 612,
+  "quip": "Chua cay bùng nổ, tôm mực ngập tràn nồi lẩu rôm rả.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Lẩu bò ăn nhóm",
+  "nameEn": "Beef hotpot to share",
+  "sub": "Thịt bò, rau và nấm • Giá / người khi ăn nhóm 2–4 người",
+  "price": 160,
+  "image": 613,
+  "quip": "Nước hầm xương bò thanh ngọt, nhúng gầu bò nấm tươi.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Lẩu gà lá é",
+  "nameEn": "Chicken and basil hotpot",
+  "sub": "Gà, măng và lá é • Giá / người khi ăn nhóm 2–4 người",
+  "price": 150,
+  "image": 614,
+  "quip": "Vị cay the the của lá é và măng chua, gà ta chắc thịt ngọt thơm.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Lẩu riêu cua bắp bò",
+  "nameEn": "Crab and beef hotpot",
+  "sub": "Riêu cua, bắp bò, đậu hũ và bún • Giá / người khi ăn nhóm 2–4 người",
+  "price": 180,
+  "image": 615,
+  "quip": "Riêu cua vàng ươm, dấm bỗng chua thanh bắp bò giòn sần sật.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Lẩu cá",
+  "nameEn": "Fish hotpot",
+  "sub": "Cá, cà chua, rau và bún • Giá / người khi ăn nhóm 2–4 người",
+  "price": 150,
+  "image": 616,
+  "quip": "Cá tươi ngọt nước lẩu thì là, chua dịu ấm cúng gia đình.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Lẩu dê",
+  "nameEn": "Goat hotpot",
+  "sub": "Thịt dê, khoai môn và rau • Giá / người khi ăn nhóm 2–4 người",
+  "price": 200,
+  "image": 617,
+  "quip": "Thịt dê ninh nhừ bổ dưỡng cùng khoai môn bở bùi, chấm chao cay.",
+  "category": "hotpot",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Nướng Hàn Quốc",
+  "nameEn": "Korean barbecue",
+  "sub": "Thịt bò, heo, rau cuốn và kimchi • Giá / người khi ăn nhóm 2–4 người",
+  "price": 250,
+  "image": 618,
+  "quip": "Thịt xèo xèo trên vỉ nướng, cuốn xà lách chấm sốt ssamjang.",
+  "category": "grill",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Nướng Nhật Yakiniku",
+  "nameEn": "Japanese yakiniku",
+  "sub": "Thịt bò nướng và rau nấm • Giá / người khi ăn nhóm 2–4 người",
+  "price": 300,
+  "image": 619,
+  "quip": "Bò vân mỡ tan chảy trên than hoa thơm nức mũi.",
+  "category": "grill",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Buffet lẩu",
+  "nameEn": "Hotpot buffet",
+  "sub": "Lẩu và các món nhúng tự chọn • Suất buffet / người",
+  "price": 250,
+  "image": 620,
+  "quip": "Quầy line đầy ắp, ăn thả ga không lo về giá.",
+  "category": "hotpot",
+  "serving": "Suất buffet / người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Buffet nướng",
+  "nameEn": "Barbecue buffet",
+  "sub": "Thịt, hải sản, rau và món ăn kèm • Suất buffet / người",
+  "price": 300,
+  "image": 621,
+  "quip": "Bò Mỹ, dẻ sườn, hải sản tẩm sốt nướng ngập tràn tiệc vui.",
+  "category": "grill",
+  "serving": "Suất buffet / người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Hải sản hấp nướng",
+  "nameEn": "Steamed and grilled seafood",
+  "sub": "Tôm, mực, nghêu và sò • Giá / người khi ăn nhóm 2–4 người",
+  "price": 250,
+  "image": 622,
+  "quip": "Tôm mực nhảy tanh tách hấp sả ớt chấm muối tiêu chanh thần thánh.",
+  "category": "grill",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
+},
+{
+  "name": "Gà mẹt",
+  "nameEn": "Shared chicken platter",
+  "sub": "Gà, xôi, rau và đồ ăn kèm • Giá / người khi ăn nhóm 2–4 người",
+  "price": 150,
+  "image": 623,
+  "quip": "Gà hấp lá chanh, gà nướng mật ong, xôi chiên giòn trọn vị sum vầy.",
+  "category": "grill",
+  "serving": "Giá / người khi ăn nhóm 2–4 người",
+  "groupMeal": true,
+  "meals": [
+    "dinner"
+  ]
 }
 ].map(food=>({...food,rarity:priceRarity(food.price)}));

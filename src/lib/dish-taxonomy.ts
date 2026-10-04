@@ -245,18 +245,122 @@ const VEG_KEYWORDS = [
   "salad",
 ];
 
-const SNACK_KEYWORDS = [
-  "bánh tráng",
-  "nem chua",
-  "cá viên",
-  "khoai tây",
-  "chè",
-  "bột chiên",
-  "ốc",
-  "chân gà",
-  "trứng cút",
-  "bánh tiêu",
-];
+/**
+ * Kiểm tra xem món ăn có phải là món nước (nước dùng, phở, bún nước, mì nước, canh, cháo, lẩu...) hay không.
+ * Đảm bảo phân loại chặt chẽ:
+ * - Bánh mì, bánh mỳ, sandwich, burger, bánh cuốn, bánh ướt, bánh bao, bánh giò, bánh xèo, rolls: KHÔNG PHẢI MÓN NƯỚC.
+ * - Cơm, xôi, bibimbap, gyudon, risotto, biryani: KHÔNG PHẢI MÓN NƯỚC.
+ * - Mì xào, mì trộn, mì Ý, miến xào, nui xào, bún đậu, bún thịt nướng, bún bò Nam Bộ: KHÔNG PHẢI MÓN NƯỚC.
+ * - Bánh đa cua, gà hầm sâm Samgyetang, canh kimchi, canh sườn bò, cháo, lẩu: ĐƯỢC XẾP ĐÚNG VÀO MÓN NƯỚC.
+ */
+export function isBrothDish(food: Food): boolean {
+  const n = (food.name || "").toLowerCase().trim();
+
+  // 1. Nhóm Bánh mì / Bánh mỳ / Sandwiches / Burgers / Rolls / Bánh hấp/nướng khô (ƯU TIÊN LOẠI TRỪ)
+  if (
+    n.includes("bánh mì") ||
+    n.includes("bánh mỳ") ||
+    n.includes("sandwich") ||
+    n.includes("burger") ||
+    n.includes("bánh bao") ||
+    n.includes("bánh giò") ||
+    n.includes("bánh ướt") ||
+    n.includes("bánh cuốn") ||
+    n.includes("bánh xèo") ||
+    n.includes("bánh hỏi") ||
+    n.includes("wrap") ||
+    n.includes("taco") ||
+    n.includes("burrito") ||
+    n.includes("quesadilla")
+  ) {
+    return false;
+  }
+
+  // 2. Nhóm Cơm & Xôi & Rice bowls (trừ món canh có tên bắt đầu bằng "canh")
+  if (
+    n.startsWith("cơm") ||
+    n.startsWith("xôi") ||
+    n.includes("gyudon") ||
+    n.includes("bibimbap") ||
+    n.includes("biryani") ||
+    n.includes("risotto")
+  ) {
+    return false;
+  }
+
+  // 3. Mì xào, Mì trộn, Mì Ý, Miến xào, Bún khô / Bún trộn / Bún chấm / Cuốn
+  if (
+    n.includes("phở cuốn") ||
+    n.includes("gỏi cuốn") ||
+    n.includes("nem cuốn") ||
+    n.includes("nem nướng") ||
+    n.includes("bún đậu") ||
+    n.includes("bún thịt nướng") ||
+    n.includes("bún bò nam bộ") ||
+    n.includes("mì xào") ||
+    n.includes("mì trộn") ||
+    n.includes("miến xào") ||
+    n.includes("nui xào") ||
+    n.includes("udon xào") ||
+    n.includes("pad thai") ||
+    n.includes("mì tương đen") ||
+    n.includes("mì ý") ||
+    n.includes("spaghetti") ||
+    n.includes("lasagna") ||
+    n.includes("mac & cheese") ||
+    n.includes("gnocchi")
+  ) {
+    return false;
+  }
+
+  // 4. Món Âu / Nướng / Chiên / Khô / Sushi
+  if (
+    n.includes("pizza") ||
+    n.includes("sushi") ||
+    n.includes("kimbap") ||
+    n.includes("bít tết") ||
+    n.includes("bò né") ||
+    n.includes("bò lúc lắc") ||
+    n.includes("gà rán") ||
+    n.includes("bột chiên") ||
+    n.includes("dimsum") ||
+    n.includes("falafel") ||
+    n.includes("fish & chips") ||
+    n.includes("nướng") ||
+    n.includes("gà mẹt")
+  ) {
+    return false;
+  }
+
+  // 5. Nhóm món nước chuẩn (Phở, Bún nước, Hủ tiếu, Bánh canh, Bánh đa cua, Mì nước, Miến nước, Cháo, Lẩu, Canh, Súp)
+  if (
+    n.includes("phở") ||
+    n.includes("bún") ||
+    n.includes("hủ tiếu") ||
+    n.includes("hu tieu") ||
+    n.includes("bánh canh") ||
+    n.includes("bánh đa cua") ||
+    n.includes("bánh đa") ||
+    n.includes("mì") ||
+    n.includes("miến") ||
+    n.includes("cháo") ||
+    n.includes("súp") ||
+    n.includes("lẩu") ||
+    n.includes("canh") ||
+    n.includes("ramen") ||
+    n.includes("udon") ||
+    n.includes("soba") ||
+    n.includes("kalguksu") ||
+    n.includes("hoành thánh") ||
+    n.includes("sủi cảo") ||
+    n.includes("samgyetang") ||
+    n.includes("galbitang")
+  ) {
+    return true;
+  }
+
+  return false;
+}
 
 /**
  * Phân loại khẩu vị của một món ăn
@@ -265,7 +369,7 @@ export function classifyDishTaste(food: Food): "broth" | "dry" | "veg" {
   if (food.veg) return "veg";
   const n = (food.name || "").toLowerCase();
   if (VEG_KEYWORDS.some((k) => n.includes(k))) return "veg";
-  if (BROTH_KEYWORDS.some((k) => n.includes(k))) return "broth";
+  if (isBrothDish(food)) return "broth";
   return "dry";
 }
 
@@ -280,26 +384,42 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
 
   if (mealKind === "lunch") {
     if (tasteId === "veg") return food.veg === true || text.includes("chay");
-    if (tasteId === "broth") return BROTH_KEYWORDS.some((k) => text.includes(k));
-    if (tasteId === "dry") return !BROTH_KEYWORDS.some((k) => text.includes(k));
+    if (tasteId === "broth") return isBrothDish(food);
+    if (tasteId === "dry") return !isBrothDish(food);
     return true;
   }
 
   if (mealKind === "drink") {
     if (tasteId === "coffee") {
-      const COFFEE_KEYWORDS = ["cà phê", "cafe", "bạc xỉu", "latte", "cappuccino", "cold brew", "espresso", "americano"];
+      const COFFEE_KEYWORDS = [
+        "cà phê", "cafe", "bạc xỉu", "latte", "cappuccino",
+        "cold brew", "espresso", "americano", "đen đá", "sữa đá"
+      ];
       return COFFEE_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "milktea") {
-      const MILKTEA_KEYWORDS = ["trà sữa", "ô long sữa", "matcha", "trân châu", "sữa chua uống", "khoai môn", "thái xanh", "thái đỏ", "thái"];
+      const MILKTEA_KEYWORDS = [
+        "trà sữa", "ô long sữa", "matcha", "trân châu", "sữa chua uống",
+        "khoai môn", "thái xanh", "thái đỏ", "thái", "cacao", "sô cô la",
+        "socola", "bánh quy kem", "sữa đậu nành", "sữa hạt sen", "sữa chua"
+      ];
       return MILKTEA_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "fruittea") {
-      const FRUITTEA_KEYWORDS = ["trà đào", "trà vải", "trà dâu", "trà chanh", "trà tắc", "trà hoa quả", "trà trái cây", "trà mãng cầu", "trà ổi", "trà sen", "trà xoài", "trà táo", "trà mận", "trà quất", "trà lài", "trà ô long", "trà xanh", "hồng trà", "trà đen", "trà thảo mộc", "trà hoa"];
+      const FRUITTEA_KEYWORDS = [
+        "trà đào", "trà vải", "trà dâu", "trà chanh", "trà tắc", "trà hoa quả",
+        "trà trái cây", "trà mãng cầu", "trà ổi", "trà sen", "trà nhãn", "trà xoài",
+        "trà táo", "trà mận", "trà quất", "trà lài", "trà ô long", "trà xanh",
+        "hồng trà", "trà đen", "trà thảo mộc", "trà hoa", "trà"
+      ];
       return FRUITTEA_KEYWORDS.some((k) => text.includes(k)) && !text.includes("trà sữa") && !text.includes("sữa");
     }
     if (tasteId === "juice") {
-      const JUICE_KEYWORDS = ["nước ép", "sinh tố", "nước mía", "nước dừa", "nước chanh", "cam vắt", "sắn dây", "me đá", "chanh leo", "chanh dây", "dừa"];
+      const JUICE_KEYWORDS = [
+        "nước ép", "sinh tố", "nước mía", "nước dừa", "nước chanh", "cam vắt",
+        "sắn dây", "me đá", "chanh leo", "chanh dây", "dừa", "rau má",
+        "nước sâm", "sâm bí đao", "nước mơ", "nước sấu", "soda", "nước lọc"
+      ];
       return JUICE_KEYWORDS.some((k) => text.includes(k));
     }
     return true;
@@ -307,19 +427,32 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
 
   if (mealKind === "snack") {
     if (tasteId === "fried") {
-      const FRIED_KEYWORDS = ["chiên", "rán", "que", "gà", "xúc xích", "viên", "khoai", "bột chiên"];
+      const FRIED_KEYWORDS = ["chiên", "rán", "que", "gà", "xúc xích", "viên", "khoai", "bột chiên", "bánh cam", "bánh rán"];
       return FRIED_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "mixed") {
-      const MIXED_KEYWORDS = ["bánh tráng", "trộn", "cuốn", "lắc", "chân gà", "gỏi", "nộm", "sốt thái"];
+      const MIXED_KEYWORDS = [
+        "bánh tráng", "trộn", "cuốn", "lắc", "chân gà", "gỏi", "nộm", "sốt thái",
+        "bắp xào", "bắp nướng", "ốc xào", "sò điệp", "trứng cút lộn",
+        "hạt", "đậu phộng", "đậu nành", "hướng dương", "khô bò", "rong biển"
+      ];
       return MIXED_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "sweet") {
-      const SWEET_KEYWORDS = ["chè", "flan", "kem", "cake", "bánh trứng", "sữa chua", "dầm", "ngọt", "trái cây"];
+      const SWEET_KEYWORDS = [
+        "chè", "flan", "kem", "cake", "bánh trứng", "sữa chua", "dầm", "ngọt", "trái cây", "hoa quả",
+        "dưa hấu", "dưa lưới", "ổi", "xoài", "cóc", "thơm", "dứa", "bưởi", "cam", "quýt",
+        "thanh long", "đu đủ", "chuối", "mít", "sầu riêng", "măng cụt", "chôm chôm", "nhãn",
+        "vải", "mãng cầu", "sapoche", "vú sữa", "nho", "táo", "roi", "mận",
+        "tào phớ", "bánh bò", "bánh chuối", "bánh da lợn", "bông lan"
+      ];
       return SWEET_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "savory") {
-      const SAVORY_KEYWORDS = ["bánh giò", "bánh đúc", "bánh gối", "há cảo", "sủi cảo", "bánh rán", "takoyaki", "bánh bao", "bánh bèo", "bánh bột lọc", "bánh tiêu"];
+      const SAVORY_KEYWORDS = [
+        "bánh giò", "bánh đúc", "bánh gối", "há cảo", "sủi cảo", "bánh rán", "takoyaki",
+        "bánh bao", "bánh bèo", "bánh bột lọc", "bánh tiêu", "bánh nậm", "bắp luộc", "ốc luộc"
+      ];
       return SAVORY_KEYWORDS.some((k) => text.includes(k));
     }
     return true;
@@ -327,11 +460,11 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
 
   if (mealKind === "nhau") {
     if (tasteId === "grill") {
-      const GRILL_KEYWORDS = ["nướng", "chiên", "rang muối", "dồi", "ngô", "khoai"];
+      const GRILL_KEYWORDS = ["nướng", "chiên", "rang muối", "dồi", "ngô", "khoai", "quay"];
       return GRILL_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "stirfry") {
-      const STIRFRY_KEYWORDS = ["xào", "cháy tỏi", "rang riềng", "hấp"];
+      const STIRFRY_KEYWORDS = ["xào", "cháy tỏi", "rang riềng", "hấp", "lúc lắc"];
       return STIRFRY_KEYWORDS.some((k) => text.includes(k));
     }
     if (tasteId === "hotpot") {
@@ -386,13 +519,17 @@ export function getFoodsForSessionAndTaste(
 
   switch (session) {
     case "breakfast": {
-      // Bữa sáng: Phở, bún, bánh mì, xôi, bánh cuốn, cháo, hủ tiếu, cơm tấm
+      // Bữa sáng: Món có gắn nhãn breakfast hoặc phở, bún, bánh mì, xôi, bánh cuốn, cháo, hủ tiếu, cơm tấm, bánh đa cua
       pool = lunchPool.filter((f) => {
+        if (f.meals && f.meals.includes("breakfast")) return true;
+        if (f.meals && f.meals.length > 0 && !f.meals.includes("breakfast")) return false;
         const n = f.name.toLowerCase();
         return (
           n.includes("phở") ||
           n.includes("bún") ||
           n.includes("bánh mì") ||
+          n.includes("bánh mỳ") ||
+          n.includes("bánh đa") ||
           n.includes("xôi") ||
           n.includes("bánh cuốn") ||
           n.includes("cháo") ||
@@ -404,8 +541,10 @@ export function getFoodsForSessionAndTaste(
       break;
     }
     case "afternoon": {
-      // Bữa xế: Bánh mì, bánh cuốn, bún, xôi, cháo hoặc món trưa
+      // Bữa xế: Món có gắn nhãn afternoon hoặc bánh mì, bánh cuốn, xôi, cháo, ăn vặt nhẹ
       pool = lunchPool.filter((f) => {
+        if (f.meals && f.meals.includes("afternoon")) return true;
+        if (f.meals && f.meals.length > 0 && !f.meals.includes("afternoon")) return false;
         const n = f.name.toLowerCase();
         return (
           n.includes("bánh mì") ||
@@ -419,14 +558,19 @@ export function getFoodsForSessionAndTaste(
       break;
     }
     case "dinner": {
-      // Bữa tối: Món ăn trưa + Món nhậu/lẩu
-      pool = [...lunchPool, ...pubFoods];
+      // Bữa tối: Món ăn trưa + Món lẩu/nướng/ăn nhóm + Món nhậu
+      pool = [
+        ...lunchPool.filter((f) => !f.meals || f.meals.includes("dinner")),
+        ...pubFoods,
+      ];
       break;
     }
     case "late": {
-      // Ăn đêm: Phở, mì, cháo, bún, bánh mì, món nhậu
+      // Ăn đêm: Món có gắn nhãn late/night hoặc phở, mì, cháo, bún, bánh mì, món nhậu
       pool = [
         ...lunchPool.filter((f) => {
+          if (f.meals && (f.meals.includes("late") || (f.meals as unknown as string[]).includes("night"))) return true;
+          if (f.meals && f.meals.length > 0 && !f.meals.includes("late") && !(f.meals as unknown as string[]).includes("night")) return false;
           const n = f.name.toLowerCase();
           return (
             n.includes("phở") ||
@@ -443,7 +587,7 @@ export function getFoodsForSessionAndTaste(
     }
     case "lunch":
     default:
-      pool = lunchPool;
+      pool = lunchPool.filter((f) => !f.meals || f.meals.includes("lunch"));
       break;
   }
 
@@ -455,3 +599,11 @@ export function getFoodsForSessionAndTaste(
 
   return filterFoodsByTastes(pool, selectedList, "lunch");
 }
+
+/**
+ * Lấy danh sách món ăn chuyên biệt theo từng bữa ăn (sáng, trưa, xế, tối, đêm)
+ */
+export function getFoodsByMealSession(session: MealSession): Food[] {
+  return getFoodsForSessionAndTaste(session, "all");
+}
+

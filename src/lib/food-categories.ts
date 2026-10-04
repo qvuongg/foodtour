@@ -33,7 +33,7 @@ export const MEAL_KINDS: MealKindConfig[] = [
     defaultBudget: "50",
     minPrice: 30,
     maxPrice: 180,
-    count: 128,
+    count: 168,
     unitVi: "suất",
     unitEn: "serving",
   },

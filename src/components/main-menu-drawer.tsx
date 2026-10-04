@@ -48,7 +48,7 @@ export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, s
       <Dialog.Popup className="compact-main-menu" initialFocus={closeRef} finalFocus={finalFocus}>
         <header className="menu-hub-header">
           {view !== "home" && <button ref={backRef} type="button" className="menu-detail-back menu-round-button" aria-label={vi ? "Trở về menu" : "Back to menu"} onClick={() => show("home")}><ArrowLeft size={21} aria-hidden="true" /></button>}
-          <div><span className="menu-hub-eyebrow">{vi ? "QUAY CƠM.ONLINE" : "QUAY COM.ONLINE"}</span><Dialog.Title>{view === "home" ? vi ? "Khám phá" : "Explore" : view === "voucher" ? "Voucher" : view === "checklist" ? vi ? "Món local" : "Local food" : "Happy Hour"}</Dialog.Title></div>
+          <div><span className="menu-hub-eyebrow">{vi ? "QUAY CƠM.ONLINE" : "QUAY COM.ONLINE"}</span><Dialog.Title>{view === "home" ? vi ? "Khám phá" : "Explore" : view === "voucher" ? "Voucher" : view === "checklist" ? vi ? "Food tour" : "Local food" : "Happy Hour"}</Dialog.Title></div>
           <Dialog.Close ref={closeRef} className="menu-close menu-round-button" aria-label={vi ? "Đóng menu" : "Close menu"}><X size={21} aria-hidden="true" /></Dialog.Close>
         </header>
         <Dialog.Description className="sr-only">{vi ? "Voucher ShopeeFood, checklist món địa phương và gợi ý thực đơn cho cả nhóm." : "ShopeeFood offers, a local food checklist and menus for your group."}</Dialog.Description>
@@ -57,7 +57,7 @@ export function MainMenuDrawer({ open, onClose, language, state, onSetChecked, s
             <p className="menu-hub-intro">{vi ? "Một chút cảm hứng cho cuộc hẹn tiếp theo." : "A little inspiration for your next get-together."}</p>
             <nav className="menu-hub-nav" aria-label={vi ? "Tiện ích" : "Tools"}>
               <button ref={voucherRef} className="menu-nav-button" data-destination="voucher" onClick={() => show("voucher")}><span className="menu-nav-icon is-voucher"><Ticket size={23} aria-hidden="true" /></span><span><strong>Voucher</strong><small>{vi ? "Khám phá ưu đãi ShopeeFood" : "Explore ShopeeFood offers"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
-              <button ref={checklistRef} className="menu-nav-button" data-destination="checklist" onClick={() => show("checklist")}><span className="menu-nav-icon is-journal"><BookOpen size={22} aria-hidden="true" /></span><span><strong>{vi ? "Món ngon local" : "Local food"}</strong><small>{vi ? `${total} món đặc sản · 3 thành phố` : `${total} local dishes · 3 cities`}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+              <button ref={checklistRef} className="menu-nav-button" data-destination="checklist" onClick={() => show("checklist")}><span className="menu-nav-icon is-journal"><BookOpen size={22} aria-hidden="true" /></span><span><strong>{vi ? "Food tour" : "Local food"}</strong><small>{vi ? `${total} món đặc sản · 3 thành phố` : `${total} local dishes · 3 cities`}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
               <button ref={happyRef} className="menu-nav-button" data-destination="happy-hour" onClick={() => show("happy-hour")}><span className="menu-nav-icon is-happy"><PartyPopper size={23} aria-hidden="true" /></span><span><strong>Happy Hour</strong><small>{vi ? "Lên menu vừa túi tiền cả nhóm" : "Plan a menu for your group"}</small></span><ChevronRight size={18} aria-hidden="true" /></button>
             </nav>
           </>}

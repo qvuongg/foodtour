@@ -163,7 +163,7 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
     try {
       await navigator.clipboard.writeText(`${text}\n${data.url}`);
       setShareCopied(true);
-    } catch {}
+    } catch { }
   };
 
   return (
@@ -231,8 +231,8 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
                       <ShoppingBag size={19} strokeWidth={2.2} />
                     </div>
                     <span className="pet-home-activity-content">
-                      <span className="pet-home-activity-title">{vi ? "Mở quán trên ShopeeFood" : "Open a ShopeeFood restaurant"}</span>
-                      <small>{vi ? "Mỗi lượt mở quán · Không giới hạn" : "Every opened spot · No limit"}</small>
+                      <span className="pet-home-activity-title">{vi ? "Đặt món cho bé" : "Open a ShopeeFood restaurant"}</span>
+                      <small>{vi ? "Mỗi lượt mở quán" : "Every opened spot · No limit"}</small>
                     </span>
                     {restaurantRewardBadge}
                     <ChevronRight size={16} strokeWidth={2.4} className="pet-home-activity-arrow" aria-hidden="true" />
@@ -243,8 +243,8 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
                       <ShoppingBag size={19} strokeWidth={2.2} />
                     </div>
                     <span className="pet-home-activity-content">
-                      <span className="pet-home-activity-title">{vi ? "Mở quán trên ShopeeFood" : "Open a ShopeeFood restaurant"}</span>
-                      <small>{vi ? "Chọn món rồi mở quán · Không giới hạn" : "Pick dish then open spot · No limit"}</small>
+                      <span className="pet-home-activity-title">{vi ? "Đặt món cho bé" : "Open a ShopeeFood restaurant"}</span>
+                      <small>{vi ? "Chọn món rồi mở quán" : "Pick dish then open spot · No limit"}</small>
                     </span>
                     {restaurantRewardBadge}
                   </div>
@@ -252,7 +252,7 @@ export function FoodiePetModal({ open, onClose, language, state, onRename, onSpi
               </div>
               <div className="pet-home-tip">
                 <span className="pet-home-tip-bulb" aria-hidden="true">💡</span>
-                <p className="pet-home-reward-note">{vi ? "Nhận +2 XP mỗi lần mở quán trên ShopeeFood, không giới hạn số lượt." : "Earn +2 XP every time you open a ShopeeFood restaurant, with no limits."}</p>
+                <p className="pet-home-reward-note">{vi ? "Nhận +2 XP mỗi lần đặt món cho bé" : "Earn +2 XP every time you open a ShopeeFood restaurant, with no limits."}</p>
               </div>
             </section>
           </div>
