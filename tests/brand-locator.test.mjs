@@ -191,4 +191,10 @@ test("Brand Locator: openShopeeFoodDirect launches native deep link without inte
 
   // Đảm bảo vẫn kích hoạt sự kiện tích điểm Foodie Pet
   assert.equal(dispatchedEvent, SHOPEE_RESTAURANT_OPEN_EVENT);
+
+  // Kiểm tra trường hợp đã có link rút gọn affiliate (s.shopee.vn / shope.ee):
+  // Mở thẳng Universal Link chính thức của Shopee để ghi nhận hoa hồng
+  const affUrl = "https://s.shopee.vn/test12345";
+  openShopeeFoodDirect(storeUrl, affUrl);
+  assert.equal(openedDeepLink, affUrl, "Khi có link rút gọn, phải mở link affiliate để tính hoa hồng");
 });

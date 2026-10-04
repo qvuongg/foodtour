@@ -219,20 +219,19 @@ export function findNearestBrandBranch(
   };
 }
 
-/**
- * Mở trực tiếp App Shopee / ShopeeFood tại đúng chi nhánh (Không qua web trung gian)
- */
 export function openShopeeFoodDirect(
   shopeefoodUrl: string,
   affiliateUrl?: string,
 ): void {
   if (typeof window === "undefined" || !shopeefoodUrl) return;
 
+  const targetUrl = affiliateUrl || shopeefoodUrl;
+
   // Ghi nhận sự kiện tích điểm Foodie Pet (+2 XP)
   try {
     window.dispatchEvent(
       new CustomEvent(SHOPEE_RESTAURANT_OPEN_EVENT, {
-        detail: { url: shopeefoodUrl },
+        detail: { url: targetUrl },
       }),
     );
   } catch {}
@@ -242,16 +241,24 @@ export function openShopeeFoodDirect(
     /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   if (isMobile) {
-    // Kích hoạt Deep Link Native của Shopee App
-    // Bỏ qua hoàn toàn web trung gian (shope.ee landing page)
+    // Nếu đã có link rút gọn affiliate (shope.ee hoặc s.shopee.vn):
+    // Universal Link chính thức của Shopee tự động kích hoạt App Shopee và ghi nhận hoa hồng
+    if (
+      affiliateUrl &&
+      (affiliateUrl.includes("shope.ee") || affiliateUrl.includes("s.shopee.vn"))
+    ) {
+      window.location.href = affiliateUrl;
+      return;
+    }
+
+    // Nếu chưa có link affiliate: Kích hoạt Deep Link Native của Shopee App
     const appDeeplink = `shopeevn://main?apprl=${encodeURIComponent(
       shopeefoodUrl,
     )}&push=1`;
 
-    // Mở thẳng app qua window.location
     window.location.href = appDeeplink;
   } else {
-    // Trên Desktop: Mở tab mới với URL trực tiếp của quán
-    window.open(shopeefoodUrl, "_blank", "noopener,noreferrer");
+    // Trên Desktop: Mở tab mới với URL của quán hoặc link affiliate
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
   }
 }

@@ -41,7 +41,7 @@ export function BrandCarousel({
       );
       const targetUrl =
         match?.branch.shopeefood_url || fallbackUrl || "https://shopeefood.vn";
-      openShopeeFoodDirect(targetUrl);
+      openShopeeFoodDirect(targetUrl, match?.branch.affiliate_url);
       return;
     }
 
@@ -56,7 +56,7 @@ export function BrandCarousel({
       );
       const targetUrl =
         match?.branch.shopeefood_url || fallbackUrl || "https://shopeefood.vn";
-      openShopeeFoodDirect(targetUrl);
+      openShopeeFoodDirect(targetUrl, match?.branch.affiliate_url);
     } finally {
       setLoadingBrandId(null);
     }
