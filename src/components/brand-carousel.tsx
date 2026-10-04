@@ -1,9 +1,15 @@
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import {
   TOP_BEVERAGE_BRANDS,
   resolveBrandShopeeLink,
 } from "@/lib/brand-catalog";
-import { handleShopeeFoodClick } from "@/lib/shopee-deeplink";
+import {
+  requestUserCoordinates,
+  findNearestBrandBranch,
+  openShopeeFoodDirect,
+  getCachedUserCoordinates,
+} from "@/lib/brand-locator";
 import type { Language } from "@/lib/i18n";
 import "./brand-carousel.css";
 
@@ -15,9 +21,46 @@ export function BrandCarousel({
   city?: string;
 }) {
   const vi = language === "vi";
-  const isMobile =
-    typeof navigator !== "undefined" &&
-    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const [loadingBrandId, setLoadingBrandId] = useState<string | null>(null);
+
+  const handleBrandOrder = async (
+    e: React.MouseEvent,
+    brandId: string,
+    fallbackUrl?: string,
+  ) => {
+    e.preventDefault();
+    if (loadingBrandId) return;
+
+    // 1. Nếu toạ độ GPS đã có sẵn trong Session Cache: Mở app ngay lập tức (<10ms)
+    const cachedCoords = getCachedUserCoordinates();
+    if (cachedCoords) {
+      const match = findNearestBrandBranch(
+        brandId,
+        cachedCoords,
+        city || "ho-chi-minh",
+      );
+      const targetUrl =
+        match?.branch.shopeefood_url || fallbackUrl || "https://shopeefood.vn";
+      openShopeeFoodDirect(targetUrl);
+      return;
+    }
+
+    // 2. Nếu chưa có toạ độ: hiển thị trạng thái đang định vị và xin quyền GPS
+    setLoadingBrandId(brandId);
+    try {
+      const coords = await requestUserCoordinates(2500);
+      const match = findNearestBrandBranch(
+        brandId,
+        coords,
+        city || "ho-chi-minh",
+      );
+      const targetUrl =
+        match?.branch.shopeefood_url || fallbackUrl || "https://shopeefood.vn";
+      openShopeeFoodDirect(targetUrl);
+    } finally {
+      setLoadingBrandId(null);
+    }
+  };
 
   return (
     <section
@@ -45,20 +88,21 @@ export function BrandCarousel({
         tabIndex={0}
       >
         {TOP_BEVERAGE_BRANDS.map((brand) => {
-          const link = resolveBrandShopeeLink(brand, city);
-          const restaurantUrl =
+          const directRestaurantUrl =
             (city && brand.cityBranches?.[city]?.originalUrl) ||
             brand.restaurantUrl;
+          const fallbackLink =
+            directRestaurantUrl || resolveBrandShopeeLink(brand, city);
           const displayName = brand.shortName || brand.name;
+          const isLoading = loadingBrandId === brand.id;
 
           return (
-            <a
+            <button
+              type="button"
               key={brand.id}
-              href={link}
-              target={isMobile ? undefined : "_blank"}
-              rel="sponsored noopener noreferrer"
               className="brand-card"
-              onClick={(e) => handleShopeeFoodClick(link, e, restaurantUrl)}
+              onClick={(e) => handleBrandOrder(e, brand.id, fallbackLink)}
+              disabled={loadingBrandId !== null && !isLoading}
               title={`${vi ? "Đặt trên ShopeeFood" : "Order on ShopeeFood"}: ${brand.name}`}
             >
               <div className="brand-logo-wrapper">
@@ -95,10 +139,19 @@ export function BrandCarousel({
               </span>
 
               <span className="brand-card-cta">
-                <span>{vi ? "Đặt" : "Order"}</span>
-                <ArrowUpRight size={11} strokeWidth={2.5} />
+                {isLoading ? (
+                  <>
+                    <span>{vi ? "Tìm..." : "Finding..."}</span>
+                    <Loader2 size={11} className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <span>{vi ? "Đặt" : "Order"}</span>
+                    <ArrowUpRight size={11} strokeWidth={2.5} />
+                  </>
+                )}
               </span>
-            </a>
+            </button>
           );
         })}
       </div>
