@@ -177,8 +177,28 @@ export function detectFoodCategory(dish: string): FoodCategory {
   if (
     name.includes("trà") ||
     name.includes("cà phê") ||
+    name.includes("cafe") ||
+    name.includes("bạc xỉu") ||
+    name.includes("latte") ||
+    name.includes("cappuccino") ||
+    name.includes("americano") ||
+    name.includes("espresso") ||
+    name.includes("cacao") ||
+    name.includes("matcha") ||
+    name.includes("hojicha") ||
     name.includes("sinh tố") ||
     name.includes("nước ép") ||
+    name.includes("rau má") ||
+    name.includes("nước mía") ||
+    name.includes("nước dừa") ||
+    name.includes("nước chanh") ||
+    name.includes("nước sâm") ||
+    name.includes("sâm bí đao") ||
+    name.includes("nước mơ") ||
+    name.includes("nước sấu") ||
+    name.includes("sữa đậu") ||
+    name.includes("sữa chua") ||
+    name.includes("soda") ||
     name.includes("chè") ||
     name.includes("kem") ||
     name.includes("bánh tráng") ||

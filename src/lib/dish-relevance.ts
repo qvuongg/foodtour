@@ -609,6 +609,72 @@ export const DISH_RULES: Record<string, DishRule> = {
 };
 
 /**
+ * Kiểm tra xem món ăn có phải là đồ uống hay không
+ */
+export function isBeverageDish(dishName: string): boolean {
+  if (!dishName) return false;
+  const n = normalizeText(dishName);
+  const DRINK_TERMS = [
+    "ca phe", "cafe", "bac xiu", "latte", "cappuccino", "americano", "espresso",
+    "cold brew", "u lanh", "cacao", "tra sua", "milktea", "tra dao", "tra vai",
+    "tra chanh", "tra tac", "tra sen", "tra dau", "tra xoai", "tra mang cau",
+    "tra nhan", "hong tra", "tra xanh", "tra o long", "tra", "nuoc ep", "sinh to",
+    "matcha", "rau ma", "nuoc mia", "nuoc dua", "sua dau", "sam bi dao", "nuoc sam",
+    "nuoc mo", "nuoc sau", "sua hat", "sua chua", "soda", "nuoc loc"
+  ];
+  return DRINK_TERMS.some((t) => n.includes(t));
+}
+
+/**
+ * Kiểm tra xem quán ăn có bán đồ uống phù hợp với món đồ uống đang chọn hay không
+ */
+export function isBeverageRestaurantMatch(restaurantName: string, dishName: string): boolean {
+  const nRest = normalizeText(restaurantName);
+  const nDish = normalizeText(dishName);
+
+  // 1. Chặn quán thuần ăn mặn không phải quán nước
+  const isPureSavory =
+    /\b(pho|bun|com|banh canh|hu tieu|mi quang|lau|hai san|oc|chao|banh cuon|banh xeo)\b/i.test(nRest) &&
+    !/\b(ca phe|cafe|coffee|tra|juice|smoothie|sinh to|nuoc ep|milktea)\b/i.test(nRest);
+  if (isPureSavory) return false;
+
+  // 2. Nhóm Cà phê
+  const isCoffeeDish = /\b(ca phe|cafe|bac xiu|latte|cappuccino|americano|espresso|cold brew|u lanh|cacao)\b/i.test(nDish);
+  if (isCoffeeDish) {
+    return /\b(ca phe|cafe|coffee|roastery|phin|highlands|phuc long|katinat|starbucks|cong ca phe|the coffee house|aha|milano|trung nguyen|tiem ca phe|quan ca phe)\b/i.test(nRest);
+  }
+
+  // 3. Nhóm Trà Sữa & Boba
+  const isMilkTeaDish = /\b(tra sua|milktea|tran chau|duong den|khoai mon|matcha|hojicha)\b/i.test(nDish);
+  if (isMilkTeaDish) {
+    return /\b(tra sua|milktea|tea|tiem tra|mixue|tocotoco|phuc long|phe la|katinat|gong cha|koi the|ding tea|bobapop|chago|do do|dau dau|hidu|tealive|tra)\b/i.test(nRest);
+  }
+
+  // 4. Nhóm Trà Trái Cây & Trà Chanh
+  const isFruitTeaDish = /\b(tra dao|tra vai|tra chanh|tra tac|tra sen|tra dau|tra xoai|tra mang cau|tra nhan|hong tra|tra xanh|tra o long|tra|nuoc chanh)\b/i.test(nDish);
+  if (isFruitTeaDish) {
+    return /\b(tra|tea|tiem tra|tra chanh|tra sua|milktea|mixue|phuc long|phe la|katinat|gong cha|tocotoco|highlands|cafe|coffee|ca phe)\b/i.test(nRest);
+  }
+
+  // 5. Nhóm Sinh Tố & Nước Ép & Detox
+  const isJuiceDish = /\b(sinh to|nuoc ep|juice|smoothie|detox)\b/i.test(nDish);
+  if (isJuiceDish) {
+    return /\b(sinh to|nuoc ep|juice|smoothie|detox|trai cay|hoa qua|katinat|phuc long)\b/i.test(nRest);
+  }
+
+  // 6. Nhóm Giải Khát Truyền Thống & Khác
+  if (nDish.includes("rau ma")) return /\b(rau ma|nuoc rau ma)\b/i.test(nRest);
+  if (nDish.includes("nuoc mia")) return /\b(nuoc mia|mia)\b/i.test(nRest);
+  if (nDish.includes("nuoc dua")) return /\b(nuoc dua|dua|dua tuoi)\b/i.test(nRest);
+  if (nDish.includes("sam") || nDish.includes("bi dao")) return /\b(sam|bi dao|nuoc sam)\b/i.test(nRest);
+  if (nDish.includes("sua chua")) return /\b(sua chua|yogurt|che|tra)\b/i.test(nRest);
+  if (nDish.includes("soda")) return /\b(soda|cafe|coffee|ca phe|tra)\b/i.test(nRest);
+  if (nDish.includes("mo") || nDish.includes("sau")) return /\b(cafe|coffee|ca phe|tra|nuoc sau|nuoc mo)\b/i.test(nRest);
+
+  return /\b(ca phe|cafe|coffee|tra|tea|juice|smoothie|sinh to|nuoc ep)\b/i.test(nRest);
+}
+
+/**
  * Kiểm tra xem một quán ăn có thực sự phù hợp với món ăn đang chọn hay không
  */
 export function isRestaurantRelevantForDish(
@@ -636,13 +702,18 @@ export function isRestaurantRelevantForDish(
     }
   }
 
+  // 2. RÀNG BUỘC ĐỒ UỐNG (BEVERAGE MATCHER):
+  if (isBeverageDish(dishName)) {
+    return isBeverageRestaurantMatch(restaurantName, dishName);
+  }
+
   const nRest = normalizeText(restaurantName);
   const nDish = normalizeText(dishName);
 
-  // 2. Tra cứu quy tắc đặc biệt nếu có
+  // 3. Tra cứu quy tắc đặc biệt nếu có
   const rule = DISH_RULES[nDish];
   if (rule) {
-    // 2.1. Strong Synonyms khẳng định tuyệt đối (VD: "Phở Nam Định & Bún Chả Hà Nội")
+    // 3.1. Strong Synonyms khẳng định tuyệt đối (VD: "Phở Nam Định & Bún Chả Hà Nội")
     if (
       rule.strongSynonyms?.some((s) =>
         matchWholePhrase(nRest, s, rule.illegalFollowers, rule.illegalPreceders),

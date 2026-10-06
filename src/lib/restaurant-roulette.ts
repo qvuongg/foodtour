@@ -11,6 +11,51 @@
 
 import { haversineDistanceKm, type GeoPoint } from "./geo-distance";
 import type { MealKind } from "./food-categories";
+import rawBranchesData from "../data/brand-branches.json";
+
+const BRAND_SPECIALTIES: Record<string, string[]> = {
+  highlands: ["Phin sữa đá", "Freeze trà xanh"],
+  phuclong: ["Trà đào cam sả", "Trà sữa ô long"],
+  phela: ["Trà ô long sữa", "Cà phê cốt dừa"],
+  mixue: ["Trà sữa trân châu", "Nước chanh tươi"],
+  tocotoco: ["Trà sữa trân châu hoàng gia", "Trà sữa khoai môn"],
+  starbucks: ["Caramel Macchiato", "Matcha Latte"],
+  katinat: ["Trà sữa chôm chôm", "Bơ già dừa non"],
+  congcaphe: ["Cà phê cốt dừa", "Bạc xỉu"],
+  gongcha: ["Trà sữa Alisan", "Trà sữa trân châu đen"],
+  koithe: ["Trà sữa trân châu hoàng kim", "Trà xanh macchiato"],
+};
+
+export const BRAND_ROULETTE_ITEMS: RestaurantRouletteItem[] = (
+  rawBranchesData as Array<{
+    id: string;
+    brand_id: string;
+    name: string;
+    address: string;
+    district?: string;
+    city: string;
+    lat: number;
+    lng: number;
+    rating?: number;
+    rating_count?: number;
+    shopeefood_url: string;
+    affiliate_url?: string;
+  }>
+).map((b) => ({
+  id: b.id,
+  name: b.name,
+  city: (b.city === "ha-noi" || b.city === "ho-chi-minh" || b.city === "da-nang" ? b.city : "da-nang") as "da-nang" | "ha-noi" | "ho-chi-minh",
+  districtName: b.district || "",
+  address: b.address,
+  lat: b.lat,
+  lng: b.lng,
+  rating: Number(b.rating) || 4.7,
+  ratingCount: Number(b.rating_count) || 1200,
+  specialties: BRAND_SPECIALTIES[b.brand_id] || ["Trà & Cà phê", "Đồ uống đặc trưng"],
+  category: "drink" as const,
+  shopeeUrl: b.shopeefood_url,
+  affiliateUrl: b.affiliate_url,
+}));
 
 export interface RestaurantRouletteItem extends GeoPoint {
   id: string;
@@ -2467,6 +2512,11 @@ export interface FilterRestaurantsOptions {
  * - Fallback thông minh: nếu số lượng quán trong bán kính 3km quá ít, tự động mở rộng bán kính
  *   hoặc lấy quán nổi bật của thành phố để vòng quay luôn có từ 8-24 quán trượt mượt mà.
  */
+export const ALL_RESTAURANT_ROULETTE_ITEMS: RestaurantRouletteItem[] = [
+  ...RESTAURANT_ROULETTE_CATALOG,
+  ...BRAND_ROULETTE_ITEMS,
+];
+
 export function getEligibleRestaurants({
   city = "da-nang",
   category = "lunch",
@@ -2476,7 +2526,7 @@ export function getEligibleRestaurants({
   const normCity = city === "ho-chi-minh" || city === "ha-noi" || city === "da-nang" ? city : "da-nang";
 
   // 1. Lọc theo thành phố và tiêu chuẩn rating_count >= 100
-  const cityPool = RESTAURANT_ROULETTE_CATALOG.filter(
+  const cityPool = ALL_RESTAURANT_ROULETTE_ITEMS.filter(
     (item) => item.city === normCity && item.ratingCount >= 100,
   );
 
