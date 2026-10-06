@@ -152,8 +152,18 @@ export function FoodOrdering({
         }
 
         if (spots.length > 0) {
-          // Sắp xếp ưu tiên theo số lượng đánh giá (rating_count) giảm dần -> rating giảm dần -> khoảng cách gần nhất
+          // Sắp xếp ưu tiên:
+          // 1. Quán ĐÃ CÓ link rút gọn affiliate (shope.ee / s.shopee.vn) lên đầu để đảm bảo nhận hoa hồng
+          // 2. Số lượng đánh giá (rating_count) giảm dần
+          // 3. Điểm đánh giá (rating) giảm dần
+          // 4. Khoảng cách gần nhất (distance_meters)
           spots.sort((a, b) => {
+            const hasAffA = Boolean(a.affiliate_url && a.affiliate_url.trim());
+            const hasAffB = Boolean(b.affiliate_url && b.affiliate_url.trim());
+            if (hasAffA !== hasAffB) {
+              return hasAffA ? -1 : 1;
+            }
+
             const countA = Number(a.rating_count) || 0;
             const countB = Number(b.rating_count) || 0;
             if (countB !== countA) {

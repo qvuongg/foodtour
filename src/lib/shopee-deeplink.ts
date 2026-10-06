@@ -11,44 +11,13 @@ import { SHOPEE_RESTAURANT_OPEN_EVENT, shopeeRestaurantRewardTarget } from "./sh
  * `shopeevn://main?apprl=${encodeURIComponent(url)}&push=1`
  * Tránh qua trang web trung gian của Safari và giữ nguyên trang web Foodtour khi người dùng quay lại.
  */
-export function openShopeeAppDeepLink(url: string, fallbackUrl?: string): void {
+export function openShopeeAppDeepLink(url: string): void {
   if (typeof window === "undefined" || !url || url === "#") return;
 
-  const targetFallback = fallbackUrl || url;
   const appDeeplink = `shopeevn://main?apprl=${encodeURIComponent(url)}&push=1`;
 
-  // Fallback an toàn: Nếu thiết bị chưa cài App Shopee, sau 1.5s fallback về trang web
-  if (typeof window !== "undefined" && typeof window.setTimeout === "function") {
-    const timer = window.setTimeout(() => {
-      if (typeof document !== "undefined" && !document.hidden) {
-        window.location.href = targetFallback;
-      }
-    }, 1500);
-
-    if (typeof timer === "object" && timer !== null && typeof (timer as any).unref === "function") {
-      (timer as any).unref();
-    }
-
-    const cleanup = () => {
-      window.clearTimeout(timer);
-      window.removeEventListener("pagehide", cleanup);
-      if (typeof document !== "undefined") {
-        document.removeEventListener("visibilitychange", onVisibilityChange);
-      }
-    };
-
-    const onVisibilityChange = () => {
-      if (typeof document !== "undefined" && document.hidden) {
-        window.clearTimeout(timer);
-      }
-    };
-
-    window.addEventListener("pagehide", cleanup, { once: true });
-    if (typeof document !== "undefined") {
-      document.addEventListener("visibilitychange", onVisibilityChange, { once: true });
-    }
-  }
-
+  // Mở thẳng App Shopee bằng Deep Link native.
+  // Safari không bị điều hướng đi đâu cả, giữ nguyên trang web Foodtour khi quay lại.
   window.location.href = appDeeplink;
 }
 
@@ -78,6 +47,6 @@ export function handleShopeeFoodClick(
     e.preventDefault();
   }
 
-  // Mở thẳng App Shopee bằng Native Deep Link (hỗ trợ cả link affiliate shope.ee / s.shopee.vn lẫn shopeefood.vn)
-  openShopeeAppDeepLink(url, restaurantUrl);
+  // Mở thẳng App Shopee bằng Native Deep Link (bọc đúng link affiliate shope.ee / s.shopee.vn)
+  openShopeeAppDeepLink(url);
 }

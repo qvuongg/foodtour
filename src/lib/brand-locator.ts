@@ -243,7 +243,7 @@ export function openShopeeFoodDirect(
 
   if (isMobile) {
     // Mở thẳng App Shopee bằng Native Deep Link (hỗ trợ cả link affiliate và link quán gốc)
-    openShopeeAppDeepLink(targetUrl, shopeefoodUrl);
+    openShopeeAppDeepLink(targetUrl);
   } else {
     // Trên Desktop: Mở tab mới với URL của quán hoặc link affiliate
     window.open(targetUrl, "_blank", "noopener,noreferrer");
