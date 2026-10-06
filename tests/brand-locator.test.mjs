@@ -193,8 +193,22 @@ test("Brand Locator: openShopeeFoodDirect launches native deep link without inte
   assert.equal(dispatchedEvent, SHOPEE_RESTAURANT_OPEN_EVENT);
 
   // Kiểm tra trường hợp đã có link rút gọn affiliate (s.shopee.vn / shope.ee):
-  // Mở thẳng Universal Link chính thức của Shopee để ghi nhận hoa hồng
+  // Mở thẳng Deep link Native bọc link rút gọn affiliate để vừa bảo lưu hoa hồng vừa không qua trang trung gian
   const affUrl = "https://s.shopee.vn/test12345";
   openShopeeFoodDirect(storeUrl, affUrl);
-  assert.equal(openedDeepLink, affUrl, "Khi có link rút gọn, phải mở link affiliate để tính hoa hồng");
+  const expectedAffDeepLink = `shopeevn://main?apprl=${encodeURIComponent(affUrl)}&push=1`;
+  assert.equal(
+    openedDeepLink,
+    expectedAffDeepLink,
+    "Khi có link rút gọn, phải bọc affiliate vào deep link native để vừa tính hoa hồng vừa mở app trực tiếp",
+  );
+
+  // Kiểm tra với link rút gọn shope.ee
+  const shopeeEeUrl = "https://shope.ee/7ptlhnt1Tf";
+  openShopeeFoodDirect(storeUrl, shopeeEeUrl);
+  assert.equal(
+    openedDeepLink,
+    `shopeevn://main?apprl=${encodeURIComponent(shopeeEeUrl)}&push=1`,
+    "Link shope.ee cũng phải bọc vào deep link native để nhảy app trực tiếp",
+  );
 });

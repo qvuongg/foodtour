@@ -4,7 +4,7 @@ import { Check, ExternalLink, MapPin, RotateCcw, Star, Store, X } from "lucide-r
 import type { RestaurantRouletteItem } from "@/lib/restaurant-roulette";
 import { resolveRestaurantActionUrl } from "@/lib/restaurant-roulette";
 import { formatDistance } from "@/lib/geo-distance";
-import { SHOPEE_RESTAURANT_OPEN_EVENT } from "@/lib/shopee-reward";
+import { openShopeeFoodDirect } from "@/lib/brand-locator";
 import type { Language } from "@/lib/i18n";
 import "./restaurant-result-dialog.css";
 
@@ -33,13 +33,7 @@ export function RestaurantResultDialog({
   const actionUrl = resolveRestaurantActionUrl(restaurant);
 
   const handleOpenShopee = () => {
-    // Kích hoạt sự kiện để hệ thống Foodie Pet cộng +2 XP
-    window.dispatchEvent(
-      new CustomEvent(SHOPEE_RESTAURANT_OPEN_EVENT, {
-        detail: { url: actionUrl },
-      }),
-    );
-    window.open(actionUrl, "_blank", "noopener,noreferrer");
+    openShopeeFoodDirect(actionUrl);
   };
 
   return (
