@@ -1,7 +1,7 @@
 /**
  * Supabase Client & RPC Service cho FoodTour
- * Dự án: https://cfjahscecuviajbemznx.supabase.co
  */
+import { publicSupabaseHeaders, readPublicSupabaseConfig } from "./public-env";
 
 export interface DbRestaurant {
   id: string;
@@ -30,21 +30,13 @@ export function slugifyDish(str: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-const SUPABASE_URL =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env?.VITE_SUPABASE_URL) ||
-  "https://cfjahscecuviajbemznx.supabase.co";
-
-const SUPABASE_ANON_KEY =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env?.VITE_SUPABASE_ANON_KEY) ||
-  "";
+const supabaseConfig = readPublicSupabaseConfig(import.meta.env ?? {});
 
 /**
- * Kiểm tra xem Supabase đã được cấu hình anon key chưa
+ * Chỉ cho phép cấu hình URL + anon JWT / publishable key hợp lệ.
  */
 export function isSupabaseConfigured(): boolean {
-  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+  return supabaseConfig !== null;
 }
 
 /**
@@ -57,7 +49,7 @@ export async function fetchNearbyRestaurantsFromDb(
   radiusMeters = 3000,
   limit = 15,
 ): Promise<DbRestaurant[]> {
-  if (!isSupabaseConfigured() || !dish) return [];
+  if (!supabaseConfig || !dish) return [];
 
   // Xác thực tọa độ hợp lệ, hữu hạn và nằm trong giới hạn địa lý GPS
   if (
@@ -77,12 +69,11 @@ export async function fetchNearbyRestaurantsFromDb(
   const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 15), 50);
   const slug = slugifyDish(dish);
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_nearby_restaurants`, {
+    const res = await fetch(`${supabaseConfig.url}/rest/v1/rpc/get_nearby_restaurants`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        ...publicSupabaseHeaders(supabaseConfig),
       },
       body: JSON.stringify({
         p_dish_slug: slug,
@@ -114,19 +105,18 @@ export async function fetchTopRestaurantsFromDb(
   city?: string,
   limit = 4,
 ): Promise<DbRestaurant[]> {
-  if (!isSupabaseConfigured() || !dish) return [];
+  if (!supabaseConfig || !dish) return [];
 
   const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 4), 50);
   const slug = slugifyDish(dish);
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/get_top_restaurants_for_dish`,
+      `${supabaseConfig.url}/rest/v1/rpc/get_top_restaurants_for_dish`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          ...publicSupabaseHeaders(supabaseConfig),
         },
         body: JSON.stringify({
           p_dish_slug: slug,
@@ -158,16 +148,15 @@ export async function fetchDistrictDrinkSpotsFromDb(
   city = "da-nang",
   limit = 12,
 ): Promise<DbRestaurant[]> {
-  if (!isSupabaseConfigured() || !districtName) return [];
+  if (!supabaseConfig || !districtName) return [];
 
   const safeLimit = Math.min(Math.max(1, Math.floor(limit) || 12), 30);
   try {
-    const url = `${SUPABASE_URL}/rest/v1/restaurants?select=id,name,address,district,city,lat,lng,rating,rating_count,affiliate_url,original_url&city=eq.${encodeURIComponent(city)}&district=ilike.*${encodeURIComponent(districtName)}*&order=rating.desc,rating_count.desc&limit=${safeLimit}`;
+    const url = `${supabaseConfig.url}/rest/v1/restaurants?select=id,name,address,district,city,lat,lng,rating,rating_count,affiliate_url,original_url&city=eq.${encodeURIComponent(city)}&district=ilike.*${encodeURIComponent(districtName)}*&order=rating.desc,rating_count.desc&limit=${safeLimit}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        ...publicSupabaseHeaders(supabaseConfig),
       },
     });
 
