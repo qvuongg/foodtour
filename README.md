@@ -37,7 +37,7 @@
 ### 5. 🕷️ Bộ Công Cụ Crawler & Quản Lý Dữ Liệu Tự Động
 - **ShopeeFood Crawler (`scripts/crawl-drinks.mjs`):** Tự động cào quán ăn & quán nước đa tỉnh thành (*Đà Nẵng, Hà Nội, TP.HCM*), tự động mở rộng theo từng quận.
 - **Shopee Batch Link Export (`scripts/export-batch-custom-links.py`):** Xuất hàng nghìn liên kết sang định dạng Excel chuẩn để tải lên Shopee Affiliate Portal lấy link rút gọn.
-- **Database Synchronizer (`scripts/merge-affiliate-results.py`):** Đọc file kết quả từ Shopee và tự động cập nhật hàng loạt link affiliate lên Supabase Database với đa luồng song song.
+- **Database Synchronizer (`scripts/merge-affiliate-results.py`):** Kiểm tra file kết quả Shopee trước khi ghi, ghép chính xác URL quán với một ID chi nhánh và kiểm chứng từng cập nhật. Crawler chỉ cập nhật metadata, không thay link affiliate.
 
 ---
 
@@ -58,7 +58,7 @@
 
 ### Yêu cầu môi trường
 - **Node.js**: `22.12+`
-- **pnpm**: `9.x+` (hoặc npm tương đương)
+- **pnpm**: `9.1.1` (theo `packageManager`)
 - **Python**: `3.9+` (kèm thư viện `openpyxl` nếu dùng tính năng xử lý Excel)
 
 ### Các bước khởi chạy
@@ -78,9 +78,11 @@
    Cập nhật các thông tin Supabase của bạn:
    ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Dùng khi chạy crawler / merge scripts
+   VITE_SUPABASE_ANON_KEY=sb_publishable_your_public_key
    ```
+   Frontend chỉ dùng **publishable key** hoặc JWT có role `anon`. Các biến `VITE_*` là công khai; dev/build sẽ dừng nếu phát hiện secret hoặc `service_role`. Không đưa khóa quyền cao vào Vercel của frontend.
+
+   Nếu vận hành crawler/import tại local, thêm `SUPABASE_SECRET_KEY` riêng trong `.env.local` (không có tiền tố `VITE_`). Scripts không dùng khóa public để ghi dữ liệu và không tự chọn project khi thiếu URL. Xem [quy trình vận hành an toàn](docs/SECURITY-AND-AFFILIATE-REPAIR.md).
 
 3. **Khởi chạy Development Server:**
    ```bash
@@ -93,7 +95,7 @@
 ## 🧪 Kiểm Thử & Đóng Gói (Testing & Build)
 
 ```bash
-# Chạy toàn bộ 60 bài kiểm thử tự động
+# Chạy toàn bộ bài kiểm thử tự động
 pnpm test
 
 # Kiểm tra cú pháp và kiểu dữ liệu TypeScript
@@ -125,9 +127,13 @@ Bạn tải tệp này lên **Shopee Affiliate Portal > Custom Link > Batch** v�
 
 ### 3. Đồng bộ link rút gọn lên Database Supabase
 ```bash
-python3 scripts/merge-affiliate-results.py
+# Mặc định chỉ kiểm tra, chưa ghi vào database hoặc CSV.
+python3 scripts/merge-affiliate-results.py --files=data/AffiliateBatchCustomLinks_result.csv
+
+# Sau khi đọc report và xử lý các dòng xung đột:
+python3 scripts/merge-affiliate-results.py --files=data/AffiliateBatchCustomLinks_result.csv --apply
 ```
-Tập lệnh sẽ tự động nạp link affiliate và cập nhật trường `affiliate_url` của tất cả các quán trên Supabase Database.
+Phải chỉ định batch rõ ràng. Chỉ cập nhật quán có URL gốc khớp chính xác duy nhất; các batch mâu thuẫn, không tìm thấy hoặc khớp nhiều quán sẽ chặn ghi toàn bộ batch. Link hiện có khác link mới được bảo vệ; chỉ dùng `--replace-existing` sau khi đối soát. Report chứa giá trị trước/sau để phục hồi và kết quả đọc lại từng ID, được lưu tại `artifacts/affiliate-import/` (không commit).
 
 ---
 
