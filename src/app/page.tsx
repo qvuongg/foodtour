@@ -290,14 +290,24 @@ export default function Home() {
     );
   }, [restaurantResult, userCoords]);
 
-  const lunchSelector = useMemo(
-    () =>
-      personalSelector(
-        eligible,
-        validTarget ? target : Number(mealConfig.defaultBudget),
-      ),
-    [eligible, target, validTarget, mealConfig.defaultBudget],
-  );
+  const lunchSelector = useMemo(() => {
+    if (!eligible.length) return null;
+    const rawTarget = validTarget ? target : Number(mealConfig.defaultBudget);
+    const poolPrices = eligible.map((f) => f.price);
+    const poolMin = Math.min(...poolPrices);
+    const poolMax = Math.max(...poolPrices);
+    if (poolMin >= poolMax) {
+      return personalSelector(eligible, poolMin);
+    }
+    // Prevent mathematical degeneracy at boundaries (e.g. target >= poolMax or target <= poolMin)
+    // where createFoodSelector would collapse roulette probability into a 100% deterministic single item.
+    // Soft tilting ensures generous budgets favor high-end items while preserving genuine RNG excitement.
+    const effectiveTarget = Math.max(
+      poolMin + 0.15 * (poolMax - poolMin),
+      Math.min(rawTarget, poolMin + 0.85 * (poolMax - poolMin)),
+    );
+    return personalSelector(eligible, effectiveTarget);
+  }, [eligible, target, validTarget, mealConfig.defaultBudget]);
 
   const filteredMean = lunchSelector?.expectedPrice ?? 0;
   const audio = useRef<CaseAudio | null>(null);

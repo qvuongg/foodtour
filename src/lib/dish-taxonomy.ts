@@ -401,7 +401,7 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
       const MILKTEA_KEYWORDS = [
         "trà sữa", "ô long sữa", "matcha", "trân châu", "sữa chua uống",
         "khoai môn", "thái xanh", "thái đỏ", "thái", "cacao", "sô cô la",
-        "socola", "bánh quy kem", "sữa đậu nành", "sữa hạt sen", "sữa chua"
+        "socola", "bánh quy kem", "sữa đậu nành", "sữa hạt sen", "sữa đậu xanh", "sữa chua"
       ];
       return MILKTEA_KEYWORDS.some((k) => text.includes(k));
     }
@@ -415,9 +415,10 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
       return FRUITTEA_KEYWORDS.some((k) => text.includes(k)) && !text.includes("trà sữa") && !text.includes("sữa");
     }
     if (tasteId === "juice") {
+      if (text.includes("cà phê") || text.includes("cafe")) return false;
       const JUICE_KEYWORDS = [
         "nước ép", "sinh tố", "nước mía", "nước dừa", "nước chanh", "cam vắt",
-        "sắn dây", "me đá", "chanh leo", "chanh dây", "dừa", "rau má",
+        "sắn dây", "me đá", "chanh leo", "chanh dây", "dừa tươi", "dừa tắc", "dừa dầm", "cốt dừa", "rau má",
         "nước sâm", "sâm bí đao", "nước mơ", "nước sấu", "soda", "nước lọc"
       ];
       return JUICE_KEYWORDS.some((k) => text.includes(k));

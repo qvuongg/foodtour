@@ -241,3 +241,26 @@ test("filterFoodsByTastes supports multi-select across different tastes and meal
   assert.ok(pubCombo.some((d) => d.name === "Bò nướng tảng"));
   assert.ok(pubCombo.some((d) => d.name === "Lẩu thái chua cay"));
 });
+
+test("taste filter strictly excludes coffee items (including Cà phê cốt dừa) from juice/smoothie", () => {
+  const caPheCotDua = { name: "Cà phê cốt dừa", sub: "Cà phê & cốt dừa • Một ly", price: 45, rarity: 1, image: 506 };
+  const caPheSuaDa = { name: "Cà phê sữa đá", sub: "Cà phê truyền thống", price: 30, rarity: 1, image: 501 };
+  const bacXiu = { name: "Bạc xỉu", sub: "Cà phê sữa nhẹ", price: 35, rarity: 1, image: 504 };
+  const sinhToDau = { name: "Sinh tố dâu", sub: "Dâu tây tươi", price: 40, rarity: 0, image: 512 };
+  const nuocEpCam = { name: "Nước ép cam", sub: "Cam vắt tươi", price: 30, rarity: 0, image: 510 };
+  const nuocDua = { name: "Nước dừa", sub: "Nước dừa tươi", price: 25, rarity: 0, image: 511 };
+
+  // Cà phê cốt dừa must be coffee and NEVER juice
+  assert.equal(matchSingleTaste(caPheCotDua, "coffee", "drink"), true, "Cà phê cốt dừa is coffee");
+  assert.equal(matchSingleTaste(caPheCotDua, "juice", "drink"), false, "Cà phê cốt dừa must NOT be classified as juice/smoothie");
+
+  for (const coffee of [caPheCotDua, caPheSuaDa, bacXiu]) {
+    assert.equal(matchSingleTaste(coffee, "juice", "drink"), false, `${coffee.name} must never match juice category`);
+  }
+
+  for (const juice of [sinhToDau, nuocEpCam, nuocDua]) {
+    assert.equal(matchSingleTaste(juice, "juice", "drink"), true, `${juice.name} must match juice category`);
+    assert.equal(matchSingleTaste(juice, "coffee", "drink"), false, `${juice.name} must not match coffee category`);
+  }
+});
+
