@@ -44,6 +44,7 @@ export const BRAND_ROULETTE_ITEMS: RestaurantRouletteItem[] = (
 ).map((b) => ({
   id: b.id,
   name: b.name,
+  brandId: b.brand_id,
   city: (b.city === "ha-noi" || b.city === "ho-chi-minh" || b.city === "da-nang" ? b.city : "da-nang") as "da-nang" | "ha-noi" | "ho-chi-minh",
   districtName: b.district || "",
   address: b.address,
@@ -60,6 +61,7 @@ export const BRAND_ROULETTE_ITEMS: RestaurantRouletteItem[] = (
 export interface RestaurantRouletteItem extends GeoPoint {
   id: string;
   name: string;
+  brandId?: string;
   city: "da-nang" | "ha-noi" | "ho-chi-minh";
   districtName: string;
   address?: string;
@@ -2517,6 +2519,47 @@ export const ALL_RESTAURANT_ROULETTE_ITEMS: RestaurantRouletteItem[] = [
   ...BRAND_ROULETTE_ITEMS,
 ];
 
+const KNOWN_BRAND_MAP: Record<string, string> = {
+  highlands: "highlands",
+  "highlands coffee": "highlands",
+  "phúc long": "phuclong",
+  "phuc long": "phuclong",
+  "phê la": "phela",
+  "phe la": "phela",
+  mixue: "mixue",
+  "trà sữa mixue": "mixue",
+  tocotoco: "tocotoco",
+  "trà sữa tocotoco": "tocotoco",
+  "tocotoco bubble tea": "tocotoco",
+  starbucks: "starbucks",
+  "starbucks coffee": "starbucks",
+  katinat: "katinat",
+  "cộng cà phê": "congcaphe",
+  "cong ca phe": "congcaphe",
+  "gong cha": "gongcha",
+  gongcha: "gongcha",
+  "koi thé": "koithe",
+  "koi the": "koithe",
+};
+
+/**
+ * Trích xuất khóa nhận diện quán / chuỗi để deduplicate quán trùng tên:
+ * - Nếu có brandId (như highlands, phuclong, phela...) -> `brand:<brandId>`
+ * - Nếu tên bắt đầu bằng thương hiệu lớn -> `brand:<brand>`
+ * - Ngược lại: trích tên cơ sở trước dấu phân cách chi nhánh/địa chỉ ( - , – , — ) -> `name:<baseName>`
+ */
+export function getRestaurantBrandKey(item: { name: string; brandId?: string }): string {
+  if (item.brandId && item.brandId.trim()) {
+    return `brand:${item.brandId.toLowerCase().trim()}`;
+  }
+  const name = item.name.trim();
+  const parts = name.split(/\s*[-–—]\s*/);
+  const baseName = (parts[0] || name).trim().toLowerCase().normalize("NFC");
+  const known = KNOWN_BRAND_MAP[baseName];
+  if (known) return `brand:${known}`;
+  return `name:${baseName}`;
+}
+
 export function getEligibleRestaurants({
   city = "da-nang",
   category = "lunch",
@@ -2536,7 +2579,7 @@ export function getEligibleRestaurants({
     categoryPool = cityPool; // Fallback to all city restaurants if category is small
   }
 
-  // 3. Lọc theo khoảng cách nếu có GPS
+  // 3. Lọc theo khoảng cách nếu có GPS (ưu tiên quán gần nhất và deduplicate trùng tên)
   let finalPool: RestaurantRouletteItem[] = [];
   if (userCoords && typeof userCoords.lat === "number" && typeof userCoords.lng === "number") {
     const withDistance = categoryPool
@@ -2546,17 +2589,52 @@ export function getEligibleRestaurants({
       }))
       .sort((a, b) => a.distanceKm - b.distanceKm);
 
-    const withinRadius = withDistance.filter((x) => x.distanceKm <= maxRadiusKm).map((x) => x.item);
+    // Rule: Các quán trùng tên/chuỗi chỉ hiển thị quán gần nhất thôi
+    const seenBrands = new Set<string>();
+    const dedupedByDistance: Array<{ item: RestaurantRouletteItem; distanceKm: number }> = [];
 
-    if (withinRadius.length >= 4) {
+    for (const entry of withDistance) {
+      const key = getRestaurantBrandKey(entry.item);
+      if (!seenBrands.has(key)) {
+        seenBrands.add(key);
+        dedupedByDistance.push(entry);
+      }
+    }
+
+    const withinRadius = dedupedByDistance
+      .filter((x) => x.distanceKm <= maxRadiusKm)
+      .map((x) => x.item);
+
+    if (withinRadius.length >= 8) {
       finalPool = withinRadius;
     } else {
-      // Mở rộng bán kính 5km hoặc lấy top gần nhất
-      const within5km = withDistance.filter((x) => x.distanceKm <= 5.0).map((x) => x.item);
-      finalPool = within5km.length >= 3 ? within5km : withDistance.slice(0, 10).map((x) => x.item);
+      // Nếu trong bán kính 3km có ít hơn 8 quán độc nhất, mở rộng ra 5km hoặc lấy các quán gần nhất tiếp theo
+      const within5km = dedupedByDistance
+        .filter((x) => x.distanceKm <= 5.0)
+        .map((x) => x.item);
+      if (within5km.length >= 8) {
+        finalPool = within5km;
+      } else {
+        const targetCount = Math.min(24, Math.max(8, dedupedByDistance.length));
+        finalPool = dedupedByDistance.slice(0, targetCount).map((x) => x.item);
+      }
     }
   } else {
-    finalPool = categoryPool;
+    // Không có GPS: xếp theo lượt đánh giá & rating và lọc trùng tên
+    const sortedFallback = [...categoryPool].sort((a, b) => {
+      if (b.ratingCount !== a.ratingCount) return b.ratingCount - a.ratingCount;
+      return b.rating - a.rating;
+    });
+    const seenBrands = new Set<string>();
+    const deduped: RestaurantRouletteItem[] = [];
+    for (const item of sortedFallback) {
+      const key = getRestaurantBrandKey(item);
+      if (!seenBrands.has(key)) {
+        seenBrands.add(key);
+        deduped.push(item);
+      }
+    }
+    finalPool = deduped;
   }
 
   // Đảm bảo có tối thiểu 8 quán trên reel để vòng quay chạy đẹp mắt
