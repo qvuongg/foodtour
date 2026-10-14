@@ -16,6 +16,7 @@ dist/
 !/scripts/lib/maintenance-url.mjs
 !/scripts/lib/maintenance-env-file.mjs
 !/scripts/lib/restaurant-metadata.mjs
+!/scripts/lib/drink-search-aliases.mjs
 !/scripts/clean-all-dishes.mjs
 !/scripts/link-drink-restaurants.mjs
 !/scripts/push-new-dishes-supabase.mjs

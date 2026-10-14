@@ -20,6 +20,7 @@ import { getMaintenanceKey, getMaintenanceHeaders } from "./lib/maintenance-env.
 import { getMaintenanceUrl } from "./lib/maintenance-url.mjs";
 import { loadMaintenanceEnvFile } from "./lib/maintenance-env-file.mjs";
 import { restaurantMetadata, fetchAllRows } from "./lib/restaurant-metadata.mjs";
+import { DRINK_SEARCH_ALIASES, getDrinkSearchAliases } from "./lib/drink-search-aliases.mjs";
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
 if (isMain) loadMaintenanceEnvFile();
@@ -163,16 +164,7 @@ export const DRINK_CITIES = [
 // ============================================================================
 // MA TRẬN TỪ KHÓA TÌM KIẾM ĐỒNG NGHĨA (SEARCH ALIASES MATRIX)
 // ============================================================================
-export const DRINK_SEARCH_ALIASES = {
-  "Cold Brew": ["Cold Brew", "Coldbrew", "Specialty Coffee", "Cà phê ủ lạnh"],
-  "Cookie đá xay": ["Cookie đá xay", "Oreo đá xay", "Freeze bánh quy", "Bánh quy kem đá xay"],
-  "Cà phê muối": ["Cà phê muối", "Cafe muối"],
-  "Cà phê cốt dừa": ["Cà phê cốt dừa", "Cafe cốt dừa"],
-  "Matcha đá xay": ["Matcha đá xay", "Freeze matcha", "Matcha đá xay kem"],
-  "Sô cô la đá xay": ["Sô cô la đá xay", "Socola đá xay", "Freeze socola", "Chocolate đá xay"],
-  "Sữa tươi trân châu đường đen": ["Sữa tươi trân châu đường đen", "Đường đen"],
-  "Trà sen vàng": ["Trà sen vàng", "Trà hạt sen", "Trà sen"],
-};
+export { DRINK_SEARCH_ALIASES, getDrinkSearchAliases };
 
 // ============================================================================
 // DANH MỤC CÁC MÓN NƯỚC THEO NHÓM
@@ -729,7 +721,7 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
       );
 
       // Lấy danh sách từ khóa tìm kiếm (từ khóa chính + ma trận từ khóa đồng nghĩa)
-      const aliases = DRINK_SEARCH_ALIASES[drinkName] || [];
+      const aliases = getDrinkSearchAliases(drinkName);
       const searchTerms = [drinkName, ...aliases.filter((a) => a.toLowerCase() !== drinkName.toLowerCase())];
 
       for (const districtObj of city.districts) {
