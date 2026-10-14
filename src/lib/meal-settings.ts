@@ -1,6 +1,6 @@
 import { getMealConfig, MEAL_KINDS, type MealKind } from "./food-categories";
 import type { Food } from "./foods";
-import type { Language } from "./i18n";
+import { priceLabel, type Language } from "./i18n";
 
 export const MEAL_SETTINGS_COOKIE = "meal-settings";
 
@@ -41,15 +41,89 @@ export function defaultMealSettings(): MealSettings {
   };
 }
 
+/**
+ * Normalizes user budget input in any customary format into integer thousands:
+ * - "60000", "60.000", "60.000đ", "60000đ", "60k", "60" -> 60
+ * - "500000", "500.000đ", "500k", "500" -> 500
+ * - "1000000", "1.000.000đ", "1000k", "1000" -> 1000
+ */
+export function parseBudgetInput(value: unknown): number | null {
+  if (typeof value !== "string" && typeof value !== "number") return null;
+  const raw = String(value).trim();
+  if (!raw) return null;
+
+  // Reject scientific notation, hex, explicit signs
+  if (/^0x/i.test(raw) || /[eE]/.test(raw) || /[-+]/.test(raw)) return null;
+
+  // Check for 'k' / 'K' suffix, e.g. "60k", "60 K", "150k"
+  const kMatch = raw.match(/^(\d+(?:[.,]\d+)?)\s*[kK]$/);
+  if (kMatch) {
+    const num = Number(kMatch[1].replace(/,/g, "."));
+    if (!Number.isFinite(num) || num <= 0 || !Number.isInteger(num)) return null;
+    return num;
+  }
+
+  // Strip currency symbols: đ, Đ, d, D, ₫, vnd, VND (case-insensitive)
+  let cleaned = raw
+    .replace(/[₫đĐ]/g, "")
+    .replace(/\b(vnd|d)\b/gi, "")
+    .trim();
+
+  // Strip trailing 'd' or 'D' if left over (e.g. "60000d")
+  cleaned = cleaned.replace(/[dD]$/, "").trim();
+
+  if (!cleaned) return null;
+
+  // Check if string contains Vietnamese or international thousand separators:
+  // e.g. "60.000", "1.000.000", "60,000", "1,000,000"
+  const dotThousandMatch = /^\d{1,3}(\.\d{3})+$/.test(cleaned);
+  const commaThousandMatch = /^\d{1,3}(,\d{3})+$/.test(cleaned);
+
+  if (dotThousandMatch || commaThousandMatch) {
+    const digitsOnly = cleaned.replace(/[.,]/g, "");
+    const fullAmount = Number(digitsOnly);
+    if (!Number.isInteger(fullAmount) || fullAmount <= 0) return null;
+    return Math.floor(fullAmount / 1000);
+  }
+
+  // Reject decimal points (e.g. "30.5", "85.0")
+  if (/[.,]/.test(cleaned)) {
+    return null;
+  }
+
+  // Pure digits only
+  if (!/^\d+$/.test(cleaned)) return null;
+
+  const num = Number(cleaned);
+  if (!Number.isSafeInteger(num) || num <= 0) return null;
+
+  // Values >= 10000 are entered in full VND (e.g. 10000, 35000, 60000, 500000, 1000000)
+  if (num >= 10000) {
+    return num % 1000 === 0 ? num / 1000 : Math.round(num / 1000);
+  }
+
+  // Values < 10000 are entered in thousands (e.g. 30, 50, 60, 150, 500, 1000)
+  return num;
+}
+
+export function formatBudgetDisplay(
+  thousands: number | string,
+  language: Language,
+): string {
+  const parsed = parseBudgetInput(String(thousands));
+  const val = parsed !== null ? parsed : Number(thousands);
+  if (!Number.isFinite(val) || val <= 0) return String(thousands);
+  const amount = val * 1000;
+  return language === "vi"
+    ? `${new Intl.NumberFormat("vi-VN").format(amount)}đ`
+    : `₫${new Intl.NumberFormat("en-US").format(amount)}`;
+}
+
 export function validMealBudget(kind: MealKind, value: string): boolean {
   const config = getMealConfig(kind);
-  const amount = Number(value);
-  return (
-    /^\d+$/.test(value.trim()) &&
-    Number.isInteger(amount) &&
-    amount >= config.minPrice &&
-    amount <= config.maxPrice
-  );
+  const parsed = parseBudgetInput(value);
+  if (parsed === null) return false;
+  return parsed >= config.minPrice && parsed <= config.maxPrice;
 }
 
 function restoreBudget(kind: MealKind, value: unknown): MealBudget {
@@ -61,10 +135,18 @@ function restoreBudget(kind: MealKind, value: unknown): MealBudget {
   if (!isRecord(value)) return fallback;
   // The previous number input accepted equivalent integral representations,
   // such as "85.0" and "8.5e1". Preserve their value when migrating cookies.
-  const normalizedCustom =
-    typeof value.custom === "string" && value.custom.trim()
-      ? String(Number(value.custom))
-      : "";
+  let normalizedCustom = "";
+  if (typeof value.custom === "string" && value.custom.trim()) {
+    const parsed = parseBudgetInput(value.custom);
+    if (parsed !== null) {
+      normalizedCustom = String(parsed);
+    } else {
+      const num = Number(value.custom);
+      if (Number.isInteger(num)) {
+        normalizedCustom = String(num);
+      }
+    }
+  }
   const validCustom =
     normalizedCustom !== "" && validMealBudget(kind, normalizedCustom);
   const custom = validCustom ? normalizedCustom : config.defaultBudget;
@@ -115,9 +197,13 @@ export function updateMealBudget(
 ): MealSettings | null {
   const kind = settings.mealKind;
   const config = getMealConfig(kind);
+  const parsedCustom = parseBudgetInput(custom);
   if (
     (budget !== "custom" && !config.budgets.includes(budget)) ||
-    (budget === "custom" && !validMealBudget(kind, custom))
+    (budget === "custom" &&
+      (parsedCustom === null ||
+        parsedCustom < config.minPrice ||
+        parsedCustom > config.maxPrice))
   ) {
     return null;
   }
@@ -128,8 +214,8 @@ export function updateMealBudget(
       [kind]: {
         budget,
         custom:
-          budget === "custom"
-            ? String(Number(custom))
+          budget === "custom" && parsedCustom !== null
+            ? String(parsedCustom)
             : settings.budgets[kind].custom,
       },
     },
@@ -147,9 +233,11 @@ export function budgetValidationMessage(
   language: Language,
 ): string {
   const { minPrice, maxPrice } = getMealConfig(kind);
+  const minFormatted = priceLabel(minPrice, language);
+  const maxFormatted = priceLabel(maxPrice, language);
   return language === "vi"
-    ? `Nhập số nguyên từ ${minPrice} đến ${maxPrice} nghìn đồng.`
-    : `Enter a whole number from ${minPrice} to ${maxPrice} thousand VND.`;
+    ? `Nhập mức chi từ ${minFormatted} đến ${maxFormatted} (ví dụ: 60.000đ hoặc 60k).`
+    : `Enter a budget from ${minFormatted} to ${maxFormatted} (e.g. 60,000₫ or 60k).`;
 }
 
 export function servingUnit(kind: MealKind, language: Language): string {

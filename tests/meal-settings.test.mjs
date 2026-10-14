@@ -29,6 +29,8 @@ try {
     budgetValidationMessage,
     servingUnit,
     foodServingUnit,
+    parseBudgetInput,
+    formatBudgetDisplay,
   } = require(join(out, "meal-settings.cjs"));
   const { readCookie, writeCookie } = require(join(out, "cookies.cjs"));
 
@@ -90,7 +92,7 @@ try {
         custom,
       );
     }
-    for (const custom of ["85.5", "8.55e1", "", "  ", "Infinity", "1.81e2"]) {
+    for (const custom of ["85.5", "8.55e1", "", "  ", "Infinity", "5.01e2"]) {
       const restored = restoreMealSettings(
         null,
         { budget: "custom", custom },
@@ -116,7 +118,7 @@ try {
     for (const value of [
       "",
       "10",
-      "181",
+      "501",
       "30.5",
       "NaN",
       "Infinity",
@@ -129,11 +131,18 @@ try {
     assert.deepEqual(settings, previous);
     assert.equal(validMealBudget("lunch", "30"), true);
     assert.equal(validMealBudget("lunch", "180"), true);
+    assert.equal(validMealBudget("lunch", "500"), true);
+    assert.equal(validMealBudget("lunch", "501"), false);
     assert.equal(validMealBudget("drink", "10"), true);
     assert.equal(validMealBudget("drink", "60"), true);
-    assert.equal(validMealBudget("drink", "61"), false);
+    assert.equal(validMealBudget("drink", "300"), true);
+    assert.equal(validMealBudget("drink", "301"), false);
     assert.equal(validMealBudget("snack", "95"), true);
+    assert.equal(validMealBudget("snack", "300"), true);
+    assert.equal(validMealBudget("snack", "301"), false);
     assert.equal(validMealBudget("nhau", "20"), true);
+    assert.equal(validMealBudget("nhau", "1000"), true);
+    assert.equal(validMealBudget("nhau", "1001"), false);
   });
 
   test("malformed fields fall back independently without erasing healthy preferences", () => {
@@ -215,8 +224,8 @@ try {
   });
 
   test("budget messages and serving units follow the selected category and explicit metadata", () => {
-    assert.match(budgetValidationMessage("drink", "vi"), /10.*60/);
-    assert.match(budgetValidationMessage("snack", "en"), /10.*95/);
+    assert.match(budgetValidationMessage("drink", "vi"), /10.*300/);
+    assert.match(budgetValidationMessage("snack", "en"), /10.*300/);
     assert.equal(servingUnit("lunch", "vi"), "suất");
     assert.equal(servingUnit("nhau", "en"), "plate");
     assert.equal(
@@ -235,6 +244,53 @@ try {
       foodServingUnit({ sub: "Món tự thêm" }, "lunch", "en"),
       "serving",
     );
+  });
+
+  test("flexible budget input supports 60000, 60.000đ, 60.000, 60k, and 60", () => {
+    for (const input of [
+      "60000",
+      "60.000đ",
+      "60.000 đ",
+      "60.000",
+      "60,000",
+      "60k",
+      "60K",
+      "60000d",
+      "60000 VND",
+      "60",
+      "  60000  ",
+    ]) {
+      assert.equal(validMealBudget("lunch", input), true, `valid: ${input}`);
+      const updated = updateMealBudget(defaultMealSettings(), "custom", input);
+      assert.ok(updated !== null, `update: ${input}`);
+      assert.equal(updated.budgets.lunch.custom, "60", `canonical: ${input}`);
+    }
+
+    assert.equal(formatBudgetDisplay("60", "vi"), "60.000đ");
+    assert.equal(formatBudgetDisplay("60000", "vi"), "60.000đ");
+    assert.equal(formatBudgetDisplay("60.000đ", "vi"), "60.000đ");
+    assert.equal(formatBudgetDisplay("500", "vi"), "500.000đ");
+    assert.equal(formatBudgetDisplay("1000", "vi"), "1.000.000đ");
+
+    // Boundary amounts in full VND across categories
+    assert.equal(validMealBudget("lunch", "500000"), true);
+    assert.equal(validMealBudget("lunch", "500.000đ"), true);
+    assert.equal(validMealBudget("lunch", "500k"), true);
+    assert.equal(validMealBudget("lunch", "500"), true);
+    assert.equal(validMealBudget("lunch", "501000"), false);
+    assert.equal(validMealBudget("lunch", "501.000đ"), false);
+
+    assert.equal(validMealBudget("drink", "300000"), true);
+    assert.equal(validMealBudget("drink", "300.000đ"), true);
+    assert.equal(validMealBudget("drink", "300k"), true);
+    assert.equal(validMealBudget("drink", "301000"), false);
+
+    assert.equal(validMealBudget("nhau", "1000000"), true);
+    assert.equal(validMealBudget("nhau", "1.000.000đ"), true);
+    assert.equal(validMealBudget("nhau", "1000k"), true);
+    assert.equal(validMealBudget("nhau", "1000"), true);
+    assert.equal(validMealBudget("nhau", "1001000"), false);
+    assert.equal(validMealBudget("nhau", "1.001.000đ"), false);
   });
 } finally {
   rmSync(out, { recursive: true, force: true });

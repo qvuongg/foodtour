@@ -14,7 +14,12 @@ import {
 } from "./ui/dialog";
 import { copy, priceLabel, type Language } from "@/lib/i18n";
 import type { useMealSettings } from "@/hooks/use-meal-settings";
-import { budgetValidationMessage, servingUnit } from "@/lib/meal-settings";
+import {
+  budgetValidationMessage,
+  formatBudgetDisplay,
+  parseBudgetInput,
+  servingUnit,
+} from "@/lib/meal-settings";
 import {
   getTasteCategoriesForMealKind,
   type MealSession,
@@ -65,8 +70,20 @@ export function SpinControls({
   const [tasteOpen, setTasteOpen] = useState(false);
   const [draftBudget, setDraftBudget] = useState(budget);
   const [draftTastes, setDraftTastes] = useState<string[]>(selectedTastes);
-  const [amount, setAmount] = useState(custom);
+  const [amount, setAmount] = useState(() =>
+    formatBudgetDisplay(custom, language),
+  );
   const [error, setError] = useState(false);
+
+  const parsedCustomAmount = useMemo(
+    () => parseBudgetInput(amount),
+    [amount],
+  );
+  const isValidCustomAmount =
+    parsedCustomAmount !== null &&
+    parsedCustomAmount >= mealConfig.minPrice &&
+    parsedCustomAmount <= mealConfig.maxPrice;
+  const hasCurrencySuffix = /[đĐ₫dDkK]$/.test(amount.trim());
 
   const budgetTrigger = useRef<HTMLButtonElement>(null);
   const tasteTrigger = useRef<HTMLButtonElement>(null);
@@ -175,7 +192,7 @@ export function SpinControls({
             aria-label={`${vi ? "Mức chi dự kiến" : "Expected budget"}: ${priceLabel(budget === "custom" ? custom : budget, language, true)}`}
             onClick={() => {
               setDraftBudget(budget);
-              setAmount(custom);
+              setAmount(formatBudgetDisplay(custom, language));
               setError(false);
               toggleBudget(true);
             }}
@@ -358,25 +375,47 @@ export function SpinControls({
             {draftBudget === "custom" && (
               <div className="custom-budget">
                 <label htmlFor="budget-amount">
-                  {vi ? "Nhập mức chi" : "Enter your budget"} (1.000đ /{" "}
+                  {vi ? "Nhập mức chi mong muốn" : "Enter your budget"} (VND /{" "}
                   {servingUnit(mealKind, language)})
                 </label>
-                <input
-                  ref={input}
-                  id="budget-amount"
-                  type="number"
-                  inputMode="numeric"
-                  min={mealConfig.minPrice}
-                  max={mealConfig.maxPrice}
-                  step="1"
-                  value={amount}
-                  aria-invalid={error}
-                  aria-describedby="budget-hint"
-                  onChange={(event) => {
-                    setAmount(event.target.value);
-                    setError(false);
-                  }}
-                />
+                <div className="custom-budget-input-wrapper">
+                  <input
+                    ref={input}
+                    id="budget-amount"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder={
+                      vi ? "Ví dụ: 60.000đ hoặc 60k" : "e.g. 60,000₫ or 60k"
+                    }
+                    value={amount}
+                    aria-invalid={error}
+                    aria-describedby="budget-hint"
+                    onChange={(event) => {
+                      setAmount(event.target.value);
+                      setError(false);
+                    }}
+                    onBlur={() => {
+                      if (isValidCustomAmount && parsedCustomAmount !== null) {
+                        setAmount(
+                          formatBudgetDisplay(parsedCustomAmount, language),
+                        );
+                      }
+                    }}
+                  />
+                  {!hasCurrencySuffix && (
+                    <span className="currency-suffix" aria-hidden="true">
+                      {vi ? "đ" : "₫"}
+                    </span>
+                  )}
+                </div>
+                {isValidCustomAmount && parsedCustomAmount !== null && (
+                  <div className="budget-live-preview">
+                    <span>{vi ? "Tương đương:" : "Equivalent:"}</span>
+                    <strong>{priceLabel(parsedCustomAmount, language)}</strong>
+                    <span>/ {servingUnit(mealKind, language)}</span>
+                  </div>
+                )}
                 <p
                   id="budget-hint"
                   className={error ? "field-error" : "field-hint"}
