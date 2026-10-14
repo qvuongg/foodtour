@@ -31,6 +31,7 @@ try {
     foodServingUnit,
     parseBudgetInput,
     formatBudgetDisplay,
+    formatBudgetNumber,
   } = require(join(out, "meal-settings.cjs"));
   const { readCookie, writeCookie } = require(join(out, "cookies.cjs"));
 
@@ -271,6 +272,12 @@ try {
     assert.equal(formatBudgetDisplay("60.000đ", "vi"), "60.000đ");
     assert.equal(formatBudgetDisplay("500", "vi"), "500.000đ");
     assert.equal(formatBudgetDisplay("1000", "vi"), "1.000.000đ");
+
+    assert.equal(formatBudgetNumber("60"), "60.000");
+    assert.equal(formatBudgetNumber("60000"), "60.000");
+    assert.equal(formatBudgetNumber("60.000đ"), "60.000");
+    assert.equal(formatBudgetNumber("500"), "500.000");
+    assert.equal(formatBudgetNumber("1000"), "1.000.000");
 
     // Boundary amounts in full VND across categories
     assert.equal(validMealBudget("lunch", "500000"), true);

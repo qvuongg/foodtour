@@ -17,6 +17,7 @@ import type { useMealSettings } from "@/hooks/use-meal-settings";
 import {
   budgetValidationMessage,
   formatBudgetDisplay,
+  formatBudgetNumber,
   parseBudgetInput,
   servingUnit,
 } from "@/lib/meal-settings";
@@ -70,9 +71,7 @@ export function SpinControls({
   const [tasteOpen, setTasteOpen] = useState(false);
   const [draftBudget, setDraftBudget] = useState(budget);
   const [draftTastes, setDraftTastes] = useState<string[]>(selectedTastes);
-  const [amount, setAmount] = useState(() =>
-    formatBudgetDisplay(custom, language),
-  );
+  const [amount, setAmount] = useState(() => formatBudgetNumber(custom));
   const [error, setError] = useState(false);
 
   const parsedCustomAmount = useMemo(
@@ -83,7 +82,63 @@ export function SpinControls({
     parsedCustomAmount !== null &&
     parsedCustomAmount >= mealConfig.minPrice &&
     parsedCustomAmount <= mealConfig.maxPrice;
-  const hasCurrencySuffix = /[đĐ₫dDkK]$/.test(amount.trim());
+
+  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = event.target.value;
+    const cursorPos = event.target.selectionStart ?? raw.length;
+
+    // Support typing 'k' / 'K' shorthand, e.g. "60k", "500k"
+    if (/[kK]/.test(raw)) {
+      const digitsBeforeK = raw.replace(/[^0-9]/g, "");
+      if (digitsBeforeK) {
+        const num = Number(digitsBeforeK) * 1000;
+        const formatted = new Intl.NumberFormat("vi-VN").format(num);
+        setAmount(formatted);
+        setError(false);
+        return;
+      }
+    }
+
+    // Count pure digits before cursor to maintain stable cursor position
+    const digitsBeforeCursor = raw.slice(0, cursorPos).replace(/\D/g, "").length;
+
+    // Extract numeric digits, capped at 9 digits to prevent overflow
+    const allDigits = raw.replace(/\D/g, "").slice(0, 9);
+
+    if (!allDigits) {
+      setAmount("");
+      setError(false);
+      return;
+    }
+
+    // Real-time dynamic thousand dot formatting on every keystroke
+    const formatted = new Intl.NumberFormat("vi-VN").format(Number(allDigits));
+    setAmount(formatted);
+    setError(false);
+
+    // Dynamically restore cursor position across the thousand separator shifts
+    requestAnimationFrame(() => {
+      if (!input.current) return;
+      let targetPos = formatted.length;
+      let countedDigits = 0;
+      for (let i = 0; i < formatted.length; i++) {
+        if (/\d/.test(formatted[i])) {
+          countedDigits++;
+        }
+        if (countedDigits >= digitsBeforeCursor) {
+          targetPos = i + 1;
+          break;
+        }
+      }
+      input.current.setSelectionRange(targetPos, targetPos);
+    });
+  };
+
+  const handleAmountBlur = () => {
+    if (isValidCustomAmount && parsedCustomAmount !== null) {
+      setAmount(formatBudgetNumber(parsedCustomAmount));
+    }
+  };
 
   const budgetTrigger = useRef<HTMLButtonElement>(null);
   const tasteTrigger = useRef<HTMLButtonElement>(null);
@@ -192,7 +247,7 @@ export function SpinControls({
             aria-label={`${vi ? "Mức chi dự kiến" : "Expected budget"}: ${priceLabel(budget === "custom" ? custom : budget, language, true)}`}
             onClick={() => {
               setDraftBudget(budget);
-              setAmount(formatBudgetDisplay(custom, language));
+              setAmount(formatBudgetNumber(custom));
               setError(false);
               toggleBudget(true);
             }}
@@ -385,29 +440,31 @@ export function SpinControls({
                     type="text"
                     inputMode="numeric"
                     autoComplete="off"
-                    placeholder={
-                      vi ? "Ví dụ: 60.000đ hoặc 60k" : "e.g. 60,000₫ or 60k"
-                    }
+                    placeholder="Ví dụ: 60.000"
                     value={amount}
                     aria-invalid={error}
                     aria-describedby="budget-hint"
-                    onChange={(event) => {
-                      setAmount(event.target.value);
-                      setError(false);
-                    }}
-                    onBlur={() => {
-                      if (isValidCustomAmount && parsedCustomAmount !== null) {
-                        setAmount(
-                          formatBudgetDisplay(parsedCustomAmount, language),
-                        );
-                      }
-                    }}
+                    onFocus={(event) => event.target.select()}
+                    onChange={handleAmountChange}
+                    onBlur={handleAmountBlur}
                   />
-                  {!hasCurrencySuffix && (
-                    <span className="currency-suffix" aria-hidden="true">
-                      {vi ? "đ" : "₫"}
-                    </span>
+                  {amount && (
+                    <button
+                      type="button"
+                      className="budget-clear-btn"
+                      aria-label={vi ? "Xóa mức chi" : "Clear budget"}
+                      onClick={() => {
+                        setAmount("");
+                        setError(false);
+                        input.current?.focus();
+                      }}
+                    >
+                      ×
+                    </button>
                   )}
+                  <span className="currency-suffix" aria-hidden="true">
+                    {vi ? "đ" : "₫"}
+                  </span>
                 </div>
                 {isValidCustomAmount && parsedCustomAmount !== null && (
                   <div className="budget-live-preview">

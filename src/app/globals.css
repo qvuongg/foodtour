@@ -1201,7 +1201,7 @@ footer a {
   min-height: 48px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px 38px 10px 14px;
+  padding: 10px 58px 10px 14px;
   font-size: 16px;
   font-weight: 600;
   color: var(--foreground);
@@ -1227,6 +1227,31 @@ footer a {
   color: var(--muted-foreground);
   pointer-events: none;
   user-select: none;
+}
+
+.budget-clear-btn {
+  position: absolute;
+  right: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: #ede8e1;
+  color: #7d7265;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.budget-clear-btn:hover {
+  background: #dfd8cf;
+  color: var(--foreground);
 }
 
 .budget-live-preview {

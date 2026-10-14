@@ -119,6 +119,14 @@ export function formatBudgetDisplay(
     : `₫${new Intl.NumberFormat("en-US").format(amount)}`;
 }
 
+export function formatBudgetNumber(thousands: number | string): string {
+  const parsed = parseBudgetInput(String(thousands));
+  const val = parsed !== null ? parsed : Number(thousands);
+  if (!Number.isFinite(val) || val <= 0) return "";
+  const amount = val * 1000;
+  return new Intl.NumberFormat("vi-VN").format(amount);
+}
+
 export function validMealBudget(kind: MealKind, value: string): boolean {
   const config = getMealConfig(kind);
   const parsed = parseBudgetInput(value);
