@@ -401,7 +401,7 @@ export function matchSingleTaste(food: Food, tasteId: string, mealKind: MealKind
       const MILKTEA_KEYWORDS = [
         "trà sữa", "ô long sữa", "matcha", "trân châu", "sữa chua uống",
         "khoai môn", "thái xanh", "thái đỏ", "thái", "cacao", "sô cô la",
-        "socola", "bánh quy kem", "sữa đậu nành", "sữa hạt sen", "sữa đậu xanh", "sữa chua"
+        "socola", "cookie", "oreo", "bánh quy kem", "sữa đậu nành", "sữa hạt sen", "sữa đậu xanh", "sữa chua"
       ];
       return MILKTEA_KEYWORDS.some((k) => text.includes(k));
     }

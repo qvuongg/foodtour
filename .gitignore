@@ -24,6 +24,7 @@ dist/
 !/scripts/crawl-brand-branches.mjs
 !/scripts/crawl-shopeefood-batch.mjs
 !/scripts/crawl-drinks.mjs
+!/scripts/update-drink-dishes.sql
 !/scripts/sync-pending-supabase.mjs
 !/scripts/import-affiliate-csv.mjs
 !/scripts/merge-affiliate-results.py

@@ -219,8 +219,8 @@ export const drinkFoods: Food[] = [
     quip: "Một lựa chọn tuyệt vời cho hôm nay!",
   },
   {
-    name: "Cà phê ủ lạnh",
-    sub: "Cà phê ủ lạnh • Một ly",
+    name: "Cold Brew",
+    sub: "Cà phê ủ lạnh nguyên vị • Một ly",
     price: 45,
     image: 503,
     rarity: priceRarity(45),
@@ -531,8 +531,8 @@ export const drinkFoods: Food[] = [
     quip: "Một lựa chọn tuyệt vời cho hôm nay!",
   },
   {
-    name: "Bánh quy kem đá xay",
-    sub: "Bánh quy & kem xay đá • Một ly",
+    name: "Cookie đá xay",
+    sub: "Bánh quy Oreo & kem xay đá • Một ly",
     price: 45,
     image: 542,
     rarity: priceRarity(45),

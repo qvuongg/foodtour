@@ -38,7 +38,8 @@ function norm(str) {
 const BRAND_MENU_SLUGS = {
   highlands: [
     "ca-phe-den-da", "ca-phe-sua-da", "bac-xiu", "espresso",
-    "americano", "latte", "cappuccino", "tra-sen-vang", "tra-dao-cam-sa"
+    "americano", "latte", "cappuccino", "tra-sen-vang", "tra-dao-cam-sa",
+    "cookie-da-xay", "banh-quy-kem-da-xay", "matcha-da-xay", "so-co-la-da-xay"
   ],
   phuclong: [
     "tra-dao-cam-sa", "tra-vai", "tra-sua-o-long", "ca-phe-sua-da",
@@ -55,7 +56,8 @@ const BRAND_MENU_SLUGS = {
     "tra-sua-thai", "tra-sua-o-long"
   ],
   starbucks: [
-    "latte", "cappuccino", "espresso", "americano", "ca-phe-u-lanh", "matcha-latte", "hojicha-latte"
+    "latte", "cappuccino", "espresso", "americano", "cold-brew", "ca-phe-u-lanh",
+    "matcha-latte", "hojicha-latte", "cookie-da-xay", "banh-quy-kem-da-xay"
   ],
   katinat: [
     "tra-sua-o-long", "ca-phe-sua-da", "bac-xiu", "tra-dao-cam-sa", "sinh-to-bo"
@@ -112,7 +114,10 @@ function inferDishesForRestaurant(name, url = "") {
     if (n.includes("muoi")) matchedSlugs.add("ca-phe-muoi");
     if (n.includes("trung")) matchedSlugs.add("ca-phe-trung");
     if (n.includes("cot dua")) matchedSlugs.add("ca-phe-cot-dua");
-    if (n.includes("cold brew") || n.includes("u lanh")) matchedSlugs.add("ca-phe-u-lanh");
+    if (n.includes("cold brew") || n.includes("coldbrew") || n.includes("u lanh") || n.includes("specialty") || n.includes("roastery") || n.includes("roaster") || n.includes("brew")) {
+      matchedSlugs.add("ca-phe-u-lanh");
+      matchedSlugs.add("cold-brew");
+    }
     if (n.includes("espresso")) matchedSlugs.add("espresso");
     if (n.includes("latte")) matchedSlugs.add("latte");
     if (n.includes("cappuccino")) matchedSlugs.add("cappuccino");
@@ -223,9 +228,10 @@ function inferDishesForRestaurant(name, url = "") {
   if (n.includes("nuoc sau") || n.includes(" tra sau ") || n.includes("sau ngam")) matchedSlugs.add("nuoc-sau");
   if (n.includes("chanh muoi")) matchedSlugs.add("nuoc-chanh-muoi");
   if (n.includes("chanh day") || n.includes("chanh leo")) matchedSlugs.add("nuoc-chanh-day");
-  if (n.includes("da xay") || n.includes("ice blended")) {
+  if (n.includes("da xay") || n.includes("ice blended") || n.includes("freeze") || n.includes("cookie") || n.includes("oreo") || n.includes("banh quy")) {
     matchedSlugs.add("matcha-da-xay");
     matchedSlugs.add("so-co-la-da-xay");
+    matchedSlugs.add("cookie-da-xay");
     matchedSlugs.add("banh-quy-kem-da-xay");
   }
 

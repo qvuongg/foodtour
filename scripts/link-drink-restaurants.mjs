@@ -45,6 +45,20 @@ async function main() {
   const dishMap = new Map();
   for (const d of dishes) {
     dishMap.set(d.slug, d.id);
+    dishMap.set(norm(d.name), d.id);
+  }
+  // Đồng bộ hai chiều slug cũ và slug mới để luôn khớp 100%
+  if (dishMap.has("banh-quy-kem-da-xay") && !dishMap.has("cookie-da-xay")) {
+    dishMap.set("cookie-da-xay", dishMap.get("banh-quy-kem-da-xay"));
+  }
+  if (dishMap.has("cookie-da-xay") && !dishMap.has("banh-quy-kem-da-xay")) {
+    dishMap.set("banh-quy-kem-da-xay", dishMap.get("cookie-da-xay"));
+  }
+  if (dishMap.has("ca-phe-u-lanh") && !dishMap.has("cold-brew")) {
+    dishMap.set("cold-brew", dishMap.get("ca-phe-u-lanh"));
+  }
+  if (dishMap.has("cold-brew") && !dishMap.has("ca-phe-u-lanh")) {
+    dishMap.set("ca-phe-u-lanh", dishMap.get("cold-brew"));
   }
 
   // 2. Đọc danh sách quán từ drinks_pending_affiliate.csv
@@ -112,7 +126,48 @@ async function main() {
     if (n.includes("ca phe trung") || n.includes("cafe trung")) matchedDishSlugs.add("ca-phe-trung");
     if (n.includes("cot dua")) matchedDishSlugs.add("ca-phe-cot-dua");
     if (n.includes("bac xiu")) matchedDishSlugs.add("bac-xiu");
-    if (n.includes("cold brew") || n.includes("u lanh")) matchedDishSlugs.add("ca-phe-u-lanh");
+
+    // Cold Brew / Cà phê ủ lạnh / Specialty Coffee:
+    if (
+      n.includes("cold brew") ||
+      n.includes("coldbrew") ||
+      n.includes("u lanh") ||
+      n.includes("specialty") ||
+      n.includes("roastery") ||
+      n.includes("roaster") ||
+      n.includes("brew") ||
+      n.includes("tranquil") ||
+      n.includes("all day") ||
+      n.includes("la viet") ||
+      n.includes("cheese coffee") ||
+      n.includes("katinat") ||
+      n.includes("starbucks") ||
+      n.includes("highlands") ||
+      n.includes("the coffee house") ||
+      n.includes("blackbird") ||
+      n.includes("workshop") ||
+      n.includes("ka coffee") ||
+      n.includes("barista") ||
+      n.includes("coffee lab")
+    ) {
+      matchedDishSlugs.add("ca-phe-u-lanh");
+      matchedDishSlugs.add("cold-brew");
+    }
+
+    // Cookie đá xay / Bánh quy kem đá xay / Ice Blended:
+    if (
+      n.includes("cookie") ||
+      n.includes("oreo") ||
+      n.includes("freeze") ||
+      n.includes("da xay") ||
+      n.includes("ice blended") ||
+      n.includes("banh quy") ||
+      n.includes("kem da xay")
+    ) {
+      matchedDishSlugs.add("cookie-da-xay");
+      matchedDishSlugs.add("banh-quy-kem-da-xay");
+    }
+
     if (n.includes("latte")) matchedDishSlugs.add("latte");
     if (n.includes("cappuccino")) matchedDishSlugs.add("cappuccino");
     if (n.includes("americano")) matchedDishSlugs.add("americano");

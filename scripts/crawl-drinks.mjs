@@ -106,12 +106,12 @@ export const DRINK_CITIES = [
     lngMin: 108.0,
     lngMax: 108.35,
     districts: [
-      "Liên Chiểu",
-      "Hải Châu",
-      "Thanh Khê",
-      "Sơn Trà",
-      "Ngũ Hành Sơn",
-      "Cẩm Lệ",
+      { name: "Hải Châu", lat: 16.0678, lng: 108.2208 },
+      { name: "Thanh Khê", lat: 16.0601, lng: 108.1818 },
+      { name: "Sơn Trà", lat: 16.0825, lng: 108.2435 },
+      { name: "Ngũ Hành Sơn", lat: 16.0125, lng: 108.2520 },
+      { name: "Cẩm Lệ", lat: 16.0182, lng: 108.1963 },
+      { name: "Liên Chiểu", lat: 16.0864, lng: 108.1466 },
     ],
   },
   {
@@ -122,18 +122,18 @@ export const DRINK_CITIES = [
     lngMin: 105.6,
     lngMax: 106.05,
     districts: [
-      "Hoàn Kiếm",
-      "Đống Đa",
-      "Ba Đình",
-      "Hai Bà Trưng",
-      "Cầu Giấy",
-      "Thanh Xuân",
-      "Tây Hồ",
-      "Nam Từ Liêm",
-      "Bắc Từ Liêm",
-      "Hà Đông",
-      "Hoàng Mai",
-      "Long Biên",
+      { name: "Hoàn Kiếm", lat: 21.0285, lng: 105.8542 },
+      { name: "Đống Đa", lat: 21.0181, lng: 105.8274 },
+      { name: "Ba Đình", lat: 21.0341, lng: 105.8252 },
+      { name: "Hai Bà Trưng", lat: 21.0091, lng: 105.8576 },
+      { name: "Cầu Giấy", lat: 21.0362, lng: 105.7906 },
+      { name: "Thanh Xuân", lat: 20.9937, lng: 105.8123 },
+      { name: "Tây Hồ", lat: 21.0682, lng: 105.8247 },
+      { name: "Nam Từ Liêm", lat: 21.0142, lng: 105.7654 },
+      { name: "Bắc Từ Liêm", lat: 21.0747, lng: 105.7601 },
+      { name: "Hà Đông", lat: 20.9634, lng: 105.7638 },
+      { name: "Hoàng Mai", lat: 20.9782, lng: 105.8566 },
+      { name: "Long Biên", lat: 21.0367, lng: 105.8928 },
     ],
   },
   {
@@ -144,21 +144,35 @@ export const DRINK_CITIES = [
     lngMin: 106.5,
     lngMax: 106.85,
     districts: [
-      "Quận 1",
-      "Quận 3",
-      "Quận 5",
-      "Quận 7",
-      "Quận 10",
-      "Bình Thạnh",
-      "Phú Nhuận",
-      "Tân Bình",
-      "Gò Vấp",
-      "Thủ Đức",
-      "Bình Tân",
-      "Tân Phú",
+      { name: "Quận 1", lat: 10.7769, lng: 106.7009 },
+      { name: "Quận 3", lat: 10.7844, lng: 106.6844 },
+      { name: "Quận 5", lat: 10.7540, lng: 106.6634 },
+      { name: "Quận 7", lat: 10.7340, lng: 106.7218 },
+      { name: "Quận 10", lat: 10.7716, lng: 106.6672 },
+      { name: "Bình Thạnh", lat: 10.8106, lng: 106.6976 },
+      { name: "Phú Nhuận", lat: 10.7992, lng: 106.6803 },
+      { name: "Tân Bình", lat: 10.8015, lng: 106.6545 },
+      { name: "Gò Vấp", lat: 10.8387, lng: 106.6653 },
+      { name: "Thủ Đức", lat: 10.8494, lng: 106.7537 },
+      { name: "Bình Tân", lat: 10.7653, lng: 106.6039 },
+      { name: "Tân Phú", lat: 10.7901, lng: 106.6280 },
     ],
   },
 ];
+
+// ============================================================================
+// MA TRẬN TỪ KHÓA TÌM KIẾM ĐỒNG NGHĨA (SEARCH ALIASES MATRIX)
+// ============================================================================
+export const DRINK_SEARCH_ALIASES = {
+  "Cold Brew": ["Cold Brew", "Coldbrew", "Specialty Coffee", "Cà phê ủ lạnh"],
+  "Cookie đá xay": ["Cookie đá xay", "Oreo đá xay", "Freeze bánh quy", "Bánh quy kem đá xay"],
+  "Cà phê muối": ["Cà phê muối", "Cafe muối"],
+  "Cà phê cốt dừa": ["Cà phê cốt dừa", "Cafe cốt dừa"],
+  "Matcha đá xay": ["Matcha đá xay", "Freeze matcha", "Matcha đá xay kem"],
+  "Sô cô la đá xay": ["Sô cô la đá xay", "Socola đá xay", "Freeze socola", "Chocolate đá xay"],
+  "Sữa tươi trân châu đường đen": ["Sữa tươi trân châu đường đen", "Đường đen"],
+  "Trà sen vàng": ["Trà sen vàng", "Trà hạt sen", "Trà sen"],
+};
 
 // ============================================================================
 // DANH MỤC CÁC MÓN NƯỚC THEO NHÓM
@@ -171,7 +185,7 @@ export const DRINK_GROUPS = {
     "Cà phê muối",
     "Cà phê cốt dừa",
     "Cà phê trứng",
-    "Cà phê ủ lạnh",
+    "Cold Brew",
     "Latte",
     "Cappuccino",
     "Americano",
@@ -229,7 +243,7 @@ export const DRINK_GROUPS = {
     "Sinh tố dưa gang",
     "Matcha đá xay",
     "Sô cô la đá xay",
-    "Bánh quy kem đá xay",
+    "Cookie đá xay",
   ],
   traditional: [
     "Rau má đậu xanh",
@@ -512,6 +526,7 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
   let newlyDiscoveredCount = 0;
   let alreadyExistingCount = 0;
   let rateLimitDetected = false;
+  let currentDistrictAnchor = null;
 
   page.on("response", async (response) => {
     const url = response.url();
@@ -576,8 +591,13 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
             item.review_count ??
             0,
           );
-          if (ratingCount < 500) {
-            continue; // Bỏ qua quán dưới 500 lượt đánh giá
+          if (ratingCount < 100) {
+            continue; // Bỏ qua quán dưới 100 lượt đánh giá (đã hạ từ 500 để đón nhận các quán độc lập/specialty)
+          }
+
+          const avgRating = Number(item.rating?.avg || item.avg_rating || item.rating || 4.5);
+          if (avgRating < 4.0) {
+            continue; // Đảm bảo chất lượng >= 4.0 sao
           }
 
           const deliveryId = Number(rawId);
@@ -597,23 +617,28 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
           let district = (item.district_name || item.district || "").trim();
           if (!district && address) {
             for (const d of city.districts) {
-              if (address.toLowerCase().includes(d.toLowerCase())) {
-                district = d;
+              const dName = typeof d === "string" ? d : d.name;
+              if (address.toLowerCase().includes(dName.toLowerCase())) {
+                district = dName;
                 break;
               }
             }
           }
+          if (!district && currentDistrictAnchor) {
+            district = typeof currentDistrictAnchor === "string" ? currentDistrictAnchor : currentDistrictAnchor.name;
+          }
+          const defaultDistrictName = typeof city.districts[0] === "string" ? city.districts[0] : city.districts[0].name;
 
           const spotData = {
             id: recordId,
             delivery_id: deliveryId,
             name,
             address,
-            district: district || city.districts[0],
+            district: district || defaultDistrictName,
             city: city.slug,
             lat: Number(lat.toFixed(6)),
             lng: Number(lng.toFixed(6)),
-            rating: Number(item.rating?.avg || item.avg_rating || item.rating || 4.5),
+            rating: avgRating,
             rating_count: ratingCount,
             original_url: restaurantUrl,
             isNew: !isAlreadyInDb,
@@ -691,7 +716,7 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
       }
     }
 
-    // Mở Rộng Theo Quận (District Query Expansion)
+    // Mở Rộng Theo Quận (District Geolocation Anchor Coordinates & Search Aliases Matrix)
     const DISTRICT_EXPANSION_THRESHOLD = 50;
     const shouldExpandByDistrict =
       (city.slug === "da-nang" || sessionSpots.size < DISTRICT_EXPANSION_THRESHOLD) &&
@@ -700,39 +725,64 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
 
     if (shouldExpandByDistrict && !rateLimitDetected) {
       console.log(
-        `     🔍 Kích hoạt Mở Rộng Theo Quận cho [${city.name}] (${sessionSpots.size} quán < ${DISTRICT_EXPANSION_THRESHOLD} quán)...`
+        `     🔍 Kích hoạt Mở Rộng Theo Quận (Tọa độ GPS Anchor & Ma trận từ khóa) cho [${city.name}] (${sessionSpots.size} quán < ${DISTRICT_EXPANSION_THRESHOLD} quán)...`
       );
 
-      for (const district of city.districts) {
+      // Lấy danh sách từ khóa tìm kiếm (từ khóa chính + ma trận từ khóa đồng nghĩa)
+      const aliases = DRINK_SEARCH_ALIASES[drinkName] || [];
+      const searchTerms = [drinkName, ...aliases.filter((a) => a.toLowerCase() !== drinkName.toLowerCase())];
+
+      for (const districtObj of city.districts) {
         if (rateLimitDetected) break;
 
-        const districtQuery = `${drinkName} ${district}`;
-        const districtUrl = `https://shopeefood.vn/${city.slug}/danh-sach-dia-diem-giao-tan-noi?q=${encodeURIComponent(
-          districtQuery,
-        )}`;
+        currentDistrictAnchor = districtObj;
+        const districtName = typeof districtObj === "string" ? districtObj : districtObj.name;
+        const districtLat = districtObj.lat;
+        const districtLng = districtObj.lng;
 
-        const beforeCount = sessionSpots.size;
-        try {
-          const districtResponsePromise = page
-            .waitForResponse(
-              (res) => res.url().includes("delivery/get_infos") && res.status() === 200,
-              { timeout: 8000 },
-            )
-            .catch(() => null);
+        // Cập nhật Geolocation GPS cho context tại tâm quận
+        if (districtLat && districtLng) {
+          await context.setGeolocation({ latitude: districtLat, longitude: districtLng });
+        }
 
-          await page.goto(districtUrl, {
-            waitUntil: "domcontentloaded",
-            timeout: 25000,
-          });
-          await districtResponsePromise;
-          await randomDelay(isFastMode ? 0.8 : 1.5, isFastMode ? 1.5 : 2.5);
+        // Với mỗi quận, quét từ khóa chính và các từ khóa đồng nghĩa nếu cần
+        for (const term of searchTerms) {
+          if (rateLimitDetected) break;
 
-          const addedInDistrict = sessionSpots.size - beforeCount;
-          console.log(
-            `        └─ [Quận ${district}]: +${addedInDistrict} quán mới (Tổng tích lũy: ${sessionSpots.size} quán)`,
-          );
-        } catch (errDistrict) {
-          console.warn(`        ⚠️ Bỏ qua quận ${district}: ${errDistrict.message}`);
+          const beforeCount = sessionSpots.size;
+          const districtUrl = `https://shopeefood.vn/${city.slug}/danh-sach-dia-diem-giao-tan-noi?q=${encodeURIComponent(
+            term,
+          )}`;
+
+          try {
+            const districtResponsePromise = page
+              .waitForResponse(
+                (res) => res.url().includes("delivery/get_infos") && res.status() === 200,
+                { timeout: 8000 },
+              )
+              .catch(() => null);
+
+            await page.goto(districtUrl, {
+              waitUntil: "domcontentloaded",
+              timeout: 25000,
+            });
+            await districtResponsePromise;
+            await randomDelay(isFastMode ? 0.8 : 1.5, isFastMode ? 1.5 : 2.5);
+
+            const addedInDistrict = sessionSpots.size - beforeCount;
+            if (addedInDistrict > 0) {
+              console.log(
+                `        └─ [${districtName} | GPS: ${districtLat?.toFixed(4)},${districtLng?.toFixed(4)} | "${term}"]: +${addedInDistrict} quán mới (Tổng: ${sessionSpots.size} quán)`,
+              );
+            }
+          } catch (errDistrict) {
+            console.warn(`        ⚠️ Bỏ qua quận ${districtName} ("${term}"): ${errDistrict.message}`);
+          }
+
+          // Tiết kiệm request: Nếu từ khóa chính đã mang về >= 5 quán mới từ quận này thì chuyển sang quận tiếp theo
+          if (sessionSpots.size - beforeCount >= 5 && searchTerms.length > 1) {
+            break;
+          }
         }
       }
     }
