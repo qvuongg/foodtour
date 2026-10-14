@@ -709,7 +709,7 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
     }
 
     // Mở Rộng Theo Quận (District Geolocation Anchor Coordinates & Search Aliases Matrix)
-    const DISTRICT_EXPANSION_THRESHOLD = 50;
+    const DISTRICT_EXPANSION_THRESHOLD = 200;
     const shouldExpandByDistrict =
       (city.slug === "da-nang" || sessionSpots.size < DISTRICT_EXPANSION_THRESHOLD) &&
       Array.isArray(city.districts) &&
@@ -731,17 +731,18 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
         const districtName = typeof districtObj === "string" ? districtObj : districtObj.name;
         const districtLat = districtObj.lat;
         const districtLng = districtObj.lng;
+        const districtBeforeCount = sessionSpots.size;
 
         // Cập nhật Geolocation GPS cho context tại tâm quận
         if (districtLat && districtLng) {
           await context.setGeolocation({ latitude: districtLat, longitude: districtLng });
         }
 
-        // Với mỗi quận, quét từ khóa chính và các từ khóa đồng nghĩa nếu cần
+        // Với mỗi quận, quét từ khóa chính và các từ khóa đồng nghĩa cho đến khi đạt đủ mục tiêu (>= 20 quán mới mỗi quận)
         for (const term of searchTerms) {
           if (rateLimitDetected) break;
 
-          const beforeCount = sessionSpots.size;
+          const termBeforeCount = sessionSpots.size;
           const districtUrl = `https://shopeefood.vn/${city.slug}/danh-sach-dia-diem-giao-tan-noi?q=${encodeURIComponent(
             term,
           )}`;
@@ -761,18 +762,36 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
             await districtResponsePromise;
             await randomDelay(isFastMode ? 0.8 : 1.5, isFastMode ? 1.5 : 2.5);
 
-            const addedInDistrict = sessionSpots.size - beforeCount;
-            if (addedInDistrict > 0) {
+            // Nếu trang 1 chưa đủ 20 quán cho quận này và có trang 2, tiếp tục cào trang 2
+            if (sessionSpots.size - districtBeforeCount < 20 && maxPages >= 2 && !rateLimitDetected) {
+              const page2Btn = page.locator(".pagination a", { hasText: /^2$/ });
+              if ((await page2Btn.count()) > 0) {
+                const page2Promise = page
+                  .waitForResponse(
+                    (res) => res.url().includes("delivery/get_infos") && res.status() === 200,
+                    { timeout: 8000 },
+                  )
+                  .catch(() => null);
+
+                await page2Btn.first().click();
+                await page2Promise;
+                await randomDelay(isFastMode ? 0.8 : 1.5, isFastMode ? 1.5 : 2.5);
+              }
+            }
+
+            const addedInTerm = sessionSpots.size - termBeforeCount;
+            if (addedInTerm > 0) {
               console.log(
-                `        └─ [${districtName} | GPS: ${districtLat?.toFixed(4)},${districtLng?.toFixed(4)} | "${term}"]: +${addedInDistrict} quán mới (Tổng: ${sessionSpots.size} quán)`,
+                `        └─ [${districtName} | GPS: ${districtLat?.toFixed(4)},${districtLng?.toFixed(4)} | "${term}"]: +${addedInTerm} quán mới (Quận tích lũy: ${sessionSpots.size - districtBeforeCount} quán, Toàn thành phố: ${sessionSpots.size} quán)`,
               );
             }
           } catch (errDistrict) {
             console.warn(`        ⚠️ Bỏ qua quận ${districtName} ("${term}"): ${errDistrict.message}`);
           }
 
-          // Tiết kiệm request: Nếu từ khóa chính đã mang về >= 5 quán mới từ quận này thì chuyển sang quận tiếp theo
-          if (sessionSpots.size - beforeCount >= 5 && searchTerms.length > 1) {
+          // Tiết kiệm request & WAF: Khi quận đã đạt đủ >= 20 quán mới thì chuyển sang quận tiếp theo
+          const totalAddedForDistrict = sessionSpots.size - districtBeforeCount;
+          if (totalAddedForDistrict >= 20 && searchTerms.length > 1) {
             break;
           }
         }
@@ -785,6 +804,14 @@ async function crawlDrinkInCity(context, drinkName, city, dbState, maxPages, isF
   }
 
   const allSpots = Array.from(sessionSpots.values());
+  // Ưu tiên các quán có nhiều lượt đánh giá nhất (rating_count giảm dần) và rating cao nhất
+  allSpots.sort((a, b) => {
+    if ((b.rating_count || 0) !== (a.rating_count || 0)) {
+      return (b.rating_count || 0) - (a.rating_count || 0);
+    }
+    return (b.rating || 0) - (a.rating || 0);
+  });
+
   console.log(`     ✅ Kết quả [${city.name}]: ${allSpots.length} quán (Cũ: ${alreadyExistingCount}, ✨ Mới: ${newlyDiscoveredCount})`);
   return allSpots;
 }
